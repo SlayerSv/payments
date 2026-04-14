@@ -3,7 +3,7 @@ package repo
 import (
 	"embed"
 
-	"github.com/SlayerSv/payments/pkg/migrations"
+	"github.com/SlayerSv/payments/internal/shared/migrations"
 )
 
 //go:embed migrations

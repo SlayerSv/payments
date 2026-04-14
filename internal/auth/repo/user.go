@@ -8,7 +8,7 @@ import (
 )
 
 type User interface {
-	Create(ctx context.Context, user models.User) (uuid.UUID, error)
+	Create(ctx context.Context, email string) (uuid.UUID, error)
 	Get(ctx context.Context, id uuid.UUID) (models.User, error)
 	GetByEmail(ctx context.Context, email string) (models.User, error)
 	UpdateName(ctx context.Context, id uuid.UUID, newName string) (models.User, error)

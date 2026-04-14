@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/SlayerSv/payments/internal/auth/models"
-	"github.com/SlayerSv/payments/pkg/errs"
+	"github.com/SlayerSv/payments/internal/shared/errs"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,10 +18,10 @@ func NewUser(pool *pgxpool.Pool) *User {
 	return &User{pool: pool}
 }
 
-func (r *User) CreateUser(ctx context.Context, u *models.User) (uuid.UUID, error) {
-	query := `INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id`
+func (r *User) CreateUser(ctx context.Context, email string) (uuid.UUID, error) {
+	query := `INSERT INTO users (email) VALUES ($1) RETURNING id`
 	var id uuid.UUID
-	err := r.pool.QueryRow(ctx, query, u.Email, u.PasswordHash).Scan(&id)
+	err := r.pool.QueryRow(ctx, query, email).Scan(&id)
 	return id, errs.WrapErr(err)
 }
 
