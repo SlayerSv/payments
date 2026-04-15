@@ -6,6 +6,7 @@ import (
 	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/auth/repo"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -33,7 +34,11 @@ func (us *User) UpdateName(ctx context.Context, id uuid.UUID, newName string) (m
 }
 
 func (us *User) UpdatePassword(ctx context.Context, id uuid.UUID, newPassword string) (models.User, error) {
-	return us.DB.UpdatePassword(ctx, id, newPassword)
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return models.User{}, err
+	}
+	return us.DB.UpdatePassword(ctx, id, string(hashedPass))
 }
 
 func (us *User) Delete(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {

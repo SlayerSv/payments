@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	NotFound       = errors.New("not found")
-	AlreadyExists  = errors.New("already exists")
-	Internal       = errors.New("internal server error")
-	IncorrectEmail = errors.New("incorrect email")
+	NotFound           = errors.New("not found")
+	AlreadyExists      = errors.New("already exists")
+	Internal           = errors.New("internal server error")
+	IncorrectEmail     = errors.New("incorrect email")
+	InvalidCredentials = errors.New("invalid credentials")
 )
 
 func WrapErr(err error) error {
