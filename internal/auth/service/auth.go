@@ -187,3 +187,24 @@ func (a *Auth) signWithOpenBao(ctx context.Context, claims jwt.Claims) (string, 
 	// Собираем итоговый JWT: header.payload.signature
 	return signingString + "." + signature, nil
 }
+
+func (a *Auth) RestorePassword(ctx context.Context, email string) error {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
+	}
+	otp, err := a.GenerateOTP()
+	if err != nil {
+		return err
+	}
+	otp.Email = email
+	_, err = a.OTP.Create(ctx, otp)
+	if err != nil {
+		return err
+	}
+	err = a.SendOTP(otp)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -13,7 +13,14 @@ var (
 	Internal           = errors.New("internal server error")
 	IncorrectEmail     = errors.New("incorrect email")
 	InvalidCredentials = errors.New("invalid credentials")
+	BadRequest         = errors.New("bad request")
+	Unauthorized       = errors.New("unauthorized")
+	Forbidden          = errors.New("forbidden")
 )
+
+type Response struct {
+	Error string `json:"error"`
+}
 
 func WrapErr(err error) error {
 	if err == nil {
