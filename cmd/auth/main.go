@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	pb "github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/auth/grpcserver"
@@ -21,7 +22,7 @@ import (
 func main() {
 	godotenv.Load()
 	// Строка подключения: postgres://пользователь:пароль@хост:порт/база_данных
-	connStr := "postgres://postgres:svetaz@localhost:5432/auth"
+	connStr := os.Getenv("AUTH_DB_CONN")
 
 	// 1. Создаем пул соединений
 	dbpool, err := pgxpool.New(context.Background(), connStr)
