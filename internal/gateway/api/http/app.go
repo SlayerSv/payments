@@ -1,13 +1,14 @@
 package app
 
 import (
+	"crypto"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
+	"github.com/SlayerSv/payments/internal/gateway/clients"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/golang-jwt/jwt/v5"
@@ -15,14 +16,14 @@ import (
 )
 
 type App struct {
-	Log       logger.Logger
-	Server    *http.Server
-	jwtSecret []byte
+	Log     logger.Logger
+	Server  *http.Server
+	jwtkey  crypto.PublicKey
+	Clients *clients.Clients
 }
 
-func NewApp(logger logger.Logger, server *http.Server) *App {
-	jwt := os.Getenv("JWT_SECRET")
-	return &App{Log: logger, Server: server, jwtSecret: []byte(jwt)}
+func NewApp(logger logger.Logger, server *http.Server, jwtkey crypto.PublicKey, clients *clients.Clients) *App {
+	return &App{Log: logger, Server: server, jwtkey: jwtkey, Clients: clients}
 }
 
 func (app *App) ErrorJSON(w http.ResponseWriter, r *http.Request, err error) {

@@ -38,26 +38,30 @@ func (a *Auth) Register(ctx context.Context, email string) error {
 	if err != nil {
 		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
 	}
+	fmt.Println("parsed")
 	otp, err := a.GenerateOTP()
 	if err != nil {
 		return err
 	}
+	fmt.Println("generated", otp)
 	otp.Email = email
 	_, err = a.Auth.Register(ctx, otp)
 	if err != nil {
 		return err
 	}
+	fmt.Println("registered")
 	err = a.SendOTP(otp)
 	if err != nil {
 		return err
 	}
+	fmt.Println("sent")
 	return nil
 }
 
 func (a *Auth) Login(ctx context.Context, email, password string) (string, error) {
 	user, err := a.User.GetByEmail(ctx, email)
 	if err != nil {
-		return "", errs.InvalidCredentials
+		return "", fmt.Errorf("%v: error getting user: %v", errs.InvalidCredentials, err)
 	}
 	loggedIn := false
 	if user.PasswordHash != nil {
@@ -69,13 +73,13 @@ func (a *Auth) Login(ctx context.Context, email, password string) (string, error
 	if !loggedIn {
 		otp, err := a.OTP.Get(ctx, email)
 		if err != nil {
-			return "", errs.InvalidCredentials
+			return "", fmt.Errorf("%v: error getting otp: %v", errs.InvalidCredentials, err)
 		}
 		codeMatch := subtle.ConstantTimeCompare([]byte(password), []byte(otp.Code)) == 1
 		if !codeMatch || time.Now().After(otp.ExpiresAt) {
-			return "", errs.InvalidCredentials
+			return "", fmt.Errorf("%v: otp doesnt match or expired: %v", errs.InvalidCredentials, err)
 		}
-		go a.OTP.Delete(ctx, email)
+		a.OTP.Delete(ctx, email)
 	}
 	claims := jwt.RegisteredClaims{
 		Subject:   user.ID.String(),
@@ -83,7 +87,7 @@ func (a *Auth) Login(ctx context.Context, email, password string) (string, error
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 15)),
 	}
-	tokenString, err := a.signWithOpenBao(ctx, claims)
+	tokenString, err := a.signWithOpenBao(claims)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
 	}
@@ -91,9 +95,34 @@ func (a *Auth) Login(ctx context.Context, email, password string) (string, error
 	return tokenString, nil
 }
 
+func (a *Auth) Restore(ctx context.Context, email string) error {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
+	}
+	fmt.Println("parsed")
+	otp, err := a.GenerateOTP()
+	if err != nil {
+		return err
+	}
+	fmt.Println("generated", otp)
+	otp.Email = email
+	_, err = a.OTP.Create(ctx, otp)
+	if err != nil {
+		return err
+	}
+	fmt.Println("saved")
+	err = a.SendOTP(otp)
+	if err != nil {
+		return err
+	}
+	fmt.Println("sent")
+	return nil
+}
+
 func (a *Auth) GenerateOTP() (models.OTP, error) {
 	otp := models.OTP{}
-	b := make([]byte, 10)
+	b := make([]byte, 3)
 	if _, err := rand.Read(b); err != nil {
 		return otp, err
 	}
@@ -105,10 +134,11 @@ func (a *Auth) GenerateOTP() (models.OTP, error) {
 
 func (a *Auth) SendOTP(otp models.OTP) error {
 	smtpHost := "smtp.mail.ru"
-	from := "smartbuy.store@mail.ru"
+	from := "payments.system@mail.ru"
 	password := os.Getenv("SMTP_PASSWORD")
+	fmt.Println("pass: ", password)
 	smtpPort := "465"
-	subject := "Smartbuy temporary password"
+	subject := "Пароль для входа в платежную систему"
 	body := "Ваш одноразовый пароль для входа в систему: " + otp.Code +
 		"\nДействителен до: " + otp.ExpiresAt.String() +
 		"\nПосле входа в систему поменяйте пароль в личном кабинете"
@@ -159,33 +189,38 @@ func (a *Auth) SendOTP(otp models.OTP) error {
 	return client.Quit()
 }
 
-func (a *Auth) signWithOpenBao(ctx context.Context, claims jwt.Claims) (string, error) {
-	// Создаем заголовок и полезную нагрузку
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+func (a *Auth) signWithOpenBao(claims jwt.Claims) (string, error) {
+	// 1. Используем EdDSA
+	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 
-	// Нам нужна часть токена без подписи (header.payload)
 	signingString, err := token.SigningString()
 	if err != nil {
 		return "", err
 	}
-	// Отправляем в OpenBao на подпись
-	// В OpenBao Transit это запрос: POST /v1/transit/sign/my-key-name
-	// Payload: { "input": "base64_encoded_signing_string" }
-	// Хранилище Transit ожидает данные в base64
+
 	inputBase64 := base64.StdEncoding.EncodeToString([]byte(signingString))
-	data := map[string]interface{}{
+	data := map[string]any{
 		"input": inputBase64,
 	}
-	// Путь: transit/sign/{имя_ключа}
-	secret, err := a.SecretClient.Logical().Write("transit/sign/jwt-key", data)
+
+	secret, err := a.SecretClient.Logical().Write("transit/sign/jwt_key", data)
 	if err != nil {
 		return "", err
 	}
-	// Bao вернет подпись в формате vault:v1:BASE64_SIGNATURE
+
+	// Vault возвращает строку вида "vault:v1:<base64_signature>"
 	vaultSignature := secret.Data["signature"].(string)
-	signature := strings.TrimPrefix(vaultSignature, "vault:v1:")
-	// Собираем итоговый JWT: header.payload.signature
-	return signingString + "." + signature, nil
+	rawB64Sig := strings.TrimPrefix(vaultSignature, "vault:v1:")
+
+	// 2. Декодируем стандартный Base64 от Vault
+	sigBytes, err := base64.StdEncoding.DecodeString(rawB64Sig)
+	if err != nil {
+		return "", err
+	}
+
+	// Для Ed25519 sigBytes — это ВСЕГДА ровно 64 байта чистой подписи.
+	// Просто переводим в URL-safe формат для JWT.
+	return signingString + "." + base64.RawURLEncoding.EncodeToString(sigBytes), nil
 }
 
 func (a *Auth) RestorePassword(ctx context.Context, email string) error {

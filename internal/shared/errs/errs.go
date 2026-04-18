@@ -2,6 +2,7 @@ package errs
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -28,15 +29,15 @@ func WrapErr(err error) error {
 	}
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return NotFound
+		return fmt.Errorf("%w: %w", NotFound, err)
 	}
 
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
 		case "23505": // unique_violation
-			return AlreadyExists
+			return fmt.Errorf("%w: %w", AlreadyExists, err)
 		}
 	}
-	return Internal
+	return fmt.Errorf("%w: %w", Internal, err)
 }

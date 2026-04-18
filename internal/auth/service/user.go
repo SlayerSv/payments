@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto"
 
 	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/auth/repo"
@@ -10,11 +11,12 @@ import (
 )
 
 type User struct {
-	DB repo.User
+	DB     repo.User
+	jwtkey crypto.PublicKey
 }
 
-func NewUser(db repo.User) *User {
-	return &User{DB: db}
+func NewUser(db repo.User, jwtkey crypto.PublicKey) *User {
+	return &User{DB: db, jwtkey: jwtkey}
 }
 
 func (us *User) Create(ctx context.Context, email string) (uuid.UUID, error) {
@@ -27,6 +29,24 @@ func (us *User) Get(ctx context.Context, id uuid.UUID) (models.User, error) {
 
 func (us *User) GetByEmail(ctx context.Context, email string) (models.User, error) {
 	return us.DB.GetByEmail(ctx, email)
+}
+
+func (us *User) UpdateUser(ctx context.Context, id uuid.UUID, newName, newPassword *string) (models.User, error) {
+	user := models.User{}
+	var err error
+	if newName != nil {
+		user, err = us.UpdateName(ctx, id, *newName)
+		if err != nil {
+			return user, err
+		}
+	}
+	if newPassword != nil {
+		user, err = us.UpdatePassword(ctx, id, *newPassword)
+		if err != nil {
+			return user, err
+		}
+	}
+	return user, err
 }
 
 func (us *User) UpdateName(ctx context.Context, id uuid.UUID, newName string) (models.User, error) {

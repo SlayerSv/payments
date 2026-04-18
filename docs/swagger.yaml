@@ -1,0 +1,163 @@
+basePath: /
+definitions:
+  app.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  app.OTPRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  app.RegisterRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  app.UpdateUser:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  errs.Response:
+    properties:
+      error:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API Server for Payments system
+  termsOfService: http://swagger.io/terms/
+  title: Payments API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and signs a JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: email&password
+        required: true
+        schema:
+          $ref: '#/definitions/app.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errs.Response'
+      summary: User Login
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and sends a one time password to the
+        user's email
+      parameters:
+      - description: Email of the user
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/app.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      summary: Register User
+      tags:
+      - auth
+  /users:
+    patch:
+      consumes:
+      - application/json
+      description: Updates user (name, password).
+      parameters:
+      - description: New name and/or password
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      security:
+      - BearerAuth: []
+      summary: Updates user
+      tags:
+      - users
+  /users/restore:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Email of a user
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/app.OTPRequest'
+      responses:
+        "204":
+          description: No Content
+      security:
+      - BearerAuth: []
+      summary: Creates a one-time password for a user with a certain email, saves
+        it to a database and sends to the user
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -8,10 +8,9 @@ import (
 	"net/http"
 	"runtime/debug"
 	"strings"
-	"time"
 
 	"github.com/SlayerSv/payments/internal/shared/errs"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 )
 
 type contextKey string
@@ -52,37 +51,7 @@ func (app *App) Auth(next http.HandlerFunc) http.HandlerFunc {
 			app.ErrorJSON(w, r, fmt.Errorf("%w: missing token(%s)", errs.Unauthorized, tokenStr))
 			return
 		}
-		claims := &jwt.RegisteredClaims{}
-		token, err := jwt.ParseWithClaims(tokenStrTrim, claims, func(t *jwt.Token) (any, error) {
-			if _, ok := t.Method.(*jwt.SigningMethodECDSA); !ok {
-				return nil, fmt.Errorf("%w: unexpected signing method: %v",
-					errs.Unauthorized, t.Header["alg"])
-			}
-			return app.jwtSecret, nil
-		})
-		if err != nil {
-			app.ErrorJSON(w, r, fmt.Errorf("%w: error parsing token: %w", errs.Unauthorized, err))
-			return
-		}
-		if !token.Valid {
-			app.ErrorJSON(w, r, fmt.Errorf("%w: invalid token", errs.Unauthorized))
-			return
-		}
-		iss, err := claims.GetIssuer()
-		if err != nil || iss != "Payments" {
-			app.ErrorJSON(w, r, fmt.Errorf("%w: invalid issuer %s", errs.Unauthorized, iss))
-			return
-		}
-		exp, err := claims.GetExpirationTime()
-		if err != nil {
-			app.ErrorJSON(w, r, fmt.Errorf("%w: error getting expiration date: %w", errs.Unauthorized, err))
-			return
-		}
-		if time.Now().After(exp.Time) {
-			app.ErrorJSON(w, r, fmt.Errorf("%w: token expired at %s", errs.Unauthorized, exp.Time.String()))
-			return
-		}
-		ctx := context.WithValue(r.Context(), ClaimsKey, claims)
+		ctx := context.WithValue(r.Context(), jwttoken.JWTKey, tokenStrTrim)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

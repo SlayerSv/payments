@@ -1,0 +1,41 @@
+syntax = "proto3";
+package auth;
+option go_package = "github.com/SlayerSv/payments/gen/auth";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+    rpc UpdateUser (UpdateUserRequest) returns (UserResponse);
+}
+
+message UpdateUserRequest {
+    string user_id = 1;
+    optional string new_name = 2;
+    optional string new_password = 3;
+}
+
+message UserResponse {
+    string id = 1;
+    string email = 2;
+    string name = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
+
+service AuthService {
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Restore (RestoreRequest) returns (RestoreResponse);
+}
+
+message RestoreRequest { string email = 1; }
+message RestoreResponse { string status = 1; }
+
+message RegisterRequest { string email = 1; }
+message RegisterResponse { string status = 1; }
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+message LoginResponse { string token = 1; }

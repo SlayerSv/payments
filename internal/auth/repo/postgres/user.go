@@ -18,14 +18,22 @@ func NewUser(pool *pgxpool.Pool) *User {
 	return &User{pool: pool}
 }
 
-func (r *User) CreateUser(ctx context.Context, email string) (uuid.UUID, error) {
+func (r *User) Create(ctx context.Context, email string) (uuid.UUID, error) {
 	query := `INSERT INTO users (email) VALUES ($1) RETURNING id`
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, query, email).Scan(&id)
 	return id, errs.WrapErr(err)
 }
 
-func (r *User) GetUserByEmail(ctx context.Context, email string) (models.User, error) {
+func (r *User) Get(ctx context.Context, userID uuid.UUID) (models.User, error) {
+	u := models.User{}
+	query := `SELECT id, email, name, password_hash, created_at, updated_at FROM users WHERE id = $1`
+
+	err := r.pool.QueryRow(ctx, query, userID).Scan(&u.ID, &u.Email, &u.Name, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt)
+	return u, errs.WrapErr(err)
+}
+
+func (r *User) GetByEmail(ctx context.Context, email string) (models.User, error) {
 	u := models.User{}
 	query := `SELECT id, email, name, password_hash, created_at, updated_at FROM users WHERE email = $1`
 
@@ -33,21 +41,21 @@ func (r *User) GetUserByEmail(ctx context.Context, email string) (models.User, e
 	return u, errs.WrapErr(err)
 }
 
-func (r *User) UpdateUserName(ctx context.Context, userID uuid.UUID, newName string) (models.User, error) {
+func (r *User) UpdateName(ctx context.Context, userID uuid.UUID, newName string) (models.User, error) {
 	query := `UPDATE users SET name = $1 WHERE id = $2 RETURNING *`
 	u := models.User{}
 	err := r.pool.QueryRow(ctx, query, newName, userID).Scan(&u.ID, &u.Email, &u.Name, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt)
 	return u, errs.WrapErr(err)
 }
 
-func (r *User) UpdateUserPassword(ctx context.Context, userID uuid.UUID, newPassword string) (models.User, error) {
+func (r *User) UpdatePassword(ctx context.Context, userID uuid.UUID, newPassword string) (models.User, error) {
 	query := `UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING *`
 	u := models.User{}
 	err := r.pool.QueryRow(ctx, query, newPassword, userID).Scan(&u.ID, &u.Email, &u.Name, &u.PasswordHash, &u.CreatedAt, &u.UpdatedAt)
 	return u, errs.WrapErr(err)
 }
 
-func (r *User) DeleteUser(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
+func (r *User) Delete(ctx context.Context, id uuid.UUID) (uuid.UUID, error) {
 	var delid uuid.UUID
 	err := r.pool.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING id", id).Scan(&delid)
 	return delid, errs.WrapErr(err)
