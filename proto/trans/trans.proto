@@ -1,0 +1,50 @@
+syntax = "proto3";
+package trans;
+option go_package = "github.com/SlayerSv/payments/gen/trans";
+
+service TransService {
+    rpc Deposit (DepositRequest) returns (DepositResponse);
+    rpc Withdraw (WithdrawRequest) returns (WithdrawResponse);
+    rpc Transfer (TransferRequest) returns (TransferResponse);
+}
+
+enum account_type {
+    UNSPECIFIED = 0;
+    WALLET = 1;
+    SAVINGS = 2;
+}
+
+message DepositRequest {
+    string user_id  = 1;
+    account_type acc_type = 2;
+    int64 amount = 3;
+}
+
+message DepositResponse {
+    string status = 1;
+}
+
+message WithdrawRequest {
+    string user_id  = 1;
+    account_type acc_type = 2;
+    int64 amount = 3;
+}
+
+message WithdrawResponse {
+    string status = 1;
+}
+
+message TransferRequest {
+    string sender_id  = 1;
+    account_type sender_acc_type = 2;
+    string receiver_email = 3;
+    account_type receiver_acc_type = 4;
+    int64 amount = 5;
+}
+
+message TransferResponse {
+    string status = 1;
+}
+
+
+
