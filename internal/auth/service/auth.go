@@ -38,23 +38,19 @@ func (a *Auth) Register(ctx context.Context, email string) error {
 	if err != nil {
 		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
 	}
-	fmt.Println("parsed")
 	otp, err := a.GenerateOTP()
 	if err != nil {
 		return err
 	}
-	fmt.Println("generated", otp)
 	otp.Email = email
 	_, err = a.Auth.Register(ctx, otp)
 	if err != nil {
 		return err
 	}
-	fmt.Println("registered")
 	err = a.SendOTP(otp)
 	if err != nil {
 		return err
 	}
-	fmt.Println("sent")
 	return nil
 }
 
@@ -100,23 +96,19 @@ func (a *Auth) Restore(ctx context.Context, email string) error {
 	if err != nil {
 		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
 	}
-	fmt.Println("parsed")
 	otp, err := a.GenerateOTP()
 	if err != nil {
 		return err
 	}
-	fmt.Println("generated", otp)
 	otp.Email = email
 	_, err = a.OTP.Create(ctx, otp)
 	if err != nil {
 		return err
 	}
-	fmt.Println("saved")
 	err = a.SendOTP(otp)
 	if err != nil {
 		return err
 	}
-	fmt.Println("sent")
 	return nil
 }
 
@@ -190,7 +182,6 @@ func (a *Auth) SendOTP(otp models.OTP) error {
 }
 
 func (a *Auth) signWithOpenBao(claims jwt.Claims) (string, error) {
-	// 1. Используем EdDSA
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 
 	signingString, err := token.SigningString()

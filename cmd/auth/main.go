@@ -21,7 +21,6 @@ import (
 
 func main() {
 	godotenv.Load()
-	// Строка подключения: postgres://пользователь:пароль@хост:порт/база_данных
 	connStr := os.Getenv("AUTH_DB_CONN")
 
 	// 1. Создаем пул соединений

@@ -2,7 +2,6 @@ package grpcserver
 
 import (
 	"context"
-	"fmt"
 
 	pb "github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/auth/models"
@@ -10,7 +9,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// Твои интерфейсы бизнес-логики (Auth и User из вопроса)
 type AuthProvider interface {
 	Register(ctx context.Context, email string) error
 	Login(ctx context.Context, email, password string) (string, error)
@@ -36,7 +34,6 @@ func NewAuthServer(authLogic AuthProvider, userLogic UserProvider) *AuthServer {
 }
 
 func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	fmt.Println("received request", *req)
 	err := s.auth.Register(ctx, req.GetEmail())
 	if err != nil {
 		return nil, err
@@ -62,8 +59,6 @@ func (s *AuthServer) Restore(ctx context.Context, req *pb.RestoreRequest) (*pb.R
 
 func (a *AuthServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
 	uid, _ := uuid.Parse(ctx.Value("user_id").(string))
-	fmt.Println(uid)
-	// req.NewName и req.NewPassword в Go будут *string благодаря optional в proto
 	user, err := a.user.UpdateUser(ctx, uid, req.NewName, req.NewPassword)
 	if err != nil {
 		return nil, err
