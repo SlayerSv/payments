@@ -17,6 +17,9 @@ var (
 	BadRequest         = errors.New("bad request")
 	Unauthorized       = errors.New("unauthorized")
 	Forbidden          = errors.New("forbidden")
+	ConcurrentUpdate   = errors.New("concurrent update conflict: version mismatch")
+	InsufficientFunds  = errors.New("insufficient funds")
+	MaxRetriesReached  = errors.New("max retries reached due to high contention")
 )
 
 type Response struct {
