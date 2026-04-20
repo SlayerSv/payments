@@ -12,7 +12,6 @@ const (
 	AccountInvalid AccountType = "INVALID"
 	AccountWallet  AccountType = "WALLET"
 	AccountSavings AccountType = "SAVINGS"
-	AccountSystem  AccountType = "SYSTEM"
 )
 
 type TransactionStatus string

@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
+	pb "github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/trans/models"
 	"github.com/SlayerSv/payments/internal/trans/repository"
@@ -13,11 +14,13 @@ import (
 
 type Transaction struct {
 	repo repository.Transaction
+	user pb.UserServiceClient
 }
 
-func NewTransaction(repo repository.Transaction) *Transaction {
+func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient) *Transaction {
 	return &Transaction{
 		repo: repo,
+		user: userClient,
 	}
 }
 
@@ -66,7 +69,14 @@ func (s *Transaction) Transfer(
 	if senderAccType == models.AccountInvalid {
 		return uuid.Nil, fmt.Errorf("%w: invalid account type", errs.BadRequest)
 	}
-	var receiverID uuid.UUID
+	receiver, err := s.user.GetByEmail(ctx, &pb.GetRequest{Email: receiverEmail})
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("error getting receiver id: %w", err)
+	}
+	receiverID, err := uuid.Parse(receiver.GetId())
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("%w: error parsing user id: %w", errs.Internal, err)
+	}
 	tx := models.Transaction{
 		SenderID:     senderID,
 		SenderType:   senderAccType,
