@@ -7,20 +7,23 @@ import (
 	"github.com/google/uuid"
 
 	pb "github.com/SlayerSv/payments/gen/auth"
+	walletpb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/trans/models"
 	"github.com/SlayerSv/payments/internal/trans/repository"
 )
 
 type Transaction struct {
-	repo repository.Transaction
-	user pb.UserServiceClient
+	repo   repository.Transaction
+	user   pb.UserServiceClient
+	wallet walletpb.WalletServiceClient
 }
 
-func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient) *Transaction {
+func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient, walletClient walletpb.WalletServiceClient) *Transaction {
 	return &Transaction{
-		repo: repo,
-		user: userClient,
+		repo:   repo,
+		user:   userClient,
+		wallet: walletClient,
 	}
 }
 

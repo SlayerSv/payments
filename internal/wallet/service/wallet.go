@@ -18,21 +18,21 @@ const (
 	OutboxTopicWalletOp  = "wallet.operation.applied"
 )
 
-type WalletService struct {
+type Wallet struct {
 	repo repository.Wallet
 }
 
-func NewWalletService(repo repository.Wallet) *WalletService {
-	return &WalletService{repo: repo}
+func NewWallet(repo repository.Wallet) *Wallet {
+	return &Wallet{repo: repo}
 }
 
 // CreateWallet — регистрация нового кошелька
-func (s *WalletService) CreateWallet(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
+func (s *Wallet) CreateWallet(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
 	return s.repo.CreateAccount(ctx, ownerID)
 }
 
 // GetBalance — просто чтение
-func (s *WalletService) GetBalance(ctx context.Context, accountID uuid.UUID) (int64, error) {
+func (s *Wallet) GetBalance(ctx context.Context, accountID uuid.UUID) (int64, error) {
 	acc, err := s.repo.GetAccount(ctx, accountID)
 	if err != nil {
 		return 0, err
@@ -41,7 +41,7 @@ func (s *WalletService) GetBalance(ctx context.Context, accountID uuid.UUID) (in
 }
 
 // ProcessOperation — Изменение баланса с ретраями и идемпотентностью (ГЛАВНЫЙ МЕТОД)
-func (s *WalletService) ProcessOperation(ctx context.Context, req models.OperationRequest) (models.OperationResponse, error) {
+func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationRequest) (models.OperationResponse, error) {
 	// 1. ПРОВЕРКА ИДЕМПОТЕНТНОСТИ
 	// Если мы уже обрабатывали этот запрос (например, сеть моргнула, и клиент послал gRPC запрос еще раз),
 	// мы не списываем деньги снова, а просто отдаем сохраненный ответ.

@@ -11,16 +11,16 @@ import (
 	"github.com/SlayerSv/payments/internal/trans/models"
 )
 
-type TransactionRepo struct {
+type Transaction struct {
 	pool *pgxpool.Pool
 }
 
-func NewTransactionRepo(pool *pgxpool.Pool) *TransactionRepo {
-	return &TransactionRepo{pool: pool}
+func NewTransaction(pool *pgxpool.Pool) *Transaction {
+	return &Transaction{pool: pool}
 }
 
 // Create — Создание новой транзакции
-func (r *TransactionRepo) Create(ctx context.Context, tx models.Transaction) (uuid.UUID, error) {
+func (r *Transaction) Create(ctx context.Context, tx models.Transaction) (uuid.UUID, error) {
 	query := `
 		INSERT INTO transactions (
 			sender_id, sender_type, 
@@ -37,7 +37,7 @@ func (r *TransactionRepo) Create(ctx context.Context, tx models.Transaction) (uu
 }
 
 // GetByID — Получение одной транзакции
-func (r *TransactionRepo) GetByID(ctx context.Context, id uuid.UUID) (models.Transaction, error) {
+func (r *Transaction) GetByID(ctx context.Context, id uuid.UUID) (models.Transaction, error) {
 	query := `
 		SELECT id, sender_id, sender_type, receiver_id, receiver_type, 
 		       amount, status, created_at, updated_at 
@@ -54,7 +54,7 @@ func (r *TransactionRepo) GetByID(ctx context.Context, id uuid.UUID) (models.Tra
 
 // UpdateStatus — Обновление статуса и сообщения об ошибке
 // updated_at обновится в БД автоматически благодаря триггеру
-func (r *TransactionRepo) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus models.TransactionStatus) error {
+func (r *Transaction) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus models.TransactionStatus) error {
 	query := `
 		UPDATE transactions 
 		SET status = $1
@@ -71,7 +71,7 @@ func (r *TransactionRepo) UpdateStatus(ctx context.Context, id uuid.UUID, newSta
 }
 
 // GetHistoryByAccount — Получение истории транзакций конкретного аккаунта (и как отправителя, и как получателя)
-func (r *TransactionRepo) GetHistoryByAccount(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
+func (r *Transaction) GetHistoryByAccount(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
 	query := `
 		SELECT id, sender_id, sender_type, receiver_id, receiver_type, 
 		       amount, status, created_at, updated_at 

@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package wallet;
+
+// Укажи здесь путь, куда сгенерируются Go-файлы
+option go_package = "github.com/SlayerSv/payments/gen/wallet";
+
+service WalletService {
+  // Главный метод для транзакций (Пополнение/Списание)
+  rpc ProcessOperation(ProcessOperationRequest) returns (ProcessOperationResponse);
+  
+  // Вспомогательные методы
+  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse);
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+}
+
+// --- Process Operation ---
+message ProcessOperationRequest {
+  string idempotency_key = 1; // Уникальный ключ (txID + суффикс)
+  string transaction_id = 2;  // ID транзакции для логов/аутбокса
+  string account_id = 3;      // ID кошелька
+  int64 amount_delta = 4;     // Сумма изменения (положительная или отрицательная)
+}
+
+message ProcessOperationResponse {
+  string account_id = 1;
+  int64 new_balance = 2;
+  string status = 3;
+}
+
+message CreateWalletRequest {
+  string owner_id = 1;
+}
+
+message CreateWalletResponse {
+  string account_id = 1;
+}
+
+message GetBalanceRequest {
+  string account_id = 1;
+}
+
+message GetBalanceResponse {
+  int64 balance = 1;
+}

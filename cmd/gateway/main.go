@@ -29,11 +29,11 @@ func main() {
 		log.Fatalf("Error getting logger: %v", err)
 	}
 	server := &http.Server{
-		Addr:     ":8081",
+		Addr:     "localhost:8081",
 		ErrorLog: logger.Error,
 	}
 	config := api.DefaultConfig()
-	config.Address = "http://127.0.0.1:8200" // Адрес OpenBao
+	config.Address = "http://localhost:8200" // Адрес OpenBao
 	client, _ := api.NewClient(config)
 	client.SetToken("myroot")
 

@@ -1,4 +1,4 @@
-package grpc
+package grpcserver
 
 import (
 	"context"
@@ -12,13 +12,13 @@ import (
 	"github.com/SlayerSv/payments/internal/trans/service"
 )
 
-type TransServer struct {
+type Trans struct {
 	trans.UnimplementedTransServiceServer
-	service service.Transaction
+	service *service.Transaction
 }
 
-func NewTransServer(svc service.Transaction) *TransServer {
-	return &TransServer{service: svc}
+func NewTrans(svc *service.Transaction) *Trans {
+	return &Trans{service: svc}
 }
 
 // Вспомогательная функция для маппинга енамов
@@ -32,7 +32,7 @@ func mapProtoType(p trans.AccountType) models.AccountType {
 	return models.AccountInvalid
 }
 
-func (s *TransServer) Deposit(ctx context.Context, req *trans.DepositRequest) (*trans.DepositResponse, error) {
+func (s *Trans) Deposit(ctx context.Context, req *trans.DepositRequest) (*trans.DepositResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user_id format")
@@ -44,7 +44,7 @@ func (s *TransServer) Deposit(ctx context.Context, req *trans.DepositRequest) (*
 	return &trans.DepositResponse{Status: "ok"}, nil
 }
 
-func (s *TransServer) Withdraw(ctx context.Context, req *trans.WithdrawRequest) (*trans.WithdrawResponse, error) {
+func (s *Trans) Withdraw(ctx context.Context, req *trans.WithdrawRequest) (*trans.WithdrawResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid user_id format")
@@ -56,7 +56,7 @@ func (s *TransServer) Withdraw(ctx context.Context, req *trans.WithdrawRequest) 
 	return &trans.WithdrawResponse{Status: "ok"}, nil
 }
 
-func (s *TransServer) Transfer(ctx context.Context, req *trans.TransferRequest) (*trans.TransferResponse, error) {
+func (s *Trans) Transfer(ctx context.Context, req *trans.TransferRequest) (*trans.TransferResponse, error) {
 	senderID, err := uuid.Parse(req.SenderId)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid sender_id format")

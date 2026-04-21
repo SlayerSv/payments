@@ -38,7 +38,7 @@ func main() {
 	fmt.Println("Успешное подключение к PostgreSQL!")
 
 	config := api.DefaultConfig()
-	config.Address = "http://127.0.0.1:8200" // Адрес OpenBao
+	config.Address = "http://localhost:8200" // Адрес OpenBao
 	client, err := api.NewClient(config)
 	if err != nil {
 		log.Fatalf("Не удалось создать клиент опенбао: %v\n", err)
@@ -48,7 +48,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
-	lis, _ := net.Listen("tcp", ":50051")
+	lis, _ := net.Listen("tcp", "localhost:50051")
 
 	// Настраиваем сервер с ОДНИМ интерцептором
 	srv := grpc.NewServer(
