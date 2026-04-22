@@ -5,7 +5,7 @@ CREATE TYPE outbox_status AS ENUM ('PENDING', 'PROCESSED');
 CREATE TABLE accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID NOT NULL,
-    current_balance BIGINT NOT NULL DEFAULT 0,
+    balance BIGINT NOT NULL DEFAULT 0,
     version BIGINT NOT NULL DEFAULT 0, -- Для Optimistic Locking
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TransService_Deposit_FullMethodName  = "/trans.TransService/Deposit"
-	TransService_Withdraw_FullMethodName = "/trans.TransService/Withdraw"
-	TransService_Transfer_FullMethodName = "/trans.TransService/Transfer"
+	TransService_Deposit_FullMethodName       = "/trans.TransService/Deposit"
+	TransService_Withdraw_FullMethodName      = "/trans.TransService/Withdraw"
+	TransService_Transfer_FullMethodName      = "/trans.TransService/Transfer"
+	TransService_GetAccHistory_FullMethodName = "/trans.TransService/GetAccHistory"
 )
 
 // TransServiceClient is the client API for TransService service.
@@ -31,6 +32,7 @@ type TransServiceClient interface {
 	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositResponse, error)
 	Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*WithdrawResponse, error)
 	Transfer(ctx context.Context, in *TransferRequest, opts ...grpc.CallOption) (*TransferResponse, error)
+	GetAccHistory(ctx context.Context, in *GetAccHistoryRequest, opts ...grpc.CallOption) (*GetAccHistoryResponse, error)
 }
 
 type transServiceClient struct {
@@ -71,6 +73,16 @@ func (c *transServiceClient) Transfer(ctx context.Context, in *TransferRequest, 
 	return out, nil
 }
 
+func (c *transServiceClient) GetAccHistory(ctx context.Context, in *GetAccHistoryRequest, opts ...grpc.CallOption) (*GetAccHistoryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAccHistoryResponse)
+	err := c.cc.Invoke(ctx, TransService_GetAccHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TransServiceServer is the server API for TransService service.
 // All implementations must embed UnimplementedTransServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type TransServiceServer interface {
 	Deposit(context.Context, *DepositRequest) (*DepositResponse, error)
 	Withdraw(context.Context, *WithdrawRequest) (*WithdrawResponse, error)
 	Transfer(context.Context, *TransferRequest) (*TransferResponse, error)
+	GetAccHistory(context.Context, *GetAccHistoryRequest) (*GetAccHistoryResponse, error)
 	mustEmbedUnimplementedTransServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedTransServiceServer) Withdraw(context.Context, *WithdrawReques
 }
 func (UnimplementedTransServiceServer) Transfer(context.Context, *TransferRequest) (*TransferResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Transfer not implemented")
+}
+func (UnimplementedTransServiceServer) GetAccHistory(context.Context, *GetAccHistoryRequest) (*GetAccHistoryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAccHistory not implemented")
 }
 func (UnimplementedTransServiceServer) mustEmbedUnimplementedTransServiceServer() {}
 func (UnimplementedTransServiceServer) testEmbeddedByValue()                      {}
@@ -172,6 +188,24 @@ func _TransService_Transfer_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TransService_GetAccHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccHistoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TransServiceServer).GetAccHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TransService_GetAccHistory_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TransServiceServer).GetAccHistory(ctx, req.(*GetAccHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TransService_ServiceDesc is the grpc.ServiceDesc for TransService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var TransService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Transfer",
 			Handler:    _TransService_Transfer_Handler,
+		},
+		{
+			MethodName: "GetAccHistory",
+			Handler:    _TransService_GetAccHistory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

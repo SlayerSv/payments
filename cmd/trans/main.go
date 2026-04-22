@@ -19,7 +19,7 @@ import (
 
 func main() {
 	godotenv.Load()
-	connStr := os.Getenv("AUTH_DB_CONN")
+	connStr := os.Getenv("TRANS_DB_CONN")
 
 	// 1. Создаем пул соединений
 	dbpool, err := pgxpool.New(context.Background(), connStr)

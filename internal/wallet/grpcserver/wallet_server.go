@@ -1,4 +1,4 @@
-package grpc
+package grpcserver
 
 import (
 	"context"
@@ -7,26 +7,26 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
-	pb "github.com/SlayerSv/payments/gen/wallet" // Импорт сгенерированного кода
+	pb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/wallet/models"
-	"github.com/SlayerSv/payments/internal/wallet/service" // Наша бизнес-лоinternal/wallet/service
+	"github.com/SlayerSv/payments/internal/wallet/service"
 )
 
-// Wallet реализует сгенерированный интерфейс WalletServiceServer
 type Wallet struct {
 	pb.UnimplementedWalletServiceServer
-	walletService service.Wallet
+	walletService *service.Wallet
 }
 
-func NewWallet(ws service.Wallet) *Wallet {
+func NewWallet(ws *service.Wallet) *Wallet {
 	return &Wallet{
 		walletService: ws,
 	}
 }
 
-// ProcessOperation — тот самый метод, в который будет стучаться сервис Транзакций
 func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationRequest) (*pb.ProcessOperationResponse, error) {
 	// 1. Валидация и парсинг UUID
 	txID, err := uuid.Parse(req.TransactionId)
@@ -70,7 +70,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 
 	// 4. Возвращаем успешный ответ
 	return &pb.ProcessOperationResponse{
-		AccountId:  resp.AccountID.String(),
+		Id:         resp.AccountID.String(),
 		NewBalance: resp.NewBalance,
 		Status:     resp.Status,
 	}, nil
@@ -93,20 +93,56 @@ func (s *Wallet) CreateWallet(ctx context.Context, req *pb.CreateWalletRequest) 
 	}, nil
 }
 
-// GetBalance — узнать текущий баланс
-func (s *Wallet) GetBalance(ctx context.Context, req *pb.GetBalanceRequest) (*pb.GetBalanceResponse, error) {
-	accID, err := uuid.Parse(req.AccountId)
+func (s *Wallet) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
+	accID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
 	}
 
-	balance, err := s.walletService.GetBalance(ctx, accID)
+	acc, err := s.walletService.GetAccount(ctx, accID)
 	if err != nil {
-		// Здесь можно добавить проверку: если кошелек не найден, возвращать codes.NotFound
-		return nil, status.Errorf(codes.Internal, "failed to get balance: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get account: %v", err)
+	}
+	return &pb.GetAccountResponse{
+		Account: toPbAccount(acc),
+	}, nil
+}
+
+func (s *Wallet) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*pb.GetAccountsResponse, error) {
+	ownerID, err := uuid.Parse(req.GetOwnerId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 
-	return &pb.GetBalanceResponse{
-		Balance: balance,
-	}, nil
+	accs, err := s.walletService.GetAccounts(ctx, ownerID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get accounts: %v", err)
+	}
+	resp := &pb.GetAccountsResponse{}
+	for _, acc := range accs {
+		resp.Accounts = append(resp.Accounts, toPbAccount(acc))
+	}
+	return resp, nil
+}
+
+func (s *Wallet) DeleteAccount(ctx context.Context, req *pb.DeleteAccountRequest) (*emptypb.Empty, error) {
+	accID, err := uuid.Parse(req.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
+	}
+
+	err = s.walletService.DeleteAccount(ctx, accID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to delete account: %v", err)
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func toPbAccount(acc models.Account) *pb.Account {
+	return &pb.Account{
+		Id:       acc.ID.String(),
+		OwnerId:  acc.OwnerID.String(),
+		Balance:  acc.Balance,
+		CreateAt: timestamppb.New(acc.CreatedAt),
+	}
 }

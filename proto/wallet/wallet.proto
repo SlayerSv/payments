@@ -5,13 +5,16 @@ package wallet;
 // Укажи здесь путь, куда сгенерируются Go-файлы
 option go_package = "github.com/SlayerSv/payments/gen/wallet";
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
 service WalletService {
-  // Главный метод для транзакций (Пополнение/Списание)
+  // Главный метод для транзакций (Пополнение/Списание/Перевод)
   rpc ProcessOperation(ProcessOperationRequest) returns (ProcessOperationResponse);
-  
-  // Вспомогательные методы
   rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse);
-  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+  rpc GetAccounts(GetAccountsRequest) returns (GetAccountsResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (google.protobuf.Empty);
 }
 
 // --- Process Operation ---
@@ -23,9 +26,32 @@ message ProcessOperationRequest {
 }
 
 message ProcessOperationResponse {
-  string account_id = 1;
+  string id = 1;
   int64 new_balance = 2;
   string status = 3;
+}
+
+message Account {
+  string id = 1;
+  string owner_id = 2;
+  int64 balance = 3;
+  google.protobuf.Timestamp create_at = 4;
+}
+
+message GetAccountRequest {
+  string id = 1;
+}
+
+message GetAccountResponse {
+  Account account = 1;
+}
+
+message GetAccountsRequest {
+  string owner_id = 1;
+}
+
+message GetAccountsResponse {
+  repeated Account accounts = 1;
 }
 
 message CreateWalletRequest {
@@ -36,10 +62,6 @@ message CreateWalletResponse {
   string account_id = 1;
 }
 
-message GetBalanceRequest {
-  string account_id = 1;
-}
-
-message GetBalanceResponse {
-  int64 balance = 1;
+message DeleteAccountRequest {
+  string id = 1;
 }

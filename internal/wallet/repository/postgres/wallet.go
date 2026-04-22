@@ -13,16 +13,16 @@ import (
 	"github.com/SlayerSv/payments/internal/wallet/models"
 )
 
-type WalletRepo struct {
+type Wallet struct {
 	pool *pgxpool.Pool
 }
 
-func NewWalletRepo(pool *pgxpool.Pool) *WalletRepo {
-	return &WalletRepo{pool: pool}
+func NewWallet(pool *pgxpool.Pool) *Wallet {
+	return &Wallet{pool: pool}
 }
 
 // CreateAccount — создает новый кошелек для пользователя
-func (r *WalletRepo) CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
+func (r *Wallet) CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
 	query := `INSERT INTO accounts (owner_id) VALUES ($1) RETURNING id`
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, query, ownerID).Scan(&id)
@@ -30,21 +30,45 @@ func (r *WalletRepo) CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid
 }
 
 // GetAccount — получает стейт кошелька (включая его version)
-func (r *WalletRepo) GetAccount(ctx context.Context, id uuid.UUID) (models.Account, error) {
+func (r *Wallet) GetAccount(ctx context.Context, id uuid.UUID) (models.Account, error) {
 	query := `
-		SELECT id, owner_id, current_balance, version, created_at 
+		SELECT id, owner_id, balance, version, created_at 
 		FROM accounts 
 		WHERE id = $1`
 
 	var acc models.Account
 	err := r.pool.QueryRow(ctx, query, id).Scan(
-		&acc.ID, &acc.OwnerID, &acc.CurrentBalance, &acc.Version, &acc.CreatedAt,
+		&acc.ID, &acc.OwnerID, &acc.Balance, &acc.Version, &acc.CreatedAt,
 	)
 	return acc, errs.WrapErr(err)
 }
 
+// GetAccount — получает стейт кошелька (включая его version)
+func (r *Wallet) GetAccounts(ctx context.Context, userID uuid.UUID) ([]models.Account, error) {
+	query := `
+		SELECT id, owner_id, balance, version, created_at 
+		FROM accounts 
+		WHERE owner_id = $1`
+
+	var accs []models.Account
+	rows, err := r.pool.Query(ctx, query, userID)
+	for rows.Next() {
+		var acc models.Account
+		err = rows.Scan(&acc.ID, &acc.OwnerID, &acc.Balance, &acc.Version, &acc.CreatedAt)
+		if err != nil {
+			return nil, errs.WrapErr(err)
+		}
+		accs = append(accs, acc)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, errs.WrapErr(err)
+	}
+	return accs, nil
+}
+
 // GetIdempotencyResponse — проверяет, обрабатывали ли мы уже этот запрос
-func (r *WalletRepo) GetIdempotencyResponse(ctx context.Context, key string) ([]byte, bool, error) {
+func (r *Wallet) GetIdempotencyResponse(ctx context.Context, key string) ([]byte, bool, error) {
 	query := `SELECT response_body FROM idempotency_log WHERE key = $1`
 
 	var responseBody []byte
@@ -61,7 +85,7 @@ func (r *WalletRepo) GetIdempotencyResponse(ctx context.Context, key string) ([]
 }
 
 // UpdateBalanceAtomic — сердце финтех-логики
-func (r *WalletRepo) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBalanceParams) error {
+func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBalanceParams) error {
 	// 1. Начинаем транзакцию
 	tx, err := r.pool.Begin(ctx)
 	if err != nil {
@@ -73,7 +97,7 @@ func (r *WalletRepo) UpdateBalanceAtomic(ctx context.Context, args models.Update
 	// 2. Optimistic Locking: обновляем баланс только если версия совпадает
 	updateAccQuery := `
 		UPDATE accounts 
-		SET current_balance = current_balance + $1, 
+		SET balance = balance + $1, 
 		    version = version + 1 
 		WHERE id = $2 AND version = $3`
 
@@ -125,5 +149,18 @@ func (r *WalletRepo) UpdateBalanceAtomic(ctx context.Context, args models.Update
 		return errs.WrapErr(fmt.Errorf("failed to commit tx: %w", err))
 	}
 
+	return nil
+}
+
+// DeleteAccount — удаляет кошелек пользователя
+func (r *Wallet) DeleteAccount(ctx context.Context, accountID uuid.UUID) error {
+	query := `DELETE from accounts WHERE id = $1 RETURNING id`
+	resp, err := r.pool.Exec(ctx, query, accountID)
+	if err != nil {
+		return errs.WrapErr(err)
+	}
+	if resp.RowsAffected() == 0 {
+		return errs.WrapErr(pgx.ErrNoRows)
+	}
 	return nil
 }

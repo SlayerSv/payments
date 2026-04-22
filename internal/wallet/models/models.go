@@ -7,11 +7,11 @@ import (
 )
 
 type Account struct {
-	ID             uuid.UUID
-	OwnerID        uuid.UUID
-	CurrentBalance int64
-	Version        int64
-	CreatedAt      time.Time
+	ID        uuid.UUID
+	OwnerID   uuid.UUID
+	Balance   int64
+	Version   int64
+	CreatedAt time.Time
 }
 
 type LedgerEntry struct {

@@ -91,6 +91,6 @@ func (s *Transaction) Transfer(
 	return s.repo.Create(ctx, tx)
 }
 
-func (s *Transaction) GetAccountHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
-	return s.repo.GetHistoryByAccount(ctx, accountID)
+func (s *Transaction) GetAccHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
+	return s.repo.GetAccHistory(ctx, accountID)
 }

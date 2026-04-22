@@ -2,16 +2,26 @@ syntax = "proto3";
 package trans;
 option go_package = "github.com/SlayerSv/payments/gen/trans";
 
+import "google/protobuf/timestamp.proto";
+
 service TransService {
     rpc Deposit (DepositRequest) returns (DepositResponse);
     rpc Withdraw (WithdrawRequest) returns (WithdrawResponse);
     rpc Transfer (TransferRequest) returns (TransferResponse);
+    rpc GetAccHistory (GetAccHistoryRequest) returns (GetAccHistoryResponse);
 }
 
 enum account_type {
-    UNSPECIFIED = 0;
+    ACCOUNT_UNSPECIFIED = 0;
     WALLET = 1;
     SAVINGS = 2;
+}
+
+enum operation_type {
+    OPERATION_UNSPECIFIED = 0;
+    DEPOSIT = 1;
+    WITHDRAW = 2;
+    TRANSFER = 3;
 }
 
 message DepositRequest {
@@ -46,5 +56,21 @@ message TransferResponse {
     string status = 1;
 }
 
+message GetAccHistoryRequest {
+    string user_id = 1;
+}
 
+message GetAccHistoryResponse {
+    repeated Transaction transactions = 1;
+}
 
+message Transaction {
+    string id = 1;
+    operation_type op_type = 2;
+    string sender_id = 3;
+    account_type sender_type = 4;
+    string receiver_id = 5;
+    account_type receiver_type = 6;
+    int64 amount = 7;
+    google.protobuf.Timestamp created_at = 8;
+}

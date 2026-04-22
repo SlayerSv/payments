@@ -31,13 +31,12 @@ func (s *Wallet) CreateWallet(ctx context.Context, ownerID uuid.UUID) (uuid.UUID
 	return s.repo.CreateAccount(ctx, ownerID)
 }
 
-// GetBalance — просто чтение
-func (s *Wallet) GetBalance(ctx context.Context, accountID uuid.UUID) (int64, error) {
-	acc, err := s.repo.GetAccount(ctx, accountID)
-	if err != nil {
-		return 0, err
-	}
-	return acc.CurrentBalance, nil
+func (s *Wallet) GetAccount(ctx context.Context, accountID uuid.UUID) (models.Account, error) {
+	return s.repo.GetAccount(ctx, accountID)
+}
+
+func (s *Wallet) GetAccounts(ctx context.Context, userID uuid.UUID) ([]models.Account, error) {
+	return s.repo.GetAccounts(ctx, userID)
 }
 
 // ProcessOperation — Изменение баланса с ретраями и идемпотентностью (ГЛАВНЫЙ МЕТОД)
@@ -69,7 +68,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		}
 
 		// 2.2 Бизнес-валидация: Проверка на отрицательный баланс при списании
-		newBalance := acc.CurrentBalance + req.AmountDelta
+		newBalance := acc.Balance + req.AmountDelta
 		if req.AmountDelta < 0 && newBalance < 0 {
 			return models.OperationResponse{}, errs.InsufficientFunds
 		}
@@ -123,4 +122,8 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	// 3. ЕСЛИ ИСЧЕРПАЛИ ВСЕ ПОПЫТКИ
 	// Такое бывает при огромной нагрузке (сотни конкурентных списаний с 1 кошелька в секунду).
 	return models.OperationResponse{}, errs.MaxRetriesReached
+}
+
+func (s *Wallet) DeleteAccount(ctx context.Context, accountID uuid.UUID) error {
+	return s.repo.DeleteAccount(ctx, accountID)
 }

@@ -70,8 +70,8 @@ func (r *Transaction) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus 
 	return nil
 }
 
-// GetHistoryByAccount — Получение истории транзакций конкретного аккаунта (и как отправителя, и как получателя)
-func (r *Transaction) GetHistoryByAccount(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
+// GetAccHistory — Получение истории транзакций конкретного аккаунта (и как отправителя, и как получателя)
+func (r *Transaction) GetAccHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
 	query := `
 		SELECT id, sender_id, sender_type, receiver_id, receiver_type, 
 		       amount, status, created_at, updated_at 
