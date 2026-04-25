@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/auth/models"
+	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -58,8 +59,8 @@ func (s *AuthServer) Restore(ctx context.Context, req *pb.RestoreRequest) (*pb.R
 	return &pb.RestoreResponse{Status: "ok"}, nil
 }
 
-func (a *AuthServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
-	uid, _ := uuid.Parse(ctx.Value("user_id").(string))
+func (a *AuthServer) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UserResponse, error) {
+	uid, _ := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	user, err := a.user.UpdateUser(ctx, uid, req.NewName, req.NewPassword)
 	if err != nil {
 		return nil, err
@@ -75,7 +76,7 @@ func (a *AuthServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) 
 }
 
 func (a *AuthServer) Get(ctx context.Context, req *pb.GetRequest) (*pb.UserResponse, error) {
-	uid, _ := uuid.Parse(ctx.Value("user_id").(string))
+	uid, _ := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	user, err := a.user.Get(ctx, uid)
 	if err != nil {
 		return nil, err
