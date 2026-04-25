@@ -21,7 +21,7 @@ func (app *App) NewRouter() http.Handler {
 
 	router.HandleFunc("POST /me/accounts", app.Auth(app.CreateAccount))
 	router.HandleFunc("GET /me/accounts/{account_id}", app.Auth(app.GetAccount))
-	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAccounts))
+	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAllAccounts))
 	router.HandleFunc("DELETE /me/accounts", app.Auth(app.DeleteAccount))
 
 	// router.HandleFunc("POST /me/history", app.GetAccHistory)

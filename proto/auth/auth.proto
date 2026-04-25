@@ -7,14 +7,14 @@ import "google/protobuf/timestamp.proto";
 service UserService {
     rpc Get (GetRequest) returns (UserResponse);
     rpc GetByEmail (GetByEmailRequest) returns (UserResponse);
-    rpc UpdateUser (UpdateUserRequest) returns (UserResponse);
+    rpc Update (UpdateRequest) returns (UserResponse);
 }
 
 message GetRequest { string id = 1; }
 
 message GetByEmailRequest { string email = 1; }
 
-message UpdateUserRequest {
+message UpdateRequest {
     string user_id = 1;
     optional string new_name = 2;
     optional string new_password = 3;

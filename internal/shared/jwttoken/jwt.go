@@ -11,11 +11,7 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
-type ctxKey string
-
-const JWTKey ctxKey = "jwt_token"
-
-func GetPublicKey(client *api.Client, keyName string) (ed25519.PublicKey, error) {
+func GetPublicKey(client *api.Client, keyName string) (crypto.PublicKey, error) {
 	secret, err := client.Logical().Read("transit/keys/" + keyName)
 	if err != nil {
 		return nil, err

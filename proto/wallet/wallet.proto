@@ -11,10 +11,10 @@ import "google/protobuf/empty.proto";
 service WalletService {
   // Главный метод для транзакций (Пополнение/Списание/Перевод)
   rpc ProcessOperation(ProcessOperationRequest) returns (ProcessOperationResponse);
-  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
-  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
-  rpc GetAccounts(GetAccountsRequest) returns (GetAccountsResponse);
-  rpc DeleteAccount(DeleteAccountRequest) returns (google.protobuf.Empty);
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
 }
 
 // --- Process Operation ---
@@ -38,30 +38,30 @@ message Account {
   google.protobuf.Timestamp create_at = 4;
 }
 
-message GetAccountRequest {
+message GetRequest {
   string id = 1;
 }
 
-message GetAccountResponse {
+message GetResponse {
   Account account = 1;
 }
 
-message GetAccountsRequest {
+message GetAllRequest {
   string owner_id = 1;
 }
 
-message GetAccountsResponse {
+message GetAllResponse {
   repeated Account accounts = 1;
 }
 
-message CreateAccountRequest {
+message CreateRequest {
   string owner_id = 1;
 }
 
-message CreateAccountResponse {
+message CreateResponse {
   string account_id = 1;
 }
 
-message DeleteAccountRequest {
+message DeleteRequest {
   string id = 1;
 }

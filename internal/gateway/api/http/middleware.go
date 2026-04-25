@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/SlayerSv/payments/internal/shared/errs"
-	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 )
 
 type contextKey string
@@ -51,7 +51,7 @@ func (app *App) Auth(next http.HandlerFunc) http.HandlerFunc {
 			app.ErrorJSON(w, r, fmt.Errorf("%w: missing token(%s)", errs.Unauthorized, tokenStr))
 			return
 		}
-		ctx := context.WithValue(r.Context(), jwttoken.JWTKey, tokenStrTrim)
+		ctx := context.WithValue(r.Context(), interceptors.JWTKey, tokenStrTrim)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

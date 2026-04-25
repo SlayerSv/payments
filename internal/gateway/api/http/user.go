@@ -114,7 +114,7 @@ func (app *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	body := &UpdateUser{}
 	err := json.NewDecoder(r.Body).Decode(&body)
-	resp, err := app.Clients.User.UpdateUser(ctx, &auth.UpdateUserRequest{NewName: body.Name, NewPassword: body.Password})
+	resp, err := app.Clients.User.Update(ctx, &auth.UpdateRequest{NewName: body.Name, NewPassword: body.Password})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error updating: %w", errs.Internal, err))
 		return

@@ -27,7 +27,7 @@ type AccountID struct {
 func (app *App) GetAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	accID, err := app.ExtractPathValue(r, "account_id")
-	resp, err := app.Clients.Wallet.GetAccount(ctx, &pb.GetAccountRequest{Id: accID})
+	resp, err := app.Clients.Wallet.Get(ctx, &pb.GetRequest{Id: accID})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting account: %w", errs.Internal, err))
 		return
@@ -46,9 +46,9 @@ func (app *App) GetAccount(w http.ResponseWriter, r *http.Request) {
 // @Success      200  {object}  models.AccountsResponse
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /me/accounts [get]
-func (app *App) GetAccounts(w http.ResponseWriter, r *http.Request) {
+func (app *App) GetAllAccounts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	resp, err := app.Clients.Wallet.GetAccounts(ctx, &pb.GetAccountsRequest{OwnerId: ""})
+	resp, err := app.Clients.Wallet.GetAll(ctx, &pb.GetAllRequest{OwnerId: ""})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting accounts: %w", errs.Internal, err))
 		return
@@ -72,7 +72,7 @@ func (app *App) GetAccounts(w http.ResponseWriter, r *http.Request) {
 // @Router       /me/accounts [post]
 func (app *App) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	resp, err := app.Clients.Wallet.CreateAccount(ctx, &pb.CreateAccountRequest{OwnerId: ""})
+	resp, err := app.Clients.Wallet.Create(ctx, &pb.CreateRequest{OwnerId: ""})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error creating account: %w", errs.Internal, err))
 		return
@@ -99,7 +99,7 @@ func (app *App) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error decoding request: %w", errs.BadRequest, err))
 		return
 	}
-	_, err = app.Clients.Wallet.DeleteAccount(ctx, &pb.DeleteAccountRequest{Id: req.ID})
+	_, err = app.Clients.Wallet.Delete(ctx, &pb.DeleteRequest{Id: req.ID})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error deleting account: %w", errs.Internal, err))
 		return

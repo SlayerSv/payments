@@ -110,7 +110,7 @@ func (x *GetByEmailRequest) GetEmail() string {
 	return ""
 }
 
-type UpdateUserRequest struct {
+type UpdateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	NewName       *string                `protobuf:"bytes,2,opt,name=new_name,json=newName,proto3,oneof" json:"new_name,omitempty"`
@@ -119,20 +119,20 @@ type UpdateUserRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateUserRequest) Reset() {
-	*x = UpdateUserRequest{}
+func (x *UpdateRequest) Reset() {
+	*x = UpdateRequest{}
 	mi := &file_auth_auth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateUserRequest) String() string {
+func (x *UpdateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateUserRequest) ProtoMessage() {}
+func (*UpdateRequest) ProtoMessage() {}
 
-func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_auth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -144,26 +144,26 @@ func (x *UpdateUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateUserRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRequest) Descriptor() ([]byte, []int) {
 	return file_auth_auth_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *UpdateUserRequest) GetUserId() string {
+func (x *UpdateRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
 	return ""
 }
 
-func (x *UpdateUserRequest) GetNewName() string {
+func (x *UpdateRequest) GetNewName() string {
 	if x != nil && x.NewName != nil {
 		return *x.NewName
 	}
 	return ""
 }
 
-func (x *UpdateUserRequest) GetNewPassword() string {
+func (x *UpdateRequest) GetNewPassword() string {
 	if x != nil && x.NewPassword != nil {
 		return *x.NewPassword
 	}
@@ -527,8 +527,8 @@ const file_auth_auth_proto_rawDesc = "" +
 	"GetRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\")\n" +
 	"\x11GetByEmailRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"\x92\x01\n" +
-	"\x11UpdateUserRequest\x12\x17\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"\x8e\x01\n" +
+	"\rUpdateRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1e\n" +
 	"\bnew_name\x18\x02 \x01(\tH\x00R\anewName\x88\x01\x01\x12&\n" +
 	"\fnew_password\x18\x03 \x01(\tH\x01R\vnewPassword\x88\x01\x01B\v\n" +
@@ -554,13 +554,12 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
 	"\rLoginResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\xb0\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token2\xa8\x01\n" +
 	"\vUserService\x12+\n" +
 	"\x03Get\x12\x10.auth.GetRequest\x1a\x12.auth.UserResponse\x129\n" +
 	"\n" +
-	"GetByEmail\x12\x17.auth.GetByEmailRequest\x1a\x12.auth.UserResponse\x129\n" +
-	"\n" +
-	"UpdateUser\x12\x17.auth.UpdateUserRequest\x1a\x12.auth.UserResponse2\xb2\x01\n" +
+	"GetByEmail\x12\x17.auth.GetByEmailRequest\x1a\x12.auth.UserResponse\x121\n" +
+	"\x06Update\x12\x13.auth.UpdateRequest\x1a\x12.auth.UserResponse2\xb2\x01\n" +
 	"\vAuthService\x129\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x126\n" +
@@ -582,7 +581,7 @@ var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_auth_auth_proto_goTypes = []any{
 	(*GetRequest)(nil),            // 0: auth.GetRequest
 	(*GetByEmailRequest)(nil),     // 1: auth.GetByEmailRequest
-	(*UpdateUserRequest)(nil),     // 2: auth.UpdateUserRequest
+	(*UpdateRequest)(nil),         // 2: auth.UpdateRequest
 	(*UserResponse)(nil),          // 3: auth.UserResponse
 	(*RestoreRequest)(nil),        // 4: auth.RestoreRequest
 	(*RestoreResponse)(nil),       // 5: auth.RestoreResponse
@@ -597,13 +596,13 @@ var file_auth_auth_proto_depIdxs = []int32{
 	10, // 1: auth.UserResponse.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: auth.UserService.Get:input_type -> auth.GetRequest
 	1,  // 3: auth.UserService.GetByEmail:input_type -> auth.GetByEmailRequest
-	2,  // 4: auth.UserService.UpdateUser:input_type -> auth.UpdateUserRequest
+	2,  // 4: auth.UserService.Update:input_type -> auth.UpdateRequest
 	6,  // 5: auth.AuthService.Register:input_type -> auth.RegisterRequest
 	8,  // 6: auth.AuthService.Login:input_type -> auth.LoginRequest
 	4,  // 7: auth.AuthService.Restore:input_type -> auth.RestoreRequest
 	3,  // 8: auth.UserService.Get:output_type -> auth.UserResponse
 	3,  // 9: auth.UserService.GetByEmail:output_type -> auth.UserResponse
-	3,  // 10: auth.UserService.UpdateUser:output_type -> auth.UserResponse
+	3,  // 10: auth.UserService.Update:output_type -> auth.UserResponse
 	7,  // 11: auth.AuthService.Register:output_type -> auth.RegisterResponse
 	9,  // 12: auth.AuthService.Login:output_type -> auth.LoginResponse
 	5,  // 13: auth.AuthService.Restore:output_type -> auth.RestoreResponse

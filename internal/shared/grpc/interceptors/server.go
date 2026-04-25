@@ -35,7 +35,7 @@ func ServerInterceptor(validTokens []string, publicKey crypto.PublicKey) grpc.Un
 		fmt.Println(info.FullMethod)
 		// 2. ПРОВЕРКА JWT
 		// info.FullMethod выглядит как "/auth.UserService/UpdateUser"
-		authMethods := []string{"/auth.UserService/Get", "/auth.UserService/UpdateUser", "/wallet.WalletService/GetAccount", "/wallet.WalletService/GetAccounts", "/wallet.WalletService/DeleteAccount", "/wallet.WalletService/CreateAccount"}
+		authMethods := []string{"/auth.UserService/Get", "/auth.UserService/Update", "/wallet.WalletService/Get", "/wallet.WalletService/GetAll", "/wallet.WalletService/Delete", "/wallet.WalletService/Create"}
 		if slices.Contains(authMethods, info.FullMethod) {
 			authHeader := md.Get("authentication")
 			if len(authHeader) == 0 {

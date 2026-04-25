@@ -78,7 +78,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 }
 
 // CreateWallet — регистрация кошелька
-func (s *Wallet) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
+func (s *Wallet) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
@@ -89,12 +89,12 @@ func (s *Wallet) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest
 		return nil, status.Errorf(codes.Internal, "failed to create wallet: %v", err)
 	}
 
-	return &pb.CreateAccountResponse{
+	return &pb.CreateResponse{
 		AccountId: accountID.String(),
 	}, nil
 }
 
-func (s *Wallet) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
+func (s *Wallet) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
@@ -108,12 +108,12 @@ func (s *Wallet) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get account: %v", err)
 	}
-	return &pb.GetAccountResponse{
+	return &pb.GetResponse{
 		Account: toPbAccount(acc),
 	}, nil
 }
 
-func (s *Wallet) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*pb.GetAccountsResponse, error) {
+func (s *Wallet) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllResponse, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
@@ -123,14 +123,14 @@ func (s *Wallet) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get accounts: %v", err)
 	}
-	resp := &pb.GetAccountsResponse{}
+	resp := &pb.GetAllResponse{}
 	for _, acc := range accs {
 		resp.Accounts = append(resp.Accounts, toPbAccount(acc))
 	}
 	return resp, nil
 }
 
-func (s *Wallet) DeleteAccount(ctx context.Context, req *pb.DeleteAccountRequest) (*emptypb.Empty, error) {
+func (s *Wallet) Delete(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Empty, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
