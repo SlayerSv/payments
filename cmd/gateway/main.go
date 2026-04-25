@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error getting public key %v", err)
 	}
-	clients, err := clients.InitClients("localhost:50051", "localhost:50051", "gateway")
+	clients, err := clients.InitClients("localhost:50051", "localhost:50051", "localhost:50053", "localhost:50052", "gateway")
 	if err != nil {
 		log.Fatalf("Error creating clients %v", err)
 	}

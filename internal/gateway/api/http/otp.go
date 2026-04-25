@@ -21,7 +21,7 @@ type OTPRequest struct {
 // @Accept       json
 // @Param        email body OTPRequest true "Email of a user"
 // @Success      204
-// @Router       /users/restore [post]
+// @Router       /restore [post]
 func (app *App) SendOTP(w http.ResponseWriter, r *http.Request) {
 	t := OTPRequest{}
 	err := json.NewDecoder(r.Body).Decode(&t)

@@ -11,7 +11,7 @@ import "google/protobuf/empty.proto";
 service WalletService {
   // Главный метод для транзакций (Пополнение/Списание/Перевод)
   rpc ProcessOperation(ProcessOperationRequest) returns (ProcessOperationResponse);
-  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse);
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
   rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
   rpc GetAccounts(GetAccountsRequest) returns (GetAccountsResponse);
   rpc DeleteAccount(DeleteAccountRequest) returns (google.protobuf.Empty);
@@ -54,11 +54,11 @@ message GetAccountsResponse {
   repeated Account accounts = 1;
 }
 
-message CreateWalletRequest {
+message CreateAccountRequest {
   string owner_id = 1;
 }
 
-message CreateWalletResponse {
+message CreateAccountResponse {
   string account_id = 1;
 }
 

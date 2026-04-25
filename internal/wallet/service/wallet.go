@@ -27,12 +27,12 @@ func NewWallet(repo repository.Wallet) *Wallet {
 }
 
 // CreateWallet — регистрация нового кошелька
-func (s *Wallet) CreateWallet(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
+func (s *Wallet) Create(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
 	return s.repo.CreateAccount(ctx, ownerID)
 }
 
-func (s *Wallet) GetAccount(ctx context.Context, accountID uuid.UUID) (models.Account, error) {
-	return s.repo.GetAccount(ctx, accountID)
+func (s *Wallet) GetAccount(ctx context.Context, ownerID, accountID uuid.UUID) (models.Account, error) {
+	return s.repo.GetAccount(ctx, ownerID, accountID)
 }
 
 func (s *Wallet) GetAccounts(ctx context.Context, userID uuid.UUID) ([]models.Account, error) {
@@ -62,7 +62,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	for attempt := 0; attempt < MaxOptimisticRetries; attempt++ {
 
 		// 2.1 Получаем актуальное состояние кошелька (баланс и ВЕРСИЮ)
-		acc, err := s.repo.GetAccount(ctx, req.AccountID)
+		acc, err := s.repo.GetAccount(ctx, req.OwnerID, req.AccountID)
 		if err != nil {
 			return models.OperationResponse{}, err
 		}
@@ -124,6 +124,6 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	return models.OperationResponse{}, errs.MaxRetriesReached
 }
 
-func (s *Wallet) DeleteAccount(ctx context.Context, accountID uuid.UUID) error {
-	return s.repo.DeleteAccount(ctx, accountID)
+func (s *Wallet) DeleteAccount(ctx context.Context, ownerID, accountID uuid.UUID) error {
+	return s.repo.DeleteAccount(ctx, ownerID, accountID)
 }

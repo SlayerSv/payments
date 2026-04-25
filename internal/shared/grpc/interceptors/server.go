@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func ServerInterceptor(validBaoToken string, publicKey crypto.PublicKey) grpc.UnaryServerInterceptor {
+func ServerInterceptor(validTokens []string, publicKey crypto.PublicKey) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
@@ -24,13 +25,18 @@ func ServerInterceptor(validBaoToken string, publicKey crypto.PublicKey) grpc.Un
 
 		// 1. ПРОВЕРКА SERVICE TOKEN (OPENBAO) — ВСЕГДА
 		tokens := md.Get("x-service-token")
-		if len(tokens) == 0 || tokens[0] != validBaoToken {
+		if len(tokens) == 0 {
+			return nil, status.Error(codes.PermissionDenied, "missing service token")
+		}
+		serviceToken := tokens[0]
+		if isValid := slices.Contains(validTokens, serviceToken); !isValid {
 			return nil, status.Error(codes.PermissionDenied, "invalid service token")
 		}
 		fmt.Println(info.FullMethod)
-		// 2. ПРОВЕРКА JWT — ТОЛЬКО ДЛЯ USER SERVICE
+		// 2. ПРОВЕРКА JWT
 		// info.FullMethod выглядит как "/auth.UserService/UpdateUser"
-		if strings.Contains(info.FullMethod, "UserService") {
+		authMethods := []string{"/auth.UserService/Get", "/auth.UserService/UpdateUser", "/wallet.WalletService/GetAccount", "/wallet.WalletService/GetAccounts", "/wallet.WalletService/DeleteAccount", "/wallet.WalletService/CreateAccount"}
+		if slices.Contains(authMethods, info.FullMethod) {
 			authHeader := md.Get("authentication")
 			if len(authHeader) == 0 {
 				return nil, status.Error(codes.Unauthenticated, "jwt token missing")
@@ -52,7 +58,7 @@ func ServerInterceptor(validBaoToken string, publicKey crypto.PublicKey) grpc.Un
 				return nil, fmt.Errorf("%w: token expired at %s", errs.Unauthorized, exp.Time.String())
 			}
 			sub, err := claims.GetSubject()
-			ctx = context.WithValue(ctx, "user_id", sub)
+			ctx = context.WithValue(ctx, UserID, sub)
 			return handler(ctx, req)
 		}
 		return handler(ctx, req)

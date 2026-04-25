@@ -79,6 +79,26 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 	app.Encode(w, r, resp.GetStatus())
 }
 
+// GetUser gets user's account
+// @Summary      Gets user's account information
+// @Description  Gets user`s account information (name, email).
+// @Tags         users
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.User
+// @Failure      400  {object}  errs.Response "Bad Request"
+// @Router       /me [get]
+func (app *App) GetUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	resp, err := app.Clients.User.Get(ctx, &auth.GetRequest{Id: ""})
+	if err != nil {
+		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting user: %w", errs.Internal, err))
+		return
+	}
+	app.Encode(w, r, resp)
+}
+
 // UpdateUser updates User if a user
 // @Summary      Updates user
 // @Description  Updates user (name, password).
@@ -89,7 +109,7 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 // @Param        input body UpdateUser true "New name and/or password"
 // @Success      200  {object}  models.User
 // @Failure      400  {object}  errs.Response "Bad Request"
-// @Router       /users [patch]
+// @Router       /me [patch]
 func (app *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	body := &UpdateUser{}

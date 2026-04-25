@@ -43,7 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor("gateway", nil)))
+	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor([]string{"gateway"}, nil)))
 	transpb.RegisterTransServiceServer(srv, transserv)
 	srv.Serve(lis)
 }

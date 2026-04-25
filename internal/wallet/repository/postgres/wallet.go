@@ -30,14 +30,14 @@ func (r *Wallet) CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid.UUI
 }
 
 // GetAccount — получает стейт кошелька (включая его version)
-func (r *Wallet) GetAccount(ctx context.Context, id uuid.UUID) (models.Account, error) {
+func (r *Wallet) GetAccount(ctx context.Context, ownerID, ID uuid.UUID) (models.Account, error) {
 	query := `
 		SELECT id, owner_id, balance, version, created_at 
 		FROM accounts 
-		WHERE id = $1`
+		WHERE id = $1 and owner_id = $2`
 
 	var acc models.Account
-	err := r.pool.QueryRow(ctx, query, id).Scan(
+	err := r.pool.QueryRow(ctx, query, ID, ownerID).Scan(
 		&acc.ID, &acc.OwnerID, &acc.Balance, &acc.Version, &acc.CreatedAt,
 	)
 	return acc, errs.WrapErr(err)
@@ -153,9 +153,9 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 }
 
 // DeleteAccount — удаляет кошелек пользователя
-func (r *Wallet) DeleteAccount(ctx context.Context, accountID uuid.UUID) error {
-	query := `DELETE from accounts WHERE id = $1 RETURNING id`
-	resp, err := r.pool.Exec(ctx, query, accountID)
+func (r *Wallet) DeleteAccount(ctx context.Context, ownerID, accountID uuid.UUID) error {
+	query := `DELETE from accounts WHERE id = $1 and owner_id = $2 RETURNING id`
+	resp, err := r.pool.Exec(ctx, query, accountID, ownerID)
 	if err != nil {
 		return errs.WrapErr(err)
 	}

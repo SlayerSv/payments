@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/SlayerSv/payments/internal/gateway/clients"
 	"github.com/SlayerSv/payments/internal/shared/errs"
@@ -67,14 +66,13 @@ func (app *App) Encode(w http.ResponseWriter, r *http.Request, obj any) {
 	}
 }
 
-func (app *App) ExtractPathValue(r *http.Request, pathValue string) (int, error) {
+func (app *App) ExtractPathValue(r *http.Request, pathValue string) (string, error) {
 	stringID := r.PathValue(pathValue)
-	id, err := strconv.Atoi(stringID)
-	if stringID == "" || err != nil {
-		return 0, fmt.Errorf("%w: error extracting path value(%s, %s): %w",
-			errs.BadRequest, pathValue, stringID, err)
+	if stringID == "" {
+		return "", fmt.Errorf("%w: empty path value(%s, %s)",
+			errs.BadRequest, pathValue, stringID)
 	}
-	return id, nil
+	return stringID, nil
 }
 
 func (app *App) GetClaims(r *http.Request) (userID uuid.UUID, err error) {

@@ -72,7 +72,7 @@ func (s *Transaction) Transfer(
 	if senderAccType == models.AccountInvalid {
 		return uuid.Nil, fmt.Errorf("%w: invalid account type", errs.BadRequest)
 	}
-	receiver, err := s.user.GetByEmail(ctx, &pb.GetRequest{Email: receiverEmail})
+	receiver, err := s.user.GetByEmail(ctx, &pb.GetByEmailRequest{Email: receiverEmail})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("error getting receiver id: %w", err)
 	}

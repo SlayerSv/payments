@@ -12,6 +12,7 @@ import (
 
 	pb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/errs"
+	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/wallet/models"
 	"github.com/SlayerSv/payments/internal/wallet/service"
 )
@@ -77,29 +78,33 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 }
 
 // CreateWallet — регистрация кошелька
-func (s *Wallet) CreateWallet(ctx context.Context, req *pb.CreateWalletRequest) (*pb.CreateWalletResponse, error) {
-	ownerID, err := uuid.Parse(req.OwnerId)
+func (s *Wallet) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
+	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 
-	walletID, err := s.walletService.CreateWallet(ctx, ownerID)
+	accountID, err := s.walletService.Create(ctx, ownerID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create wallet: %v", err)
 	}
 
-	return &pb.CreateWalletResponse{
-		AccountId: walletID.String(),
+	return &pb.CreateAccountResponse{
+		AccountId: accountID.String(),
 	}, nil
 }
 
 func (s *Wallet) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
+	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
+	}
 	accID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
 	}
 
-	acc, err := s.walletService.GetAccount(ctx, accID)
+	acc, err := s.walletService.GetAccount(ctx, ownerID, accID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get account: %v", err)
 	}
@@ -109,7 +114,7 @@ func (s *Wallet) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb
 }
 
 func (s *Wallet) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*pb.GetAccountsResponse, error) {
-	ownerID, err := uuid.Parse(req.GetOwnerId())
+	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
@@ -126,12 +131,16 @@ func (s *Wallet) GetAccounts(ctx context.Context, req *pb.GetAccountsRequest) (*
 }
 
 func (s *Wallet) DeleteAccount(ctx context.Context, req *pb.DeleteAccountRequest) (*emptypb.Empty, error) {
+	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
+	}
 	accID, err := uuid.Parse(req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
 	}
 
-	err = s.walletService.DeleteAccount(ctx, accID)
+	err = s.walletService.DeleteAccount(ctx, ownerID, accID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete account: %v", err)
 	}

@@ -29,6 +29,19 @@ definitions:
       error:
         type: string
     type: object
+  models.Account:
+    properties:
+      balance:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: string
+      ownerID:
+        type: string
+      version:
+        type: integer
+    type: object
   models.User:
     properties:
       created_at:
@@ -80,34 +93,27 @@ paths:
       summary: User Login
       tags:
       - auth
-  /register:
-    post:
+  /me:
+    get:
       consumes:
       - application/json
-      description: Creates a new user account and sends a one time password to the
-        user's email
-      parameters:
-      - description: Email of the user
-        in: body
-        name: email
-        required: true
-        schema:
-          $ref: '#/definitions/app.RegisterRequest'
+      description: Gets user`s account information (name, email).
       produces:
       - application/json
       responses:
-        "201":
-          description: Created
+        "200":
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/errs.Response'
-      summary: Register User
+      security:
+      - BearerAuth: []
+      summary: Gets user's account information
       tags:
-      - auth
-  /users:
+      - users
     patch:
       consumes:
       - application/json
@@ -135,7 +141,116 @@ paths:
       summary: Updates user
       tags:
       - users
-  /users/restore:
+  /me/accounts:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes wallet/savings account
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      security:
+      - BearerAuth: []
+      summary: Deletes wallet/savings account
+      tags:
+      - accounts
+    get:
+      consumes:
+      - application/json
+      description: Gets user`s all wallet/savings accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Account'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      security:
+      - BearerAuth: []
+      summary: Gets user's all wallet/savings accounts
+      tags:
+      - accounts
+    post:
+      consumes:
+      - application/json
+      description: Creates wallet/savings account
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      security:
+      - BearerAuth: []
+      summary: Creates wallet/savings account
+      tags:
+      - accounts
+  /me/accounts/{account_id}:
+    get:
+      consumes:
+      - application/json
+      description: Gets user`s wallet/savings account information.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      security:
+      - BearerAuth: []
+      summary: Gets user's wallet/savings account information
+      tags:
+      - accounts
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account and sends a one time password to the
+        user's email
+      parameters:
+      - description: Email of the user
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/app.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errs.Response'
+      summary: Register User
+      tags:
+      - auth
+  /restore:
     post:
       consumes:
       - application/json

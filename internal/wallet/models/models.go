@@ -14,6 +14,17 @@ type Account struct {
 	CreatedAt time.Time
 }
 
+type AccountResponse struct {
+	ID        string    `json:"id"`
+	OwnerID   string    `json:"owner_id"`
+	Balance   int64     `json:"balance"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type AccountsResponse struct {
+	Accounts []AccountResponse `json:"accounts"`
+}
+
 type LedgerEntry struct {
 	ID            uuid.UUID
 	AccountID     uuid.UUID
@@ -44,6 +55,7 @@ type UpdateBalanceParams struct {
 type OperationRequest struct {
 	IdempotencyKey string    // Уникальный ключ запроса (от Transaction Service)
 	TransactionID  uuid.UUID // ID транзакции для связи
+	OwnerID        uuid.UUID // ID владельца кошелька
 	AccountID      uuid.UUID // Кошелек, который меняем
 	AmountDelta    int64     // Сумма: положительная (пополнение) или отрицательная (списание)
 }

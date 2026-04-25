@@ -14,8 +14,19 @@ func (app *App) NewRouter() http.Handler {
 
 	router.HandleFunc("POST /login", app.Login)
 	router.HandleFunc("POST /register", app.Register)
-	router.HandleFunc("PATCH /users", app.Auth(app.UpdateUser))
-	router.HandleFunc("POST /users/restore", app.SendOTP)
+	router.HandleFunc("POST /restore", app.SendOTP)
+
+	router.HandleFunc("PATCH /me", app.Auth(app.UpdateUser))
+	router.HandleFunc("GET /me", app.Auth(app.GetUser))
+
+	router.HandleFunc("POST /me/accounts", app.Auth(app.CreateAccount))
+	router.HandleFunc("GET /me/accounts/{account_id}", app.Auth(app.GetAccount))
+	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAccounts))
+	router.HandleFunc("DELETE /me/accounts", app.Auth(app.DeleteAccount))
+
+	// router.HandleFunc("POST /me/history", app.GetAccHistory)
+
+	// router.HandleFunc("POST /transactions", app.Transaction)
 
 	return router
 }

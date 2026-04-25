@@ -53,7 +53,7 @@ func main() {
 	// Настраиваем сервер с ОДНИМ интерцептором
 	srv := grpc.NewServer(
 		grpc.UnaryInterceptor(
-			interceptors.ServerInterceptor("gateway", publicKey),
+			interceptors.ServerInterceptor([]string{"gateway", "trans"}, publicKey),
 		),
 	)
 	authRepo := postgres.NewAuth(dbpool)

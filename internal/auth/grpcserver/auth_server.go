@@ -16,6 +16,7 @@ type AuthProvider interface {
 }
 
 type UserProvider interface {
+	Get(ctx context.Context, id uuid.UUID) (models.User, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, name *string, pass *string) (models.User, error)
 }
 
@@ -60,6 +61,22 @@ func (s *AuthServer) Restore(ctx context.Context, req *pb.RestoreRequest) (*pb.R
 func (a *AuthServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UserResponse, error) {
 	uid, _ := uuid.Parse(ctx.Value("user_id").(string))
 	user, err := a.user.UpdateUser(ctx, uid, req.NewName, req.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UserResponse{
+		Id:        user.ID.String(),
+		Email:     user.Email,
+		Name:      *user.Name,
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+	}, nil
+}
+
+func (a *AuthServer) Get(ctx context.Context, req *pb.GetRequest) (*pb.UserResponse, error) {
+	uid, _ := uuid.Parse(ctx.Value("user_id").(string))
+	user, err := a.user.Get(ctx, uid)
 	if err != nil {
 		return nil, err
 	}

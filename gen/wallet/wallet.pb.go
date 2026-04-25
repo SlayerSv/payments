@@ -396,27 +396,27 @@ func (x *GetAccountsResponse) GetAccounts() []*Account {
 	return nil
 }
 
-type CreateWalletRequest struct {
+type CreateAccountRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OwnerId       string                 `protobuf:"bytes,1,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateWalletRequest) Reset() {
-	*x = CreateWalletRequest{}
+func (x *CreateAccountRequest) Reset() {
+	*x = CreateAccountRequest{}
 	mi := &file_wallet_wallet_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateWalletRequest) String() string {
+func (x *CreateAccountRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateWalletRequest) ProtoMessage() {}
+func (*CreateAccountRequest) ProtoMessage() {}
 
-func (x *CreateWalletRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateAccountRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_wallet_wallet_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -428,39 +428,39 @@ func (x *CreateWalletRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateWalletRequest.ProtoReflect.Descriptor instead.
-func (*CreateWalletRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateAccountRequest.ProtoReflect.Descriptor instead.
+func (*CreateAccountRequest) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *CreateWalletRequest) GetOwnerId() string {
+func (x *CreateAccountRequest) GetOwnerId() string {
 	if x != nil {
 		return x.OwnerId
 	}
 	return ""
 }
 
-type CreateWalletResponse struct {
+type CreateAccountResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateWalletResponse) Reset() {
-	*x = CreateWalletResponse{}
+func (x *CreateAccountResponse) Reset() {
+	*x = CreateAccountResponse{}
 	mi := &file_wallet_wallet_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateWalletResponse) String() string {
+func (x *CreateAccountResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateWalletResponse) ProtoMessage() {}
+func (*CreateAccountResponse) ProtoMessage() {}
 
-func (x *CreateWalletResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateAccountResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_wallet_wallet_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -472,12 +472,12 @@ func (x *CreateWalletResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateWalletResponse.ProtoReflect.Descriptor instead.
-func (*CreateWalletResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateAccountResponse.ProtoReflect.Descriptor instead.
+func (*CreateAccountResponse) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *CreateWalletResponse) GetAccountId() string {
+func (x *CreateAccountResponse) GetAccountId() string {
 	if x != nil {
 		return x.AccountId
 	}
@@ -556,17 +556,17 @@ const file_wallet_wallet_proto_rawDesc = "" +
 	"\x12GetAccountsRequest\x12\x19\n" +
 	"\bowner_id\x18\x01 \x01(\tR\aownerId\"B\n" +
 	"\x13GetAccountsResponse\x12+\n" +
-	"\baccounts\x18\x01 \x03(\v2\x0f.wallet.AccountR\baccounts\"0\n" +
-	"\x13CreateWalletRequest\x12\x19\n" +
-	"\bowner_id\x18\x01 \x01(\tR\aownerId\"5\n" +
-	"\x14CreateWalletResponse\x12\x1d\n" +
+	"\baccounts\x18\x01 \x03(\v2\x0f.wallet.AccountR\baccounts\"1\n" +
+	"\x14CreateAccountRequest\x12\x19\n" +
+	"\bowner_id\x18\x01 \x01(\tR\aownerId\"6\n" +
+	"\x15CreateAccountResponse\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\"&\n" +
 	"\x14DeleteAccountRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id2\x85\x03\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\x88\x03\n" +
 	"\rWalletService\x12U\n" +
-	"\x10ProcessOperation\x12\x1f.wallet.ProcessOperationRequest\x1a .wallet.ProcessOperationResponse\x12I\n" +
-	"\fCreateWallet\x12\x1b.wallet.CreateWalletRequest\x1a\x1c.wallet.CreateWalletResponse\x12C\n" +
+	"\x10ProcessOperation\x12\x1f.wallet.ProcessOperationRequest\x1a .wallet.ProcessOperationResponse\x12L\n" +
+	"\rCreateAccount\x12\x1c.wallet.CreateAccountRequest\x1a\x1d.wallet.CreateAccountResponse\x12C\n" +
 	"\n" +
 	"GetAccount\x12\x19.wallet.GetAccountRequest\x1a\x1a.wallet.GetAccountResponse\x12F\n" +
 	"\vGetAccounts\x12\x1a.wallet.GetAccountsRequest\x1a\x1b.wallet.GetAccountsResponse\x12E\n" +
@@ -593,8 +593,8 @@ var file_wallet_wallet_proto_goTypes = []any{
 	(*GetAccountResponse)(nil),       // 4: wallet.GetAccountResponse
 	(*GetAccountsRequest)(nil),       // 5: wallet.GetAccountsRequest
 	(*GetAccountsResponse)(nil),      // 6: wallet.GetAccountsResponse
-	(*CreateWalletRequest)(nil),      // 7: wallet.CreateWalletRequest
-	(*CreateWalletResponse)(nil),     // 8: wallet.CreateWalletResponse
+	(*CreateAccountRequest)(nil),     // 7: wallet.CreateAccountRequest
+	(*CreateAccountResponse)(nil),    // 8: wallet.CreateAccountResponse
 	(*DeleteAccountRequest)(nil),     // 9: wallet.DeleteAccountRequest
 	(*timestamppb.Timestamp)(nil),    // 10: google.protobuf.Timestamp
 	(*emptypb.Empty)(nil),            // 11: google.protobuf.Empty
@@ -604,12 +604,12 @@ var file_wallet_wallet_proto_depIdxs = []int32{
 	2,  // 1: wallet.GetAccountResponse.account:type_name -> wallet.Account
 	2,  // 2: wallet.GetAccountsResponse.accounts:type_name -> wallet.Account
 	0,  // 3: wallet.WalletService.ProcessOperation:input_type -> wallet.ProcessOperationRequest
-	7,  // 4: wallet.WalletService.CreateWallet:input_type -> wallet.CreateWalletRequest
+	7,  // 4: wallet.WalletService.CreateAccount:input_type -> wallet.CreateAccountRequest
 	3,  // 5: wallet.WalletService.GetAccount:input_type -> wallet.GetAccountRequest
 	5,  // 6: wallet.WalletService.GetAccounts:input_type -> wallet.GetAccountsRequest
 	9,  // 7: wallet.WalletService.DeleteAccount:input_type -> wallet.DeleteAccountRequest
 	1,  // 8: wallet.WalletService.ProcessOperation:output_type -> wallet.ProcessOperationResponse
-	8,  // 9: wallet.WalletService.CreateWallet:output_type -> wallet.CreateWalletResponse
+	8,  // 9: wallet.WalletService.CreateAccount:output_type -> wallet.CreateAccountResponse
 	4,  // 10: wallet.WalletService.GetAccount:output_type -> wallet.GetAccountResponse
 	6,  // 11: wallet.WalletService.GetAccounts:output_type -> wallet.GetAccountsResponse
 	11, // 12: wallet.WalletService.DeleteAccount:output_type -> google.protobuf.Empty
