@@ -24,9 +24,9 @@ func (app *App) NewRouter() http.Handler {
 	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAllAccounts))
 	router.HandleFunc("DELETE /me/accounts", app.Auth(app.DeleteAccount))
 
-	// router.HandleFunc("POST /me/history", app.GetAccHistory)
+	router.HandleFunc("POST /me/history", app.GetAccHistory)
 
-	// router.HandleFunc("POST /transactions", app.Transaction)
+	//router.HandleFunc("POST /transactions", app.Transaction)
 
 	return router
 }

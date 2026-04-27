@@ -27,6 +27,10 @@ func (us *User) Get(ctx context.Context, id uuid.UUID) (models.User, error) {
 	return us.DB.Get(ctx, id)
 }
 
+func (us *User) GetEmails(ctx context.Context, ids []string) (map[string]string, error) {
+	return us.DB.GetEmails(ctx, ids)
+}
+
 func (us *User) GetByEmail(ctx context.Context, email string) (models.User, error) {
 	return us.DB.GetByEmail(ctx, email)
 }

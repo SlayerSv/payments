@@ -41,6 +41,29 @@ func (r *User) GetByEmail(ctx context.Context, email string) (models.User, error
 	return u, errs.WrapErr(err)
 }
 
+func (r *User) GetEmails(ctx context.Context, ids []string) (map[string]string, error) {
+	idemail := map[string]string{}
+	query := `SELECT id, email FROM users WHERE id = ANY($1)`
+
+	rows, err := r.pool.Query(ctx, query, ids)
+	if err != nil {
+		return nil, errs.WrapErr(err)
+	}
+	defer rows.Close()
+
+	var id, email string
+	for rows.Next() {
+		if err := rows.Scan(&id, &email); err != nil {
+			return nil, errs.WrapErr(err)
+		}
+		idemail[id] = email
+	}
+	if err = rows.Err(); err != nil {
+		return nil, errs.WrapErr(err)
+	}
+	return idemail, nil
+}
+
 func (r *User) UpdateName(ctx context.Context, userID uuid.UUID, newName string) (models.User, error) {
 	query := `UPDATE users SET name = $1 WHERE id = $2 RETURNING *`
 	u := models.User{}

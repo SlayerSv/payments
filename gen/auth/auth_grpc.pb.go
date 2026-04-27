@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	UserService_Get_FullMethodName        = "/auth.UserService/Get"
 	UserService_GetByEmail_FullMethodName = "/auth.UserService/GetByEmail"
+	UserService_GetEmails_FullMethodName  = "/auth.UserService/GetEmails"
 	UserService_Update_FullMethodName     = "/auth.UserService/Update"
 )
 
@@ -30,6 +31,7 @@ const (
 type UserServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetByEmail(ctx context.Context, in *GetByEmailRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	GetEmails(ctx context.Context, in *GetEmailsRequest, opts ...grpc.CallOption) (*GetEmailsResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UserResponse, error)
 }
 
@@ -61,6 +63,16 @@ func (c *userServiceClient) GetByEmail(ctx context.Context, in *GetByEmailReques
 	return out, nil
 }
 
+func (c *userServiceClient) GetEmails(ctx context.Context, in *GetEmailsRequest, opts ...grpc.CallOption) (*GetEmailsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEmailsResponse)
+	err := c.cc.Invoke(ctx, UserService_GetEmails_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UserResponse)
@@ -77,6 +89,7 @@ func (c *userServiceClient) Update(ctx context.Context, in *UpdateRequest, opts 
 type UserServiceServer interface {
 	Get(context.Context, *GetRequest) (*UserResponse, error)
 	GetByEmail(context.Context, *GetByEmailRequest) (*UserResponse, error)
+	GetEmails(context.Context, *GetEmailsRequest) (*GetEmailsResponse, error)
 	Update(context.Context, *UpdateRequest) (*UserResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
@@ -93,6 +106,9 @@ func (UnimplementedUserServiceServer) Get(context.Context, *GetRequest) (*UserRe
 }
 func (UnimplementedUserServiceServer) GetByEmail(context.Context, *GetByEmailRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetByEmail not implemented")
+}
+func (UnimplementedUserServiceServer) GetEmails(context.Context, *GetEmailsRequest) (*GetEmailsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEmails not implemented")
 }
 func (UnimplementedUserServiceServer) Update(context.Context, *UpdateRequest) (*UserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
@@ -154,6 +170,24 @@ func _UserService_GetByEmail_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetEmails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEmailsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetEmails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetEmails_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetEmails(ctx, req.(*GetEmailsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateRequest)
 	if err := dec(in); err != nil {
@@ -186,6 +220,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetByEmail",
 			Handler:    _UserService_GetByEmail_Handler,
+		},
+		{
+			MethodName: "GetEmails",
+			Handler:    _UserService_GetEmails_Handler,
 		},
 		{
 			MethodName: "Update",

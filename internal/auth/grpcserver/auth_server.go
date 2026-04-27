@@ -18,6 +18,7 @@ type AuthProvider interface {
 
 type UserProvider interface {
 	Get(ctx context.Context, id uuid.UUID) (models.User, error)
+	GetEmails(ctx context.Context, ids []string) (map[string]string, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, name *string, pass *string) (models.User, error)
 }
 
@@ -72,6 +73,16 @@ func (a *AuthServer) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Use
 		Name:      *user.Name,
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
+	}, nil
+}
+
+func (a *AuthServer) GetEmails(ctx context.Context, req *pb.GetEmailsRequest) (*pb.GetEmailsResponse, error) {
+	idemail, err := a.user.GetEmails(ctx, req.Ids)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.GetEmailsResponse{
+		Emails: idemail,
 	}, nil
 }
 

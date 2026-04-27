@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  app.AccountID:
+    properties:
+      id:
+        type: string
+    type: object
   app.LoginRequest:
     properties:
       email:
@@ -29,18 +34,23 @@ definitions:
       error:
         type: string
     type: object
-  models.Account:
+  models.AccountResponse:
     properties:
       balance:
         type: integer
-      createdAt:
+      created_at:
         type: string
       id:
         type: string
-      ownerID:
+      owner_id:
         type: string
-      version:
-        type: integer
+    type: object
+  models.AccountsResponse:
+    properties:
+      accounts:
+        items:
+          $ref: '#/definitions/models.AccountResponse'
+        type: array
     type: object
   models.User:
     properties:
@@ -146,6 +156,12 @@ paths:
       consumes:
       - application/json
       description: Deletes wallet/savings account
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -170,9 +186,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Account'
-            type: array
+            $ref: '#/definitions/models.AccountsResponse'
         "400":
           description: Bad Request
           schema:
@@ -192,7 +206,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Account'
+            $ref: '#/definitions/app.AccountID'
         "400":
           description: Bad Request
           schema:
@@ -213,7 +227,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Account'
+            $ref: '#/definitions/models.AccountResponse'
         "400":
           description: Bad Request
           schema:

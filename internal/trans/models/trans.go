@@ -44,3 +44,16 @@ type Transaction struct {
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
+
+type TransactionDTO struct {
+	ID            string        `json:"id"`
+	OpType        OperationType `json:"op_type"`
+	SenderID      string        `json:"sender_id"`
+	SenderEmail   string        `json:"sender_email"`
+	SenderType    AccountType   `json:"sender_type"`
+	ReceiverID    string        `json:"receiver_id"`
+	ReceiverEmail string        `json:"receiver_email"`
+	ReceiverType  AccountType   `json:"receiver_type"`
+	Amount        int64         `json:"amount"`
+	CompletedAt   time.Time     `json:"completed_at"`
+}

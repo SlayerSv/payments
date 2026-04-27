@@ -7,12 +7,21 @@ import "google/protobuf/timestamp.proto";
 service UserService {
     rpc Get (GetRequest) returns (UserResponse);
     rpc GetByEmail (GetByEmailRequest) returns (UserResponse);
+    rpc GetEmails (GetEmailsRequest) returns (GetEmailsResponse);
     rpc Update (UpdateRequest) returns (UserResponse);
 }
 
 message GetRequest { string id = 1; }
 
 message GetByEmailRequest { string email = 1; }
+
+message GetEmailsRequest {
+    repeated string ids = 1;
+}
+
+message GetEmailsResponse {
+    map<string, string> emails = 1;
+}
 
 message UpdateRequest {
     string user_id = 1;

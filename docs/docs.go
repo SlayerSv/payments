@@ -161,10 +161,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Account"
-                            }
+                            "$ref": "#/definitions/models.AccountsResponse"
                         }
                     },
                     "400": {
@@ -196,7 +193,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Account"
+                            "$ref": "#/definitions/app.AccountID"
                         }
                     },
                     "400": {
@@ -224,6 +221,15 @@ const docTemplate = `{
                     "accounts"
                 ],
                 "summary": "Deletes wallet/savings account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -259,7 +265,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Account"
+                            "$ref": "#/definitions/models.AccountResponse"
                         }
                     },
                     "400": {
@@ -345,6 +351,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "app.AccountID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "app.LoginRequest": {
             "type": "object",
             "properties": {
@@ -391,23 +405,31 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Account": {
+        "models.AccountResponse": {
             "type": "object",
             "properties": {
                 "balance": {
                     "type": "integer"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "ownerID": {
+                "owner_id": {
                     "type": "string"
-                },
-                "version": {
-                    "type": "integer"
+                }
+            }
+        },
+        "models.AccountsResponse": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AccountResponse"
+                    }
                 }
             }
         },
