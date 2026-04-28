@@ -3,12 +3,13 @@ package trans;
 option go_package = "github.com/SlayerSv/payments/gen/trans";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service TransService {
-    rpc Deposit (DepositRequest) returns (DepositResponse);
-    rpc Withdraw (WithdrawRequest) returns (WithdrawResponse);
-    rpc Transfer (TransferRequest) returns (TransferResponse);
-    rpc GetAccHistory (GetAccHistoryRequest) returns (GetAccHistoryResponse);
+    rpc Deposit (DepositRequest) returns (google.protobuf.Empty);
+    rpc Withdraw (WithdrawRequest) returns (google.protobuf.Empty);
+    rpc Transfer (TransferRequest) returns (google.protobuf.Empty);
+    rpc GetTransactionHistory (google.protobuf.Empty) returns (GetTransactionHistoryResponse);
 }
 
 enum account_type {
@@ -25,42 +26,24 @@ enum operation_type {
 }
 
 message DepositRequest {
-    string user_id  = 1;
-    account_type acc_type = 2;
-    int64 amount = 3;
-}
-
-message DepositResponse {
-    string status = 1;
+    account_type account_type = 1;
+    int64 amount = 2;
 }
 
 message WithdrawRequest {
-    string user_id  = 1;
-    account_type acc_type = 2;
-    int64 amount = 3;
-}
-
-message WithdrawResponse {
-    string status = 1;
+    account_type account_type = 1;
+    int64 amount = 2;
 }
 
 message TransferRequest {
     string sender_id  = 1;
-    account_type sender_acc_type = 2;
+    account_type sender_type = 2;
     string receiver_email = 3;
-    account_type receiver_acc_type = 4;
+    account_type receiver_type = 4;
     int64 amount = 5;
 }
 
-message TransferResponse {
-    string status = 1;
-}
-
-message GetAccHistoryRequest {
-    string user_id = 1;
-}
-
-message GetAccHistoryResponse {
+message GetTransactionHistoryResponse {
     repeated Transaction transactions = 1;
 }
 

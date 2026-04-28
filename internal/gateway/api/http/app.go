@@ -10,19 +10,21 @@ import (
 	"github.com/SlayerSv/payments/internal/gateway/clients"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/shared/logger"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
 type App struct {
-	Log     logger.Logger
-	Server  *http.Server
-	jwtkey  crypto.PublicKey
-	Clients *clients.Clients
+	Log       logger.Logger
+	Server    *http.Server
+	jwtkey    crypto.PublicKey
+	Clients   *clients.Clients
+	Validator *validator.Validate
 }
 
-func NewApp(logger logger.Logger, server *http.Server, jwtkey crypto.PublicKey, clients *clients.Clients) *App {
-	return &App{Log: logger, Server: server, jwtkey: jwtkey, Clients: clients}
+func NewApp(logger logger.Logger, server *http.Server, jwtkey crypto.PublicKey, clients *clients.Clients, validator *validator.Validate) *App {
+	return &App{Log: logger, Server: server, jwtkey: jwtkey, Clients: clients, Validator: validator}
 }
 
 func (app *App) ErrorJSON(w http.ResponseWriter, r *http.Request, err error) {

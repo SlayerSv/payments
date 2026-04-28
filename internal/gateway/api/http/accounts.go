@@ -11,6 +11,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	transmodels "github.com/SlayerSv/payments/internal/trans/models"
 	walletmodels "github.com/SlayerSv/payments/internal/wallet/models"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AccountID struct {
@@ -116,9 +117,9 @@ func (app *App) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(204)
 }
 
-func (app *App) GetAccHistory(w http.ResponseWriter, r *http.Request) {
+func (app *App) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	history, err := app.Clients.Trans.GetAccHistory(ctx, &transpb.GetAccHistoryRequest{UserId: ""})
+	history, err := app.Clients.Trans.GetTransactionHistory(ctx, &emptypb.Empty{})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting account history: %w", errs.Internal, err))
 		return
@@ -159,13 +160,13 @@ func pbToAcc(acc *walletpb.Account) walletmodels.AccountResponse {
 func pbToTrans(trans *transpb.Transaction, idemail map[string]string) transmodels.TransactionDTO {
 	return transmodels.TransactionDTO{
 		ID:            trans.Id,
-		OpType:        transmodels.OperationType(trans.OpType.String()),
+		OpType:        trans.OpType.String(),
 		SenderID:      trans.SenderId,
 		SenderEmail:   idemail[trans.SenderId],
-		SenderType:    transmodels.AccountType(trans.SenderType.String()),
+		SenderType:    trans.SenderType.String(),
 		ReceiverID:    trans.ReceiverId,
 		ReceiverEmail: idemail[trans.ReceiverId],
-		ReceiverType:  transmodels.AccountType(trans.ReceiverType.String()),
+		ReceiverType:  trans.ReceiverType.String(),
 		Amount:        trans.Amount,
 		CompletedAt:   trans.CreatedAt.AsTime(),
 	}

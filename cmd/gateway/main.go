@@ -9,6 +9,7 @@ import (
 	"github.com/SlayerSv/payments/internal/gateway/clients"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/logger"
+	"github.com/SlayerSv/payments/internal/shared/validator"
 	"github.com/hashicorp/vault/api"
 )
 
@@ -45,7 +46,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error creating clients %v", err)
 	}
-	a := app.NewApp(logger, server, key, clients)
+	validate := validator.NewValidator()
+	a := app.NewApp(logger, server, key, clients, validate)
 
 	a.Server.Handler = a.NewRouter()
 	a.Log.Infof("Starting server on %s", a.Server.Addr)

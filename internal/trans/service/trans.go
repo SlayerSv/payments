@@ -28,12 +28,6 @@ func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient
 }
 
 func (s *Transaction) Deposit(ctx context.Context, user_id uuid.UUID, accType models.AccountType, amount int64) (uuid.UUID, error) {
-	if amount <= 0 {
-		return uuid.Nil, fmt.Errorf("%w: amount must be positive", errs.BadRequest)
-	}
-	if accType == models.AccountInvalid {
-		return uuid.Nil, fmt.Errorf("%w: invalid account type", errs.BadRequest)
-	}
 	tx := models.Transaction{
 		ReceiverID:   user_id,
 		ReceiverType: accType,
@@ -44,12 +38,6 @@ func (s *Transaction) Deposit(ctx context.Context, user_id uuid.UUID, accType mo
 }
 
 func (s *Transaction) Withdraw(ctx context.Context, user_id uuid.UUID, accType models.AccountType, amount int64) (uuid.UUID, error) {
-	if amount <= 0 {
-		return uuid.Nil, fmt.Errorf("%w: amount must be positive", errs.BadRequest)
-	}
-	if accType == models.AccountInvalid {
-		return uuid.Nil, fmt.Errorf("%w: invalid account type", errs.BadRequest)
-	}
 	tx := models.Transaction{
 		SenderID:   user_id,
 		SenderType: accType,
@@ -66,12 +54,6 @@ func (s *Transaction) Transfer(
 	receiverEmail string,
 	receiverAccType models.AccountType,
 	amount int64) (uuid.UUID, error) {
-	if amount <= 0 {
-		return uuid.Nil, fmt.Errorf("%w: amount must be positive", errs.BadRequest)
-	}
-	if senderAccType == models.AccountInvalid {
-		return uuid.Nil, fmt.Errorf("%w: invalid account type", errs.BadRequest)
-	}
 	receiver, err := s.user.GetByEmail(ctx, &pb.GetByEmailRequest{Email: receiverEmail})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("error getting receiver id: %w", err)
@@ -91,6 +73,6 @@ func (s *Transaction) Transfer(
 	return s.repo.Create(ctx, tx)
 }
 
-func (s *Transaction) GetAccHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
-	return s.repo.GetAccHistory(ctx, accountID)
+func (s *Transaction) GetTransactionHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
+	return s.repo.GetTransactionHistory(ctx, accountID)
 }
