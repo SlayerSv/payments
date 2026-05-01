@@ -8,10 +8,12 @@ import (
 
 	transpb "github.com/SlayerSv/payments/gen/trans"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
+	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/trans/clients"
 	"github.com/SlayerSv/payments/internal/trans/grpcserver"
 	repository "github.com/SlayerSv/payments/internal/trans/repository/postgres"
 	"github.com/SlayerSv/payments/internal/trans/service"
+	"github.com/hashicorp/vault/api"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -43,7 +45,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor([]string{"gateway"}, nil)))
+	config := api.DefaultConfig()
+	config.Address = "http://localhost:8200" // Адрес OpenBao
+	client, err := api.NewClient(config)
+	if err != nil {
+		log.Fatalf("Не удалось создать клиент опенбао: %v\n", err)
+	}
+	client.SetToken("myroot")
+	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
+	if err != nil {
+		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
+	}
+	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor([]string{"gateway"}, publicKey)))
 	transpb.RegisterTransServiceServer(srv, transserv)
 	srv.Serve(lis)
 }

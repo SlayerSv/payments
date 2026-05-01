@@ -42,7 +42,7 @@ type OperationType string
 
 const (
 	OperationUnspecified OperationType = "UNSPECIFIED"
-	OperationDeposit     OperationType = "DEBIT"
+	OperationDeposit     OperationType = "DEPOSIT"
 	OperationWithdraw    OperationType = "WITHDRAW"
 	OperationTransfer    OperationType = "TRANSFER"
 )
@@ -62,29 +62,31 @@ func GetOperationType(acctype string) OperationType {
 }
 
 type Transaction struct {
-	ID           uuid.UUID
-	OpType       OperationType
-	SenderID     uuid.UUID
-	SenderType   AccountType
-	ReceiverID   uuid.UUID
-	ReceiverType AccountType
-	Amount       int64
-	Status       TransactionStatus
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID                  uuid.UUID
+	OpType              OperationType
+	DonorAccountID      *uuid.UUID
+	DonorAccountType    *AccountType
+	ReceiverAccountID   *uuid.UUID
+	ReceiverAccountType *AccountType
+	Amount              int64
+	Status              TransactionStatus
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 type TransactionDTO struct {
-	ID            string    `json:"id"`
-	OpType        string    `json:"op_type"`
-	SenderID      string    `json:"sender_id"`
-	SenderEmail   string    `json:"sender_email"`
-	SenderType    string    `json:"sender_type"`
-	ReceiverID    string    `json:"receiver_id"`
-	ReceiverEmail string    `json:"receiver_email"`
-	ReceiverType  string    `json:"receiver_type"`
-	Amount        int64     `json:"amount"`
-	CompletedAt   time.Time `json:"completed_at"`
+	ID                  string    `json:"id"`
+	OpType              string    `json:"op_type"`
+	DonorAccountID      *string   `json:"donor_account_id,omitzero"`
+	DonorAccountType    *string   `json:"donor_account_type,omitzero"`
+	DonorEmail          *string   `json:"donor_email,omitzero"`
+	DonorName           *string   `json:"donor_name,omitzero"`
+	ReceiverAccountID   *string   `json:"receiver_account_id,omitzero"`
+	ReceiverAccountType *string   `json:"receiver_account_type,omitzero"`
+	ReceiverEmail       *string   `json:"receiver_email,omitzero"`
+	ReceiverName        *string   `json:"receiver_name,omitzero"`
+	Amount              int64     `json:"amount"`
+	CompletedAt         time.Time `json:"completed_at"`
 }
 
 type DepositRequest struct {
@@ -98,9 +100,21 @@ type WithdrawRequest struct {
 }
 
 type TransferRequest struct {
-	SenderID      string `json:"sender_id" validate:"required,uuid"`
-	SenderType    string `json:"sender_type" validate:"required,account_type"`
-	ReceiverEmail string `json:"receiver_email" validate:"required,email"`
-	ReceiverType  string `json:"receiver_type" validate:"required,account_type"`
-	Amount        int64  `json:"amount" validate:"required,gt=0"`
+	DonorAccountType    string `json:"donor_account_type" validate:"required,account_type"`
+	ReceiverAccountID   string `json:"receiver_account_id" validate:"required,uuid"`
+	ReceiverAccountType string `json:"receiver_account_type" validate:"required,account_type"`
+	Amount              int64  `json:"amount" validate:"required,gt=0"`
+}
+
+type Transfer struct {
+	DonorID             uuid.UUID   `json:"donor_id" validate:"required,uuid"`
+	DonorAccountID      uuid.UUID   `json:"donor_account_id" validate:"required,uuid"`
+	DonorAccountType    AccountType `json:"donor_account_type" validate:"required,account_type"`
+	ReceiverAccountID   uuid.UUID   `json:"receiver_account_id" validate:"required,uuid"`
+	ReceiverAccountType AccountType `json:"receiver_account_type" validate:"required,account_type"`
+	Amount              int64       `json:"amount" validate:"required,gt=0"`
+}
+
+type NewBalanceResponse struct {
+	NewBalance int64 `json:"new_balance"`
 }

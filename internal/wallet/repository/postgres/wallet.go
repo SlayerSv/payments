@@ -101,7 +101,7 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 		    version = version + 1 
 		WHERE id = $2 AND version = $3`
 
-	res, err := tx.Exec(ctx, updateAccQuery, args.AmountDelta, args.AccountID, args.ExpectedVersion)
+	res, err := tx.Exec(ctx, updateAccQuery, args.Amount, args.AccountID, args.ExpectedVersion)
 	if err != nil {
 		return errs.WrapErr(fmt.Errorf("failed to update account: %w", err))
 	}
@@ -117,7 +117,7 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 		INSERT INTO ledger_entries (account_id, transaction_id, amount) 
 		VALUES ($1, $2, $3)`
 
-	_, err = tx.Exec(ctx, ledgerQuery, args.AccountID, args.TransactionID, args.AmountDelta)
+	_, err = tx.Exec(ctx, ledgerQuery, args.AccountID, args.TransactionID, args.Amount)
 	if err != nil {
 		return errs.WrapErr(fmt.Errorf("failed to insert ledger entry: %w", err))
 	}

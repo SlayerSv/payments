@@ -22,13 +22,13 @@ func (app *App) NewRouter() http.Handler {
 	router.HandleFunc("POST /me/accounts", app.Auth(app.CreateAccount))
 	router.HandleFunc("GET /me/accounts/{account_id}", app.Auth(app.GetAccount))
 	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAllAccounts))
-	router.HandleFunc("DELETE /me/accounts", app.Auth(app.DeleteAccount))
+	router.HandleFunc("DELETE /me/accounts/{account_id}", app.Auth(app.DeleteAccount))
 
-	router.HandleFunc("POST /me/history", app.GetTransactionHistory)
+	router.HandleFunc("/me/accounts/{account_id}/transactions", app.Auth(app.GetTransactionHistory))
 
-	router.HandleFunc("POST /deposit", app.Deposit)
-	router.HandleFunc("POST /withdraw", app.Withdraw)
-	router.HandleFunc("POST /transfer", app.Transfer)
+	router.HandleFunc("POST /me/accounts/{account_id}/deposit", app.Auth(app.Deposit))
+	router.HandleFunc("POST /me/accounts/{account_id}/withdraw", app.Auth(app.Withdraw))
+	router.HandleFunc("POST /me/accounts/{account_id}/transfer", app.Auth(app.Transfer))
 
 	return router
 }

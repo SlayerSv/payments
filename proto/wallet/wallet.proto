@@ -22,7 +22,7 @@ message ProcessOperationRequest {
   string idempotency_key = 1; // Уникальный ключ (txID + суффикс)
   string transaction_id = 2;  // ID транзакции для логов/аутбокса
   string account_id = 3;      // ID кошелька
-  int64 amount_delta = 4;     // Сумма изменения (положительная или отрицательная)
+  int64 amount = 4;     // Сумма изменения (положительная или отрицательная)
 }
 
 message ProcessOperationResponse {

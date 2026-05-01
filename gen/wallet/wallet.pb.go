@@ -29,7 +29,7 @@ type ProcessOperationRequest struct {
 	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"` // Уникальный ключ (txID + суффикс)
 	TransactionId  string                 `protobuf:"bytes,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`    // ID транзакции для логов/аутбокса
 	AccountId      string                 `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`                // ID кошелька
-	AmountDelta    int64                  `protobuf:"varint,4,opt,name=amount_delta,json=amountDelta,proto3" json:"amount_delta,omitempty"`         // Сумма изменения (положительная или отрицательная)
+	Amount         int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`                                      // Сумма изменения (положительная или отрицательная)
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -85,9 +85,9 @@ func (x *ProcessOperationRequest) GetAccountId() string {
 	return ""
 }
 
-func (x *ProcessOperationRequest) GetAmountDelta() int64 {
+func (x *ProcessOperationRequest) GetAmount() int64 {
 	if x != nil {
-		return x.AmountDelta
+		return x.Amount
 	}
 	return 0
 }
@@ -532,13 +532,13 @@ var File_wallet_wallet_proto protoreflect.FileDescriptor
 
 const file_wallet_wallet_proto_rawDesc = "" +
 	"\n" +
-	"\x13wallet/wallet.proto\x12\x06wallet\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xab\x01\n" +
+	"\x13wallet/wallet.proto\x12\x06wallet\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa0\x01\n" +
 	"\x17ProcessOperationRequest\x12'\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12%\n" +
 	"\x0etransaction_id\x18\x02 \x01(\tR\rtransactionId\x12\x1d\n" +
 	"\n" +
-	"account_id\x18\x03 \x01(\tR\taccountId\x12!\n" +
-	"\famount_delta\x18\x04 \x01(\x03R\vamountDelta\"c\n" +
+	"account_id\x18\x03 \x01(\tR\taccountId\x12\x16\n" +
+	"\x06amount\x18\x04 \x01(\x03R\x06amount\"c\n" +
 	"\x18ProcessOperationResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vnew_balance\x18\x02 \x01(\x03R\n" +

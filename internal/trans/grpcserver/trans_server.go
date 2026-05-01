@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	pb "github.com/SlayerSv/payments/gen/trans"
@@ -59,63 +58,99 @@ func mapOpType(t models.OperationType) pb.OperationType {
 	}
 }
 
-func (s *Trans) Deposit(ctx context.Context, req *pb.DepositRequest) (*emptypb.Empty, error) {
+func (s *Trans) Deposit(ctx context.Context, req *pb.DepositRequest) (*pb.NewBalanceResponse, error) {
 	userID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	_, err = s.service.Deposit(ctx, userID, mapAccType(req.AccountType), req.Amount)
+	accID, err := uuid.Parse(req.AccountId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "error parsing account id: %v", err)
+	}
+	newBalance, err := s.service.Deposit(ctx, userID, accID, mapAccType(req.AccountType), req.Amount)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "deposit failed: %v", err)
 	}
-	return &emptypb.Empty{}, nil
+	return &pb.NewBalanceResponse{NewBalance: newBalance}, nil
 }
 
-func (s *Trans) Withdraw(ctx context.Context, req *pb.WithdrawRequest) (*emptypb.Empty, error) {
+func (s *Trans) Withdraw(ctx context.Context, req *pb.WithdrawRequest) (*pb.NewBalanceResponse, error) {
 	userID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	_, err = s.service.Withdraw(ctx, userID, mapAccType(req.AccountType), req.Amount)
+	accID, err := uuid.Parse(req.AccountId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "error parsing account id: %v", err)
+	}
+	newBalance, err := s.service.Withdraw(ctx, userID, accID, mapAccType(req.AccountType), req.Amount)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "withdraw failed: %v", err)
 	}
-	return &emptypb.Empty{}, nil
+	return &pb.NewBalanceResponse{NewBalance: newBalance}, nil
 }
 
-func (s *Trans) Transfer(ctx context.Context, req *pb.TransferRequest) (*emptypb.Empty, error) {
-	senderID, err := uuid.Parse(req.SenderId)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid sender_id format: %v", err)
-	}
-	_, err = s.service.Transfer(ctx, senderID, mapAccType(req.SenderType), req.ReceiverEmail, mapAccType(req.ReceiverType), req.Amount)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "transfer failed: %v", err)
-	}
-	return &emptypb.Empty{}, nil
-}
-
-func (s *Trans) GetTransactionHistory(ctx context.Context, req *emptypb.Empty) (*pb.GetTransactionHistoryResponse, error) {
+func (s *Trans) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.NewBalanceResponse, error) {
 	userID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	trans, err := s.service.GetTransactionHistory(ctx, userID)
+	donorAccID, err := uuid.Parse(req.DonorAccountId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid donor account id format: %v", err)
+	}
+	receiverAccID, err := uuid.Parse(req.ReceiverAccountId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid receiver account id format: %v", err)
+	}
+	transreq := models.Transfer{
+		DonorID:             userID,
+		DonorAccountID:      donorAccID,
+		DonorAccountType:    mapAccType(req.DonorAccountType),
+		ReceiverAccountID:   receiverAccID,
+		ReceiverAccountType: mapAccType(req.ReceiverAccountType),
+		Amount:              req.Amount,
+	}
+	newBalance, err := s.service.Transfer(ctx, userID, transreq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "transfer failed: %v", err)
+	}
+	return &pb.NewBalanceResponse{NewBalance: newBalance}, nil
+}
+
+func (s *Trans) GetTransactionHistory(ctx context.Context, req *pb.GetTransactionHistoryRequest) (*pb.GetTransactionHistoryResponse, error) {
+	userID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
+	}
+	accID, err := uuid.Parse(req.AccountId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format: %v", err)
+	}
+	trans, err := s.service.GetTransactionHistory(ctx, userID, accID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error getting history: %v", err)
 	}
 	resp := &pb.GetTransactionHistoryResponse{}
 	for _, tran := range trans {
-		resp.Transactions = append(resp.Transactions, &pb.Transaction{
-			Id:           tran.ID.String(),
-			OpType:       mapOpType(tran.OpType),
-			SenderId:     tran.SenderID.String(),
-			SenderType:   mapAccToPbType(tran.SenderType),
-			ReceiverId:   tran.ReceiverID.String(),
-			ReceiverType: mapAccToPbType(tran.ReceiverType),
-			Amount:       tran.Amount,
-			CreatedAt:    timestamppb.New(tran.UpdatedAt),
-		})
+		tr := &pb.Transaction{}
+		tr.Id = tran.ID.String()
+		tr.OpType = mapOpType(tran.OpType)
+		tr.Amount = tran.Amount
+		tr.CreatedAt = timestamppb.New(tran.UpdatedAt)
+		if tr.OpType == pb.OperationType_DEPOSIT || tr.OpType == pb.OperationType_TRANSFER {
+			raccid := tran.ReceiverAccountID.String()
+			tr.ReceiverAccountId = &raccid
+			racctype := mapAccToPbType(*tran.ReceiverAccountType)
+			tr.ReceiverAccountType = &racctype
+		}
+		if tr.OpType == pb.OperationType_WITHDRAW || tr.OpType == pb.OperationType_TRANSFER {
+			daccid := tran.DonorAccountID.String()
+			tr.DonorAccountId = &daccid
+			dacctype := mapAccToPbType(*tran.DonorAccountType)
+			tr.DonorAccountType = &dacctype
+		}
+		resp.Transactions = append(resp.Transactions, tr)
 	}
 	return resp, nil
 }

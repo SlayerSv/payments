@@ -43,7 +43,7 @@ type OutboxMessage struct {
 type UpdateBalanceParams struct {
 	AccountID           uuid.UUID
 	TransactionID       uuid.UUID // ID из сервиса транзакций (Correlation ID)
-	AmountDelta         int64     // Сколько прибавить (положительное) или отнять (отрицательное)
+	Amount              int64     // Сколько прибавить (положительное) или отнять (отрицательное)
 	ExpectedVersion     int64     // Текущая версия для Optimistic Lock
 	OutboxTopic         string    // Топик для кафки/брокера
 	OutboxPayload       []byte    // JSON payload
@@ -57,7 +57,7 @@ type OperationRequest struct {
 	TransactionID  uuid.UUID // ID транзакции для связи
 	OwnerID        uuid.UUID // ID владельца кошелька
 	AccountID      uuid.UUID // Кошелек, который меняем
-	AmountDelta    int64     // Сумма: положительная (пополнение) или отрицательная (списание)
+	Amount         int64     // Сумма: положительная (пополнение) или отрицательная (списание)
 }
 
 // OperationResponse — DTO ответа

@@ -60,16 +60,17 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	// Если параллельный процесс успеет изменить баланс быстрее нас, версия БД изменится,
 	// и repo вернет ErrConcurrentUpdate. В этом случае мы идем на новый круг.
 	for attempt := 0; attempt < MaxOptimisticRetries; attempt++ {
-
+		fmt.Println("REQ: ", req)
 		// 2.1 Получаем актуальное состояние кошелька (баланс и ВЕРСИЮ)
 		acc, err := s.repo.GetAccount(ctx, req.OwnerID, req.AccountID)
+		fmt.Println("acc: ", acc, "err: ", err)
 		if err != nil {
 			return models.OperationResponse{}, err
 		}
 
 		// 2.2 Бизнес-валидация: Проверка на отрицательный баланс при списании
-		newBalance := acc.Balance + req.AmountDelta
-		if req.AmountDelta < 0 && newBalance < 0 {
+		newBalance := acc.Balance + req.Amount
+		if req.Amount < 0 && newBalance < 0 {
 			return models.OperationResponse{}, errs.InsufficientFunds
 		}
 
@@ -85,7 +86,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		outboxPayload := map[string]interface{}{
 			"transaction_id": req.TransactionID,
 			"account_id":     acc.ID,
-			"amount_delta":   req.AmountDelta,
+			"amount":         req.Amount,
 			"new_balance":    newBalance,
 		}
 		outboxBytes, _ := json.Marshal(outboxPayload)
@@ -94,7 +95,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		updateParams := models.UpdateBalanceParams{
 			AccountID:           acc.ID,
 			TransactionID:       req.TransactionID,
-			AmountDelta:         req.AmountDelta,
+			Amount:              req.Amount,
 			ExpectedVersion:     acc.Version, // Важно! Передаем версию, которую прочитали
 			OutboxTopic:         OutboxTopicWalletOp,
 			OutboxPayload:       outboxBytes,
@@ -103,7 +104,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		}
 
 		err = s.repo.UpdateBalanceAtomic(ctx, updateParams)
-
+		fmt.Println("Update: ", err)
 		// 2.6 Обработка результата
 		if err == nil {
 			// Успех! Выходим из функции

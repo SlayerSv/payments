@@ -3,6 +3,7 @@ package grpcserver
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -43,13 +44,21 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 	if req.IdempotencyKey == "" {
 		return nil, status.Errorf(codes.InvalidArgument, "idempotency_key is required")
 	}
-
+	ownerIdstr, ok := ctx.Value(interceptors.UserID).(string)
+	if !ok {
+		return nil, status.Errorf(codes.Unauthenticated, "missing user_id in context")
+	}
+	ownerId, err := uuid.Parse(ownerIdstr)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format: %v", err)
+	}
 	// 2. Формируем запрос для бизнес-логики
 	opReq := models.OperationRequest{
 		IdempotencyKey: req.IdempotencyKey,
 		TransactionID:  txID,
+		OwnerID:        ownerId,
 		AccountID:      accID,
-		AmountDelta:    req.AmountDelta,
+		Amount:         req.Amount,
 	}
 
 	// 3. Вызываем сервис
@@ -100,6 +109,7 @@ func (s *Wallet) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, 
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 	accID, err := uuid.Parse(req.GetId())
+	fmt.Println(accID, req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
 	}

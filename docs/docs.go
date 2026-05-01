@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/app.LoginRequest"
+                            "$ref": "#/definitions/internal_gateway_api_http.LoginRequest"
                         }
                     }
                 ],
@@ -50,13 +50,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -90,7 +90,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -119,7 +119,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/app.UpdateUser"
+                            "$ref": "#/definitions/internal_gateway_api_http.UpdateUser"
                         }
                     }
                 ],
@@ -133,7 +133,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -161,13 +161,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.AccountsResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -193,13 +193,56 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/app.AccountID"
+                            "$ref": "#/definitions/internal_gateway_api_http.AccountID"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/accounts/{account_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets user` + "`" + `s wallet/savings account information.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "Gets user's wallet/savings account information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -225,7 +268,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Account ID",
-                        "name": "id",
+                        "name": "account_id",
                         "in": "path",
                         "required": true
                     }
@@ -237,20 +280,20 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
             }
         },
-        "/me/accounts/{account_id}": {
-            "get": {
+        "/me/accounts/{account_id}/deposit": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets user` + "`" + `s wallet/savings account information.",
+                "description": "Deposits funds to a specified account",
                 "consumes": [
                     "application/json"
                 ],
@@ -258,20 +301,185 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "transactions"
                 ],
-                "summary": "Gets user's wallet/savings account information",
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                "summary": "Deposits funds to a specified account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Amount to deposit",
+                        "name": "amount",
+                        "in": "body",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AccountResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.DepositRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/accounts/{account_id}/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets history of transactions of an account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Gets history of transactions of an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_gateway_api_http.History"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/accounts/{account_id}/transfer": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Transfers funds to a specified account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Transfers funds to a specified account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Transfer details",
+                        "name": "details",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/accounts/{account_id}/withdraw": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Withdraws funds from a specified account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Withdraws funds from a specified account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Amount to withdraw",
+                        "name": "amount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -297,7 +505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/app.RegisterRequest"
+                            "$ref": "#/definitions/internal_gateway_api_http.RegisterRequest"
                         }
                     }
                 ],
@@ -311,7 +519,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errs.Response"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response"
                         }
                     }
                 }
@@ -338,7 +546,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/app.OTPRequest"
+                            "$ref": "#/definitions/internal_gateway_api_http.OTPRequest"
                         }
                     }
                 ],
@@ -351,53 +559,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "app.AccountID": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.OTPRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "app.UpdateUser": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "errs.Response": {
+        "github_com_SlayerSv_payments_internal_shared_errs.Response": {
             "type": "object",
             "properties": {
                 "error": {
@@ -405,7 +567,103 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AccountResponse": {
+        "github_com_SlayerSv_payments_internal_trans_models.DepositRequest": {
+            "type": "object",
+            "required": [
+                "account_type",
+                "amount"
+            ],
+            "properties": {
+                "account_type": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse": {
+            "type": "object",
+            "properties": {
+                "new_balance": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_trans_models.TransactionDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "completed_at": {
+                    "type": "string"
+                },
+                "donor_account_id": {
+                    "type": "string"
+                },
+                "donor_account_type": {
+                    "type": "string"
+                },
+                "donor_email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "op_type": {
+                    "type": "string"
+                },
+                "receiver_account_id": {
+                    "type": "string"
+                },
+                "receiver_account_type": {
+                    "type": "string"
+                },
+                "receiver_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_trans_models.TransferRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "donor_account_type",
+                "receiver_account_id",
+                "receiver_account_type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "donor_account_type": {
+                    "type": "string"
+                },
+                "receiver_account_id": {
+                    "type": "string"
+                },
+                "receiver_account_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest": {
+            "type": "object",
+            "required": [
+                "account_type",
+                "amount"
+            ],
+            "properties": {
+                "account_type": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_wallet_models.AccountResponse": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -422,14 +680,71 @@ const docTemplate = `{
                 }
             }
         },
-        "models.AccountsResponse": {
+        "github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse": {
             "type": "object",
             "properties": {
                 "accounts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.AccountResponse"
+                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse"
                     }
+                }
+            }
+        },
+        "internal_gateway_api_http.AccountID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_api_http.History": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransactionDTO"
+                    }
+                }
+            }
+        },
+        "internal_gateway_api_http.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_api_http.OTPRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_api_http.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_gateway_api_http.UpdateUser": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },

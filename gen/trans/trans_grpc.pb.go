@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -30,10 +29,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TransServiceClient interface {
-	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Transfer(ctx context.Context, in *TransferRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetTransactionHistory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTransactionHistoryResponse, error)
+	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error)
+	Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error)
+	Transfer(ctx context.Context, in *TransferRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error)
+	GetTransactionHistory(ctx context.Context, in *GetTransactionHistoryRequest, opts ...grpc.CallOption) (*GetTransactionHistoryResponse, error)
 }
 
 type transServiceClient struct {
@@ -44,9 +43,9 @@ func NewTransServiceClient(cc grpc.ClientConnInterface) TransServiceClient {
 	return &transServiceClient{cc}
 }
 
-func (c *transServiceClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *transServiceClient) Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(NewBalanceResponse)
 	err := c.cc.Invoke(ctx, TransService_Deposit_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -54,9 +53,9 @@ func (c *transServiceClient) Deposit(ctx context.Context, in *DepositRequest, op
 	return out, nil
 }
 
-func (c *transServiceClient) Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *transServiceClient) Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(NewBalanceResponse)
 	err := c.cc.Invoke(ctx, TransService_Withdraw_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -64,9 +63,9 @@ func (c *transServiceClient) Withdraw(ctx context.Context, in *WithdrawRequest, 
 	return out, nil
 }
 
-func (c *transServiceClient) Transfer(ctx context.Context, in *TransferRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *transServiceClient) Transfer(ctx context.Context, in *TransferRequest, opts ...grpc.CallOption) (*NewBalanceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(NewBalanceResponse)
 	err := c.cc.Invoke(ctx, TransService_Transfer_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -74,7 +73,7 @@ func (c *transServiceClient) Transfer(ctx context.Context, in *TransferRequest, 
 	return out, nil
 }
 
-func (c *transServiceClient) GetTransactionHistory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTransactionHistoryResponse, error) {
+func (c *transServiceClient) GetTransactionHistory(ctx context.Context, in *GetTransactionHistoryRequest, opts ...grpc.CallOption) (*GetTransactionHistoryResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetTransactionHistoryResponse)
 	err := c.cc.Invoke(ctx, TransService_GetTransactionHistory_FullMethodName, in, out, cOpts...)
@@ -88,10 +87,10 @@ func (c *transServiceClient) GetTransactionHistory(ctx context.Context, in *empt
 // All implementations must embed UnimplementedTransServiceServer
 // for forward compatibility.
 type TransServiceServer interface {
-	Deposit(context.Context, *DepositRequest) (*emptypb.Empty, error)
-	Withdraw(context.Context, *WithdrawRequest) (*emptypb.Empty, error)
-	Transfer(context.Context, *TransferRequest) (*emptypb.Empty, error)
-	GetTransactionHistory(context.Context, *emptypb.Empty) (*GetTransactionHistoryResponse, error)
+	Deposit(context.Context, *DepositRequest) (*NewBalanceResponse, error)
+	Withdraw(context.Context, *WithdrawRequest) (*NewBalanceResponse, error)
+	Transfer(context.Context, *TransferRequest) (*NewBalanceResponse, error)
+	GetTransactionHistory(context.Context, *GetTransactionHistoryRequest) (*GetTransactionHistoryResponse, error)
 	mustEmbedUnimplementedTransServiceServer()
 }
 
@@ -102,16 +101,16 @@ type TransServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTransServiceServer struct{}
 
-func (UnimplementedTransServiceServer) Deposit(context.Context, *DepositRequest) (*emptypb.Empty, error) {
+func (UnimplementedTransServiceServer) Deposit(context.Context, *DepositRequest) (*NewBalanceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Deposit not implemented")
 }
-func (UnimplementedTransServiceServer) Withdraw(context.Context, *WithdrawRequest) (*emptypb.Empty, error) {
+func (UnimplementedTransServiceServer) Withdraw(context.Context, *WithdrawRequest) (*NewBalanceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Withdraw not implemented")
 }
-func (UnimplementedTransServiceServer) Transfer(context.Context, *TransferRequest) (*emptypb.Empty, error) {
+func (UnimplementedTransServiceServer) Transfer(context.Context, *TransferRequest) (*NewBalanceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Transfer not implemented")
 }
-func (UnimplementedTransServiceServer) GetTransactionHistory(context.Context, *emptypb.Empty) (*GetTransactionHistoryResponse, error) {
+func (UnimplementedTransServiceServer) GetTransactionHistory(context.Context, *GetTransactionHistoryRequest) (*GetTransactionHistoryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTransactionHistory not implemented")
 }
 func (UnimplementedTransServiceServer) mustEmbedUnimplementedTransServiceServer() {}
@@ -190,7 +189,7 @@ func _TransService_Transfer_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _TransService_GetTransactionHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetTransactionHistoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -202,7 +201,7 @@ func _TransService_GetTransactionHistory_Handler(srv interface{}, ctx context.Co
 		FullMethod: TransService_GetTransactionHistory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TransServiceServer).GetTransactionHistory(ctx, req.(*emptypb.Empty))
+		return srv.(TransServiceServer).GetTransactionHistory(ctx, req.(*GetTransactionHistoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

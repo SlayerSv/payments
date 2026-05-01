@@ -3,13 +3,12 @@ package trans;
 option go_package = "github.com/SlayerSv/payments/gen/trans";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 service TransService {
-    rpc Deposit (DepositRequest) returns (google.protobuf.Empty);
-    rpc Withdraw (WithdrawRequest) returns (google.protobuf.Empty);
-    rpc Transfer (TransferRequest) returns (google.protobuf.Empty);
-    rpc GetTransactionHistory (google.protobuf.Empty) returns (GetTransactionHistoryResponse);
+    rpc Deposit (DepositRequest) returns (NewBalanceResponse);
+    rpc Withdraw (WithdrawRequest) returns (NewBalanceResponse);
+    rpc Transfer (TransferRequest) returns (NewBalanceResponse);
+    rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse);
 }
 
 enum account_type {
@@ -26,21 +25,31 @@ enum operation_type {
 }
 
 message DepositRequest {
-    account_type account_type = 1;
-    int64 amount = 2;
+    string account_id = 1;
+    account_type account_type = 2;
+    int64 amount = 3;
 }
 
 message WithdrawRequest {
-    account_type account_type = 1;
-    int64 amount = 2;
+    string account_id = 1;
+    account_type account_type = 2;
+    int64 amount = 3;
 }
 
 message TransferRequest {
-    string sender_id  = 1;
-    account_type sender_type = 2;
-    string receiver_email = 3;
-    account_type receiver_type = 4;
+    string donor_account_id  = 1;
+    account_type donor_account_type = 2;
+    string receiver_account_id = 3;
+    account_type receiver_account_type = 4;
     int64 amount = 5;
+}
+
+message NewBalanceResponse {
+    int64 new_balance = 1;
+}
+
+message GetTransactionHistoryRequest {
+    string account_id = 1;
 }
 
 message GetTransactionHistoryResponse {
@@ -50,10 +59,10 @@ message GetTransactionHistoryResponse {
 message Transaction {
     string id = 1;
     operation_type op_type = 2;
-    string sender_id = 3;
-    account_type sender_type = 4;
-    string receiver_id = 5;
-    account_type receiver_type = 6;
+    optional string donor_account_id = 3;
+    optional account_type donor_account_type = 4;
+    optional string receiver_account_id = 5;
+    optional account_type receiver_account_type = 6;
     int64 amount = 7;
     google.protobuf.Timestamp created_at = 8;
 }
