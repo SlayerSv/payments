@@ -73,10 +73,10 @@ func (r *Transaction) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus 
 // GetAccHistory — Получение истории транзакций конкретного аккаунта (и как отправителя, и как получателя)
 func (r *Transaction) GetTransactionHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
 	query := `
-		SELECT id, donor_account_id, donor_account_type, receiver_account_id, receiver_account_type, 
-		       amount, status, created_at, updated_at 
+		SELECT id, operation_type, donor_account_id, donor_account_type, receiver_account_id,
+			receiver_account_type, amount, status, created_at, updated_at 
 		FROM transactions 
-		WHERE donor_account_id = $1 OR receiver_account_id = $1
+		WHERE (donor_account_id = $1 OR receiver_account_id = $1) and status = 'COMPLETED'
 		ORDER BY created_at DESC`
 
 	rows, err := r.pool.Query(ctx, query, accountID)
@@ -89,8 +89,8 @@ func (r *Transaction) GetTransactionHistory(ctx context.Context, accountID uuid.
 	for rows.Next() {
 		var tx models.Transaction
 		err := rows.Scan(
-			&tx.ID, &tx.DonorAccountID, &tx.DonorAccountType, &tx.ReceiverAccountID, &tx.ReceiverAccountType,
-			&tx.Amount, &tx.Status, &tx.CreatedAt, &tx.UpdatedAt,
+			&tx.ID, &tx.OpType, &tx.DonorAccountID, &tx.DonorAccountType, &tx.ReceiverAccountID,
+			&tx.ReceiverAccountType, &tx.Amount, &tx.Status, &tx.CreatedAt, &tx.UpdatedAt,
 		)
 		if err != nil {
 			return nil, errs.WrapErr(err)
