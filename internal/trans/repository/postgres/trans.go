@@ -23,15 +23,15 @@ func NewTransaction(pool *pgxpool.Pool) *Transaction {
 func (r *Transaction) Create(ctx context.Context, tx models.Transaction) (uuid.UUID, error) {
 	query := `
 		INSERT INTO transactions (
-			operation_type, donor_account_id, donor_account_type, 
-			receiver_account_id, receiver_account_type, amount
-		) VALUES ($1, $2, $3, $4, $5, $6) 
+			operation_type, donor_account_id, 
+			receiver_account_id, amount
+		) VALUES ($1, $2, $3, $4) 
 		RETURNING id`
 
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, query,
-		tx.OpType, tx.DonorAccountID, tx.DonorAccountType,
-		tx.ReceiverAccountID, tx.ReceiverAccountType, tx.Amount,
+		tx.OpType, tx.DonorAccountID,
+		tx.ReceiverAccountID, tx.Amount,
 	).Scan(&id)
 	return id, errs.WrapErr(err)
 }
@@ -39,14 +39,14 @@ func (r *Transaction) Create(ctx context.Context, tx models.Transaction) (uuid.U
 // GetByID — Получение одной транзакции
 func (r *Transaction) GetByID(ctx context.Context, id uuid.UUID) (models.Transaction, error) {
 	query := `
-		SELECT id, donor_account_id, donor_account_type, receiver_account_id, receiver_account_type, 
+		SELECT id, donor_account_id, receiver_account_id, 
 		       amount, status, created_at, updated_at 
 		FROM transactions 
 		WHERE id = $1`
 
 	var tx models.Transaction
 	err := r.pool.QueryRow(ctx, query, id).Scan(
-		&tx.ID, &tx.DonorAccountID, &tx.DonorAccountType, &tx.ReceiverAccountID, &tx.ReceiverAccountType,
+		&tx.ID, &tx.DonorAccountID, &tx.ReceiverAccountID,
 		&tx.Amount, &tx.Status, &tx.CreatedAt, &tx.UpdatedAt,
 	)
 	return tx, errs.WrapErr(err)
@@ -73,8 +73,8 @@ func (r *Transaction) UpdateStatus(ctx context.Context, id uuid.UUID, newStatus 
 // GetAccHistory — Получение истории транзакций конкретного аккаунта (и как отправителя, и как получателя)
 func (r *Transaction) GetTransactionHistory(ctx context.Context, accountID uuid.UUID) ([]models.Transaction, error) {
 	query := `
-		SELECT id, operation_type, donor_account_id, donor_account_type, receiver_account_id,
-			receiver_account_type, amount, status, created_at, updated_at 
+		SELECT id, operation_type, donor_account_id, receiver_account_id,
+			amount, status, created_at, updated_at 
 		FROM transactions 
 		WHERE (donor_account_id = $1 OR receiver_account_id = $1) and status = 'COMPLETED'
 		ORDER BY created_at DESC`
@@ -89,8 +89,8 @@ func (r *Transaction) GetTransactionHistory(ctx context.Context, accountID uuid.
 	for rows.Next() {
 		var tx models.Transaction
 		err := rows.Scan(
-			&tx.ID, &tx.OpType, &tx.DonorAccountID, &tx.DonorAccountType, &tx.ReceiverAccountID,
-			&tx.ReceiverAccountType, &tx.Amount, &tx.Status, &tx.CreatedAt, &tx.UpdatedAt,
+			&tx.ID, &tx.OpType, &tx.DonorAccountID, &tx.ReceiverAccountID,
+			&tx.Amount, &tx.Status, &tx.CreatedAt, &tx.UpdatedAt,
 		)
 		if err != nil {
 			return nil, errs.WrapErr(err)

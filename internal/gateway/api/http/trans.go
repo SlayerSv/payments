@@ -195,13 +195,9 @@ func pbToTrans(trans *pb.Transaction, idemail map[string]string) models.Transact
 	tr.CompletedAt = trans.CreatedAt.AsTime()
 	if trans.OpType == pb.OperationType_DEPOSIT || trans.OpType == pb.OperationType_TRANSFER {
 		tr.ReceiverAccountID = trans.ReceiverAccountId
-		racctype := trans.ReceiverAccountType.String()
-		tr.ReceiverAccountType = &racctype
 	}
 	if trans.OpType == pb.OperationType_WITHDRAW || trans.OpType == pb.OperationType_TRANSFER {
 		tr.DonorAccountID = trans.DonorAccountId
-		dacctype := trans.DonorAccountType.String()
-		tr.DonorAccountType = &dacctype
 	}
 	return tr
 }

@@ -27,7 +27,7 @@ func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient
 	}
 }
 
-func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, accType models.AccountType, amount int64) (int64, error) {
+func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, amount int64) (int64, error) {
 	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: accountID.String()})
 	if err != nil {
 		return 0, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
@@ -36,10 +36,9 @@ func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, 
 		return 0, fmt.Errorf("%w: account's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		ReceiverAccountID:   &accountID,
-		ReceiverAccountType: &accType,
-		Amount:              amount,
-		OpType:              models.OperationDeposit,
+		ReceiverAccountID: &accountID,
+		Amount:            amount,
+		OpType:            models.OperationDeposit,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {
@@ -62,7 +61,7 @@ func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, 
 	return resp.NewBalance, nil
 }
 
-func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID, accType models.AccountType, amount int64) (int64, error) {
+func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID, amount int64) (int64, error) {
 	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: accountID.String()})
 	if err != nil {
 		return 0, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
@@ -71,10 +70,9 @@ func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID,
 		return 0, fmt.Errorf("%w: account's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		DonorAccountID:   &accountID,
-		DonorAccountType: &accType,
-		Amount:           amount,
-		OpType:           models.OperationWithdraw,
+		DonorAccountID: &accountID,
+		Amount:         amount,
+		OpType:         models.OperationWithdraw,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {

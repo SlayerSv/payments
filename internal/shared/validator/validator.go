@@ -8,10 +8,6 @@ import (
 
 func NewValidator() *validator.Validate {
 	validate := validator.New()
-	validate.RegisterValidation("account_type", func(fl validator.FieldLevel) bool {
-		val := fl.Field().String()
-		return transmodels.GetAccountType(val) != transmodels.AccountUnspecified
-	})
 	validate.RegisterValidation("operation_type", func(fl validator.FieldLevel) bool {
 		val := fl.Field().String()
 		return transmodels.GetOperationType(val) != transmodels.OperationUnspecified

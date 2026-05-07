@@ -1,5 +1,4 @@
 -- 1. Создаем перечисления (ENUM)
-CREATE TYPE account_type AS ENUM ('WALLET', 'SAVINGS');
 CREATE TYPE transaction_status AS ENUM (
     'CREATED',
     'DEBIT_SUCCESS',
@@ -14,9 +13,7 @@ CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     operation_type operation_type NOT NULL,
     donor_account_id UUID,
-    donor_account_type account_type,
     receiver_account_id UUID,
-    receiver_account_type account_type,
     amount BIGINT NOT NULL CHECK (amount > 0),
     status transaction_status NOT NULL DEFAULT 'CREATED',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

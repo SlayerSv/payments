@@ -11,12 +11,6 @@ service TransService {
     rpc GetTransactionHistory (GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse);
 }
 
-enum account_type {
-    ACCOUNT_UNSPECIFIED = 0;
-    WALLET = 1;
-    SAVINGS = 2;
-}
-
 enum operation_type {
     OPERATION_UNSPECIFIED = 0;
     DEPOSIT = 1;
@@ -26,22 +20,18 @@ enum operation_type {
 
 message DepositRequest {
     string account_id = 1;
-    account_type account_type = 2;
-    int64 amount = 3;
+    int64 amount = 2;
 }
 
 message WithdrawRequest {
     string account_id = 1;
-    account_type account_type = 2;
-    int64 amount = 3;
+    int64 amount = 2;
 }
 
 message TransferRequest {
     string donor_account_id  = 1;
-    account_type donor_account_type = 2;
-    string receiver_account_id = 3;
-    account_type receiver_account_type = 4;
-    int64 amount = 5;
+    string receiver_account_id = 2;
+    int64 amount = 3;
 }
 
 message NewBalanceResponse {
@@ -60,9 +50,7 @@ message Transaction {
     string id = 1;
     operation_type op_type = 2;
     optional string donor_account_id = 3;
-    optional account_type donor_account_type = 4;
     optional string receiver_account_id = 5;
-    optional account_type receiver_account_type = 6;
     int64 amount = 7;
     google.protobuf.Timestamp created_at = 8;
 }
