@@ -213,24 +213,3 @@ func (a *Auth) signWithOpenBao(claims jwt.Claims) (string, error) {
 	// Просто переводим в URL-safe формат для JWT.
 	return signingString + "." + base64.RawURLEncoding.EncodeToString(sigBytes), nil
 }
-
-func (a *Auth) RestorePassword(ctx context.Context, email string) error {
-	_, err := mail.ParseAddress(email)
-	if err != nil {
-		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
-	}
-	otp, err := a.GenerateOTP()
-	if err != nil {
-		return err
-	}
-	otp.Email = email
-	_, err = a.OTP.Create(ctx, otp)
-	if err != nil {
-		return err
-	}
-	err = a.SendOTP(otp)
-	if err != nil {
-		return err
-	}
-	return nil
-}

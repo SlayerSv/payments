@@ -7,6 +7,7 @@ import (
 	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -86,7 +87,7 @@ func (a *AuthServer) GetEmails(ctx context.Context, req *pb.GetEmailsRequest) (*
 	}, nil
 }
 
-func (a *AuthServer) Get(ctx context.Context, req *pb.GetRequest) (*pb.UserResponse, error) {
+func (a *AuthServer) Get(ctx context.Context, req *emptypb.Empty) (*pb.UserResponse, error) {
 	uid, _ := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	user, err := a.user.Get(ctx, uid)
 	if err != nil {

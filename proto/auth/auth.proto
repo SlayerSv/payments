@@ -3,15 +3,14 @@ package auth;
 option go_package = "github.com/SlayerSv/payments/gen/auth";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 service UserService {
-    rpc Get (GetRequest) returns (UserResponse);
+    rpc Get (google.protobuf.Empty) returns (UserResponse);
     rpc GetByEmail (GetByEmailRequest) returns (UserResponse);
     rpc GetEmails (GetEmailsRequest) returns (GetEmailsResponse);
     rpc Update (UpdateRequest) returns (UserResponse);
 }
-
-message GetRequest { string id = 1; }
 
 message GetByEmailRequest { string email = 1; }
 

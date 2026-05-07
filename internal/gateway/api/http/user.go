@@ -8,6 +8,7 @@ import (
 	"github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/shared/errs"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Login logs in a user
@@ -76,7 +77,7 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 // @Router       /me [get]
 func (app *App) GetUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	resp, err := app.Clients.User.Get(ctx, &auth.GetRequest{Id: ""})
+	resp, err := app.Clients.User.Get(ctx, &emptypb.Empty{})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting user: %w", errs.Internal, err))
 		return
