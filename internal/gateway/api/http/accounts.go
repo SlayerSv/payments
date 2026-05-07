@@ -57,7 +57,7 @@ func (app *App) GetAllAccounts(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting accounts: %w", errs.Internal, err))
 		return
 	}
-	accs := models.AccountsResponse{Accounts: []models.AccountResponse{}}
+	accs := models.AccountsResponse{}
 	for _, acc := range resp.Accounts {
 		accs.Accounts = append(accs.Accounts, pbToAcc(acc))
 	}
@@ -116,6 +116,6 @@ func pbToAcc(acc *pb.Account) models.AccountResponse {
 		ID:        acc.Id,
 		OwnerID:   acc.OwnerId,
 		Balance:   acc.Balance,
-		CreatedAt: acc.CreateAt.AsTime(),
+		CreatedAt: acc.CreateAt.String(),
 	}
 }

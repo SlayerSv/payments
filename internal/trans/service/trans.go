@@ -103,12 +103,10 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 		return 0, fmt.Errorf("%w: donor account's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		DonorAccountID:      &trans.DonorAccountID,
-		DonorAccountType:    &trans.DonorAccountType,
-		ReceiverAccountID:   &trans.ReceiverAccountID,
-		ReceiverAccountType: &trans.ReceiverAccountType,
-		Amount:              trans.Amount,
-		OpType:              models.OperationTransfer,
+		DonorAccountID:    &trans.DonorAccountID,
+		ReceiverAccountID: &trans.ReceiverAccountID,
+		Amount:            trans.Amount,
+		OpType:            models.OperationTransfer,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {

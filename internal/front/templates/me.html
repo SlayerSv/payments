@@ -1,0 +1,42 @@
+{{define "content"}}
+<h1>Личный кабинет</h1>
+{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+
+<section class="row">
+    <div class="col">
+        <h3>Мой профиль</h3>
+        <p><strong>Email:</strong> {{.User.Email}}</p>
+        
+        <form method="post" action="/me" class="actions">
+            <div>
+                <label>Имя</label>
+                <input name="name" value="{{.User.Name}}" placeholder="Введите ваше имя">
+            </div>
+            <div>
+                <label>Сменить пароль</label>
+                <input name="password" type="text" placeholder="Оставьте пустым, если не меняете">
+            </div>
+            <button type="submit">Сохранить изменения</button>
+        </form>
+    </div>
+
+    <div class="col">
+        <h3>Мои счета</h3>
+        {{if .Accounts}}
+            <ul>
+                {{range .Accounts}}
+                <li><a href="/me/accounts/{{.ID}}">{{.ID}}</a> — <strong>{{formatMoney .Balance}}</strong></li>
+                {{end}}
+            </ul>
+        {{else}}
+            <p class="muted">У вас пока нет счетов.</p>
+        {{end}}
+        
+        <form method="post" action="/me/accounts" class="actions">
+            <button type="submit">Создать новый счет</button>
+        </form>
+        
+        <p><a href="/me/accounts">Все счета (таблица) &rarr;</a></p>
+    </div>
+</section>
+{{end}}

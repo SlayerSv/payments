@@ -1,0 +1,16 @@
+{{define "content"}}
+<h1>Регистрация</h1>
+{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+
+<form method="post" class="row">
+    <div class="col">
+        <label>Email</label>
+        <input name="email" type="email" required>
+    </div>
+    <div style="flex-basis: 100%">
+        <button type="submit">Отправить код на почту</button>
+    </div>
+</form>
+
+<p class="muted"><a href="/login">Назад ко входу</a></p>
+{{end}}

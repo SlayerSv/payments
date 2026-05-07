@@ -11,10 +11,6 @@ import (
 	"github.com/SlayerSv/payments/internal/trans/models"
 )
 
-type History struct {
-	Transactions []models.TransactionDTO `json:"transactions"`
-}
-
 // Deposit Deposits funds to a specified account
 // @Summary      Deposits funds to a specified account
 // @Description  Deposits funds to a specified account
@@ -45,9 +41,8 @@ func (app *App) Deposit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp, err := app.Clients.Trans.Deposit(r.Context(), &pb.DepositRequest{
-		AccountId:   accID,
-		AccountType: pb.AccountType(pb.AccountType_value[req.AccountType]),
-		Amount:      req.Amount,
+		AccountId: accID,
+		Amount:    req.Amount,
 	})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error depositing: %w", errs.Internal, err))
@@ -87,9 +82,8 @@ func (app *App) Withdraw(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp, err := app.Clients.Trans.Withdraw(r.Context(), &pb.WithdrawRequest{
-		AccountId:   accID,
-		AccountType: pb.AccountType(pb.AccountType_value[req.AccountType]),
-		Amount:      req.Amount,
+		AccountId: accID,
+		Amount:    req.Amount,
 	})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error withdrawing: %w", errs.Internal, err))
@@ -129,11 +123,9 @@ func (app *App) Transfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp, err := app.Clients.Trans.Transfer(r.Context(), &pb.TransferRequest{
-		DonorAccountId:      accID,
-		DonorAccountType:    pb.AccountType(pb.AccountType_value[req.DonorAccountType]),
-		ReceiverAccountId:   req.ReceiverAccountID,
-		ReceiverAccountType: pb.AccountType(pb.AccountType_value[req.ReceiverAccountType]),
-		Amount:              req.Amount,
+		DonorAccountId:    accID,
+		ReceiverAccountId: req.ReceiverAccountID,
+		Amount:            req.Amount,
 	})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error Transfering: %w", errs.Internal, err))
@@ -166,7 +158,7 @@ func (app *App) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting account history: %w", errs.Internal, err))
 		return
 	}
-	transHistory := History{Transactions: []models.TransactionDTO{}}
+	transHistory := models.TransactionHistory{Transactions: []models.TransactionDTO{}}
 	if len(history.Transactions) == 0 {
 		app.Encode(w, r, transHistory)
 		return

@@ -1,5 +1,42 @@
 basePath: /
 definitions:
+  github_com_SlayerSv_payments_internal_auth_models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_auth_models.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_auth_models.RegisterRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_auth_models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   github_com_SlayerSv_payments_internal_shared_errs.Response:
     properties:
       error:
@@ -32,6 +69,8 @@ definitions:
         type: string
       donor_email:
         type: string
+      donor_name:
+        type: string
       id:
         type: string
       op_type:
@@ -41,6 +80,8 @@ definitions:
       receiver_account_type:
         type: string
       receiver_email:
+        type: string
+      receiver_name:
         type: string
     type: object
   github_com_SlayerSv_payments_internal_trans_models.TransferRequest:
@@ -99,41 +140,9 @@ definitions:
           $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransactionDTO'
         type: array
     type: object
-  internal_gateway_api_http.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
   internal_gateway_api_http.OTPRequest:
     properties:
       email:
-        type: string
-    type: object
-  internal_gateway_api_http.RegisterRequest:
-    properties:
-      email:
-        type: string
-    type: object
-  internal_gateway_api_http.UpdateUser:
-    properties:
-      name:
-        type: string
-      password:
-        type: string
-    type: object
-  models.User:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updated_at:
         type: string
     type: object
 host: localhost:8081
@@ -155,14 +164,14 @@ paths:
         name: email&password
         required: true
         schema:
-          $ref: '#/definitions/internal_gateway_api_http.LoginRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginResponse'
         "400":
           description: Bad Request
           schema:
@@ -185,7 +194,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.User'
         "400":
           description: Bad Request
           schema:
@@ -205,14 +214,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_gateway_api_http.UpdateUser'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.User'
         "400":
           description: Bad Request
           schema:
@@ -452,7 +461,7 @@ paths:
         name: email
         required: true
         schema:
-          $ref: '#/definitions/internal_gateway_api_http.RegisterRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.RegisterRequest'
       produces:
       - application/json
       responses:

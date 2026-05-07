@@ -6,22 +6,9 @@ import (
 	"net/http"
 
 	"github.com/SlayerSv/payments/gen/auth"
+	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 )
-
-type LoginRequest struct {
-	Email        string `json:"email"`
-	PasswordHash string `json:"password"`
-}
-
-type RegisterRequest struct {
-	Email string `json:"email"`
-}
-
-type UpdateUser struct {
-	Name     *string `json:"name"`
-	Password *string `json:"password"`
-}
 
 // Login logs in a user
 // @Summary      User Login
@@ -29,25 +16,25 @@ type UpdateUser struct {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        email&password body LoginRequest true "Login Credentials"
-// @Success      200  {object}  string
+// @Param        email&password body models.LoginRequest true "Login Credentials"
+// @Success      200  {object}  models.LoginResponse
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Failure      401  {object}  errs.Response "Unauthorized"
 // @Router       /login [post]
 func (app *App) Login(w http.ResponseWriter, r *http.Request) {
-	var lr LoginRequest
+	var lr models.LoginRequest
 	err := json.NewDecoder(r.Body).Decode(&lr)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error decoding login credentials: %w", errs.BadRequest, err))
 		return
 	}
 	ctx := r.Context()
-	resp, err := app.Clients.Auth.Login(ctx, &auth.LoginRequest{Email: lr.Email, Password: lr.PasswordHash})
+	resp, err := app.Clients.Auth.Login(ctx, &auth.LoginRequest{Email: lr.Email, Password: lr.Password})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error login: %w", errs.Internal, err))
 		return
 	}
-	app.Encode(w, r, resp.GetToken())
+	app.Encode(w, r, models.LoginResponse{Token: resp.GetToken()})
 }
 
 // Register creates a new user
@@ -56,25 +43,23 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 // @Tags         auth
 // @Accept       json
 // @Produce      json
-// @Param        email body RegisterRequest true "Email of the user"
+// @Param        email body models.RegisterRequest true "Email of the user"
 // @Success      201  {object}  uuid.UUID
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /register [post]
 func (app *App) Register(w http.ResponseWriter, r *http.Request) {
-	var rr RegisterRequest
+	var rr models.RegisterRequest
 	err := json.NewDecoder(r.Body).Decode(&rr)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error decoding email: %w", errs.BadRequest, err))
 		return
 	}
 	ctx := r.Context()
-	fmt.Println(rr)
 	resp, err := app.Clients.Auth.Register(ctx, &auth.RegisterRequest{Email: rr.Email})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error register: %w", errs.Internal, err))
 		return
 	}
-	fmt.Println("ok")
 	w.WriteHeader(201)
 	app.Encode(w, r, resp.GetStatus())
 }
@@ -96,7 +81,14 @@ func (app *App) GetUser(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting user: %w", errs.Internal, err))
 		return
 	}
-	app.Encode(w, r, resp)
+	user := models.UserDTO{
+		ID:        resp.Id,
+		Email:     resp.Email,
+		Name:      resp.Name,
+		CreatedAt: resp.CreatedAt.String(),
+		UpdatedAt: resp.UpdatedAt.String(),
+	}
+	app.Encode(w, r, user)
 }
 
 // UpdateUser updates User if a user
@@ -106,13 +98,13 @@ func (app *App) GetUser(w http.ResponseWriter, r *http.Request) {
 // @Security     BearerAuth
 // @Accept       json
 // @Produce      json
-// @Param        input body UpdateUser true "New name and/or password"
+// @Param        input body models.UpdateUserRequest true "New name and/or password"
 // @Success      200  {object}  models.User
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /me [patch]
 func (app *App) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	body := &UpdateUser{}
+	body := &models.UpdateUserRequest{}
 	err := json.NewDecoder(r.Body).Decode(&body)
 	resp, err := app.Clients.User.Update(ctx, &auth.UpdateRequest{NewName: body.Name, NewPassword: body.Password})
 	if err != nil {

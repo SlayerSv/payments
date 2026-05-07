@@ -89,30 +89,28 @@ type TransactionDTO struct {
 	CompletedAt         time.Time `json:"completed_at"`
 }
 
+type TransactionHistory struct {
+	Transactions []TransactionDTO `json:"transactions"`
+}
+
 type DepositRequest struct {
-	AccountType string `json:"account_type" validate:"required,account_type"`
-	Amount      int64  `json:"amount" validate:"required,gt=0"`
+	Amount int64 `json:"amount" validate:"required,gt=0"`
 }
 
 type WithdrawRequest struct {
-	AccountType string `json:"account_type" validate:"required,account_type"`
-	Amount      int64  `json:"amount" validate:"required,gt=0"`
+	Amount int64 `json:"amount" validate:"required,gt=0"`
 }
 
 type TransferRequest struct {
-	DonorAccountType    string `json:"donor_account_type" validate:"required,account_type"`
-	ReceiverAccountID   string `json:"receiver_account_id" validate:"required,uuid"`
-	ReceiverAccountType string `json:"receiver_account_type" validate:"required,account_type"`
-	Amount              int64  `json:"amount" validate:"required,gt=0"`
+	ReceiverAccountID string `json:"receiver_account_id" validate:"required,uuid"`
+	Amount            int64  `json:"amount" validate:"required,gt=0"`
 }
 
 type Transfer struct {
-	DonorID             uuid.UUID   `json:"donor_id" validate:"required,uuid"`
-	DonorAccountID      uuid.UUID   `json:"donor_account_id" validate:"required,uuid"`
-	DonorAccountType    AccountType `json:"donor_account_type" validate:"required,account_type"`
-	ReceiverAccountID   uuid.UUID   `json:"receiver_account_id" validate:"required,uuid"`
-	ReceiverAccountType AccountType `json:"receiver_account_type" validate:"required,account_type"`
-	Amount              int64       `json:"amount" validate:"required,gt=0"`
+	DonorID           uuid.UUID `json:"donor_id" validate:"required,uuid"`
+	DonorAccountID    uuid.UUID `json:"donor_account_id" validate:"required,uuid"`
+	ReceiverAccountID uuid.UUID `json:"receiver_account_id" validate:"required,uuid"`
+	Amount            int64     `json:"amount" validate:"required,gt=0"`
 }
 
 type NewBalanceResponse struct {

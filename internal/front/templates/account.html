@@ -1,0 +1,84 @@
+{{define "content"}}
+<h1>Детали счета</h1>
+<p class="muted" style="font-family: monospace;">UUID: {{.Account.ID}}</p>
+
+{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+
+<div class="box" style="background: #f9fbfd; margin-bottom: 20px;">
+    <h2>Текущий баланс: <span style="color: #0b66c3;">{{formatMoney .Account.Balance}}</span></h2>
+</div>
+
+<section class="row">
+    <div class="col box">
+        <h3>Пополнить</h3>
+        <form method="post" action="/me/accounts/{{.Account.ID}}/deposit" class="actions">
+            <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            <button type="submit">Внести депозит</button>
+        </form>
+    </div>
+
+    <div class="col box">
+        <h3>Вывести</h3>
+        <form method="post" action="/me/accounts/{{.Account.ID}}/withdraw" class="actions">
+            <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            <button type="submit">Снять средства</button>
+        </form>
+    </div>
+
+    <div class="col box">
+        <h3>Перевести</h3>
+        <form method="post" action="/me/accounts/{{.Account.ID}}/transfer" class="actions">
+            <input name="to_account_id" type="text" required placeholder="UUID счета получателя">
+            <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            <button type="submit">Перевести</button>
+        </form>
+    </div>
+</section>
+
+<hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+<h3>История транзакций</h3>
+{{if .Transactions}}
+<table>
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Сумма</th>
+            <th>Контрагент</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Transactions}}
+        <tr>
+            <td>{{.CompletedAt}}</td>
+            <td>
+                {{if eq .OpType "DEPOSIT"}}<span style="color: green;">Пополнение</span>
+                {{else if eq .OpType "WITHDRAW"}}<span style="color: red;">Вывод</span>
+                {{else if eq .OpType "TRANSFER"}}<span style="color: blue;">Перевод</span>
+                {{else}}{{.OpType}}{{end}}
+            </td>
+            <td>
+                {{if or (eq .OpType "WITHDRAW") (and (eq .OpType "TRANSFER")  (ne (strVal .DonorAccountID) .ID))}}
+                    <span style="color: red;">-{{formatMoney .Amount}}</span>
+                {{else}}
+                    <span style="color: green;">+{{formatMoney .Amount}}</span>
+                {{end}}
+            </td>
+            <td style="font-family: monospace; font-size: 0.9em;">
+                {{if eq .OpType "TRANSFER"}}
+                    {{if ne (strVal .ReceiverAccountID) $.Account.ID}}
+                        <span style="color: #666;">Кому:</span> {{strVal .ReceiverAccountID}}
+                    {{else}}
+                        <span style="color: #666;">От:</span> {{strVal .DonorAccountID}}
+                    {{end}}
+                {{end}}
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+    <p class="muted">Транзакций по этому счету пока не было.</p>
+{{end}}
+{{end}}

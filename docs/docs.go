@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.LoginRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginRequest"
                         }
                     }
                 ],
@@ -44,7 +44,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginResponse"
                         }
                     },
                     "400": {
@@ -84,7 +84,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.User"
                         }
                     },
                     "400": {
@@ -119,7 +119,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.UpdateUser"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest"
                         }
                     }
                 ],
@@ -127,7 +127,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.User"
                         }
                     },
                     "400": {
@@ -505,7 +505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.RegisterRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.RegisterRequest"
                         }
                     }
                 ],
@@ -559,6 +559,64 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_SlayerSv_payments_internal_auth_models.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_auth_models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_auth_models.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_auth_models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_SlayerSv_payments_internal_shared_errs.Response": {
             "type": "object",
             "properties": {
@@ -608,6 +666,9 @@ const docTemplate = `{
                 "donor_email": {
                     "type": "string"
                 },
+                "donor_name": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -621,6 +682,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "receiver_email": {
+                    "type": "string"
+                },
+                "receiver_name": {
                     "type": "string"
                 }
             }
@@ -710,60 +774,10 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_gateway_api_http.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "internal_gateway_api_http.OTPRequest": {
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_gateway_api_http.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_gateway_api_http.UpdateUser": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
                     "type": "string"
                 }
             }

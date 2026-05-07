@@ -15,10 +15,10 @@ type Account struct {
 }
 
 type AccountResponse struct {
-	ID        string    `json:"id"`
-	OwnerID   string    `json:"owner_id"`
-	Balance   int64     `json:"balance"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string `json:"id"`
+	OwnerID   string `json:"owner_id"`
+	Balance   int64  `json:"balance"`
+	CreatedAt string `json:"created_at"`
 }
 
 type AccountsResponse struct {

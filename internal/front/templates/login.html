@@ -1,0 +1,22 @@
+{{define "content"}}
+<h1>Вход</h1>
+{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+
+<form method="post" class="row">
+    <div class="col">
+        <label>Email</label>
+        <input name="email" type="email" required>
+    </div>
+    <div class="col">
+        <label>Пароль / Одноразовый код (OTP)</label>
+        <input name="password" type="text" required>
+    </div>
+    <div style="flex-basis: 100%">
+        <button type="submit">Войти</button>
+    </div>
+</form>
+
+<p class="muted">
+    <a href="/register">Регистрация</a> · <a href="/restore">Забыли пароль?</a>
+</p>
+{{end}}

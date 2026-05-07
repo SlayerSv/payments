@@ -104,12 +104,10 @@ func (s *Trans) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.NewB
 		return nil, status.Errorf(codes.InvalidArgument, "invalid receiver account id format: %v", err)
 	}
 	transreq := models.Transfer{
-		DonorID:             userID,
-		DonorAccountID:      donorAccID,
-		DonorAccountType:    mapAccType(req.DonorAccountType),
-		ReceiverAccountID:   receiverAccID,
-		ReceiverAccountType: mapAccType(req.ReceiverAccountType),
-		Amount:              req.Amount,
+		DonorID:           userID,
+		DonorAccountID:    donorAccID,
+		ReceiverAccountID: receiverAccID,
+		Amount:            req.Amount,
 	}
 	newBalance, err := s.service.Transfer(ctx, userID, transreq)
 	if err != nil {
