@@ -3,7 +3,6 @@ package grpcserver
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -109,7 +108,6 @@ func (s *Wallet) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, 
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 	accID, err := uuid.Parse(req.GetId())
-	fmt.Println(accID, req.GetId())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
 	}

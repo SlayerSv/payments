@@ -70,7 +70,7 @@ func (a *App) api(ctx context.Context, method, path, token string, in any, out a
 		if msg == "" {
 			msg = resp.Status
 		}
-		return b, resp.StatusCode, fmt.Errorf(msg)
+		return b, resp.StatusCode, fmt.Errorf("%s", msg)
 	}
 
 	if out != nil && len(b) > 0 {

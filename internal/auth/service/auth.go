@@ -131,18 +131,38 @@ func (a *Auth) SendOTP(otp models.OTP) error {
 	smtpHost := "smtp.mail.ru"
 	from := "payments.system@mail.ru"
 	password := os.Getenv("SMTP_PASSWORD")
-	fmt.Println("pass: ", password)
 	smtpPort := "465"
+
 	subject := "Пароль для входа в платежную систему"
 	body := "Ваш одноразовый пароль для входа в систему: " + otp.Code +
-		"\nДействителен до: " + otp.ExpiresAt.String() +
+		"\nДействителен до: " + otp.ExpiresAt.Format("02.01.2006 15:04:05") +
 		"\nПосле входа в систему поменяйте пароль в личном кабинете"
-	// 1. Формирование сообщения
-	msg := []byte(
-		"To: " + otp.Email + "\r\n" +
-			"From: " + from + "\r\n" +
-			"Subject: " + subject + "\r\n\r\n" +
-			body + "\r\n")
+
+	// 1. Кодируем тему письма в Base64 (стандарт RFC 2047)
+	// Это превратит кириллицу в строку вида =?UTF-8?B?encoded_data?=
+	utf8Subject := fmt.Sprintf("=?UTF-8?B?%s?=", base64.StdEncoding.EncodeToString([]byte(subject)))
+
+	// 2. Формируем заголовки с указанием кодировки UTF-8
+	header := make(map[string]string)
+	header["From"] = from
+	header["To"] = otp.Email
+	header["Subject"] = utf8Subject
+	header["MIME-Version"] = "1.0"
+	header["Content-Type"] = "text/plain; charset=\"utf-8\""
+	header["Content-Transfer-Encoding"] = "base64" // Безопаснее слать тело тоже в base64
+
+	// Собираем сообщение
+	var builder strings.Builder
+	for k, v := range header {
+		builder.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
+	}
+
+	// Кодируем тело письма в base64, чтобы почтовики не ломали символы при пересылке
+	encodedBody := base64.StdEncoding.EncodeToString([]byte(body))
+	builder.WriteString("\r\n")
+	builder.WriteString(encodedBody)
+
+	msg := []byte(builder.String())
 	// 2. Аутентификация
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 	// 3. Установка безопасного TLS соединения (Implicit TLS для порта 465)

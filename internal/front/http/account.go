@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/SlayerSv/payments/internal/auth/models"
+	authmodels "github.com/SlayerSv/payments/internal/auth/models"
 	transmodels "github.com/SlayerSv/payments/internal/trans/models"
 	walletmodels "github.com/SlayerSv/payments/internal/wallet/models"
 )
@@ -24,7 +24,7 @@ func (a *App) home(w http.ResponseWriter, r *http.Request) {
 func (a *App) mePage(w http.ResponseWriter, r *http.Request) {
 	token := a.token(r)
 
-	var me models.UserDTO
+	var me authmodels.UserDTO
 	if _, _, err := a.api(r.Context(), http.MethodGet, "/me", token, nil, &me); err != nil {
 		a.render(w, "me", PageData{Title: "Личный кабинет", Error: err.Error()})
 		return
@@ -43,19 +43,19 @@ func (a *App) mePage(w http.ResponseWriter, r *http.Request) {
 func (a *App) meUpdate(w http.ResponseWriter, r *http.Request) {
 	token := a.token(r)
 
-	payload := map[string]string{}
+	req := authmodels.UpdateUserRequest{}
 	if v := strings.TrimSpace(r.FormValue("name")); v != "" {
-		payload["name"] = v
+		req.Name = &v
 	}
 	if v := strings.TrimSpace(r.FormValue("password")); v != "" {
-		payload["password"] = v
+		req.Password = &v
 	}
-	if len(payload) == 0 {
+	if req.Name == nil && req.Password == nil {
 		http.Redirect(w, r, "/me", http.StatusFound)
 		return
 	}
 
-	if _, _, err := a.api(r.Context(), http.MethodPatch, "/me", token, payload, nil); err != nil {
+	if _, _, err := a.api(r.Context(), http.MethodPatch, "/me", token, req, nil); err != nil {
 		a.render(w, "me", PageData{Title: "Личный кабинет", Authed: true, Error: err.Error()})
 		return
 	}
@@ -117,10 +117,9 @@ func (a *App) transfer(w http.ResponseWriter, r *http.Request) {
 		a.accountError(w, r, id, err)
 		return
 	}
-
-	payload := map[string]any{
-		"amount":        amount,
-		"to_account_id": strings.TrimSpace(r.FormValue("to_account_id")),
+	payload := transmodels.TransferRequest{
+		Amount:            amount,
+		ReceiverAccountID: strings.TrimSpace(r.FormValue("to_account_id")),
 	}
 	if _, _, err := a.api(r.Context(), http.MethodPost, "/me/accounts/"+id+"/transfer", token, payload, nil); err != nil {
 		a.accountError(w, r, id, err)
@@ -139,8 +138,8 @@ func (a *App) accountAction(w http.ResponseWriter, r *http.Request, suffix strin
 		return
 	}
 
-	if _, _, err := a.api(r.Context(), http.MethodPost, "/me/accounts/"+id+suffix, token, map[string]any{
-		"amount": amount,
+	if _, _, err := a.api(r.Context(), http.MethodPost, "/me/accounts/"+id+suffix, token, transmodels.DepositRequest{
+		Amount: amount,
 	}, nil); err != nil {
 		a.accountError(w, r, id, err)
 		return
@@ -166,7 +165,7 @@ func (a *App) accountError(w http.ResponseWriter, r *http.Request, id string, er
 	})
 }
 
-func parseAmount(s string) (float64, error) {
+func parseAmount(s string) (int64, error) {
 	s = strings.TrimSpace(strings.ReplaceAll(s, ",", "."))
 	if s == "" {
 		return 0, fmt.Errorf("amount is required")
@@ -178,5 +177,5 @@ func parseAmount(s string) (float64, error) {
 	if v <= 0 {
 		return 0, fmt.Errorf("amount must be > 0")
 	}
-	return v, nil
+	return int64(v * 100), nil
 }

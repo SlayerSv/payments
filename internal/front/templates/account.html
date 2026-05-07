@@ -59,7 +59,7 @@
                 {{else}}{{.OpType}}{{end}}
             </td>
             <td>
-                {{if or (eq .OpType "WITHDRAW") (and (eq .OpType "TRANSFER")  (ne (strVal .DonorAccountID) .ID))}}
+                {{if or (eq .OpType "WITHDRAW") (and (eq .OpType "TRANSFER")  (ne (strVal .ReceiverAccountID) $.Account.ID))}}
                     <span style="color: red;">-{{formatMoney .Amount}}</span>
                 {{else}}
                     <span style="color: green;">+{{formatMoney .Amount}}</span>

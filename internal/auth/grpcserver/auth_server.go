@@ -93,11 +93,14 @@ func (a *AuthServer) Get(ctx context.Context, req *emptypb.Empty) (*pb.UserRespo
 	if err != nil {
 		return nil, err
 	}
-
+	name := ""
+	if user.Name != nil {
+		name = *user.Name
+	}
 	return &pb.UserResponse{
 		Id:        user.ID.String(),
 		Email:     user.Email,
-		Name:      *user.Name,
+		Name:      name,
 		CreatedAt: timestamppb.New(user.CreatedAt),
 		UpdatedAt: timestamppb.New(user.UpdatedAt),
 	}, nil
