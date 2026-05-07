@@ -7,6 +7,7 @@ import (
 	pb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	models "github.com/SlayerSv/payments/internal/wallet/models"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AccountID struct {
@@ -76,7 +77,7 @@ func (app *App) GetAllAccounts(w http.ResponseWriter, r *http.Request) {
 // @Router       /me/accounts [post]
 func (app *App) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	resp, err := app.Clients.Wallet.Create(ctx, &pb.CreateRequest{OwnerId: ""})
+	resp, err := app.Clients.Wallet.Create(ctx, &emptypb.Empty{})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error creating account: %w", errs.Internal, err))
 		return

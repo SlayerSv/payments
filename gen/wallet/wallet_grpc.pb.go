@@ -33,7 +33,7 @@ const (
 type WalletServiceClient interface {
 	// Главный метод для транзакций (Пополнение/Списание/Перевод)
 	ProcessOperation(ctx context.Context, in *ProcessOperationRequest, opts ...grpc.CallOption) (*ProcessOperationResponse, error)
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
+	Create(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -57,7 +57,7 @@ func (c *walletServiceClient) ProcessOperation(ctx context.Context, in *ProcessO
 	return out, nil
 }
 
-func (c *walletServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
+func (c *walletServiceClient) Create(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CreateResponse)
 	err := c.cc.Invoke(ctx, WalletService_Create_FullMethodName, in, out, cOpts...)
@@ -103,7 +103,7 @@ func (c *walletServiceClient) Delete(ctx context.Context, in *DeleteRequest, opt
 type WalletServiceServer interface {
 	// Главный метод для транзакций (Пополнение/Списание/Перевод)
 	ProcessOperation(context.Context, *ProcessOperationRequest) (*ProcessOperationResponse, error)
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
+	Create(context.Context, *emptypb.Empty) (*CreateResponse, error)
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error)
@@ -120,7 +120,7 @@ type UnimplementedWalletServiceServer struct{}
 func (UnimplementedWalletServiceServer) ProcessOperation(context.Context, *ProcessOperationRequest) (*ProcessOperationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ProcessOperation not implemented")
 }
-func (UnimplementedWalletServiceServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
+func (UnimplementedWalletServiceServer) Create(context.Context, *emptypb.Empty) (*CreateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedWalletServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
@@ -172,7 +172,7 @@ func _WalletService_ProcessOperation_Handler(srv interface{}, ctx context.Contex
 }
 
 func _WalletService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func _WalletService_Create_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: WalletService_Create_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletServiceServer).Create(ctx, req.(*CreateRequest))
+		return srv.(WalletServiceServer).Create(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

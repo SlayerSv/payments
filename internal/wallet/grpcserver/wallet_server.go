@@ -87,7 +87,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 }
 
 // CreateWallet — регистрация кошелька
-func (s *Wallet) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
+func (s *Wallet) Create(ctx context.Context, req *emptypb.Empty) (*pb.CreateResponse, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
