@@ -34,6 +34,7 @@ func NewAuth(auth repo.Auth, otp repo.OTP, user repo.User, secretClient *api.Cli
 }
 
 func (a *Auth) Register(ctx context.Context, email string) error {
+	email = strings.ToLower(strings.TrimSpace(email))
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)
@@ -55,6 +56,7 @@ func (a *Auth) Register(ctx context.Context, email string) error {
 }
 
 func (a *Auth) Login(ctx context.Context, email, password string) (string, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
 	user, err := a.User.GetByEmail(ctx, email)
 	if err != nil {
 		return "", fmt.Errorf("%v: error getting user: %v", errs.InvalidCredentials, err)
@@ -92,6 +94,7 @@ func (a *Auth) Login(ctx context.Context, email, password string) (string, error
 }
 
 func (a *Auth) Restore(ctx context.Context, email string) error {
+	email = strings.ToLower(strings.TrimSpace(email))
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errs.IncorrectEmail, err)

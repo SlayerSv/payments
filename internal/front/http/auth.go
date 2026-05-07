@@ -3,7 +3,6 @@ package app
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/SlayerSv/payments/internal/auth/models"
 )
@@ -19,8 +18,8 @@ func (a *App) restorePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) loginPost(w http.ResponseWriter, r *http.Request) {
-	email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
-	password := strings.TrimSpace(r.FormValue("password"))
+	email := r.FormValue("email")
+	password := r.FormValue("password")
 
 	b, _, err := a.api(r.Context(), http.MethodPost, "/login", "", models.LoginRequest{
 		Email:    email,
@@ -45,7 +44,7 @@ func (a *App) loginPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) registerPost(w http.ResponseWriter, r *http.Request) {
-	email := strings.TrimSpace(r.FormValue("email"))
+	email := r.FormValue("email")
 	_, _, err := a.api(r.Context(), http.MethodPost, "/register", "", models.RegisterRequest{
 		Email: email,
 	}, nil)
@@ -57,7 +56,7 @@ func (a *App) registerPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) restorePost(w http.ResponseWriter, r *http.Request) {
-	email := strings.TrimSpace(r.FormValue("email"))
+	email := r.FormValue("email")
 	_, _, err := a.api(r.Context(), http.MethodPost, "/restore", "", map[string]string{
 		"email": email,
 	}, nil)
