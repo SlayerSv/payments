@@ -1,0 +1,9 @@
+*.exe
+bin/
+service
+.git
+init-db/
+*.md
+*.gitignore
+*.sh
+docker-compose.yaml

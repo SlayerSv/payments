@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"os"
+	"time"
 
 	pb "github.com/SlayerSv/payments/gen/auth"
 	"github.com/SlayerSv/payments/internal/auth/grpcserver"
+	"github.com/SlayerSv/payments/internal/auth/repo"
 	"github.com/SlayerSv/payments/internal/auth/repo/postgres"
 	"github.com/SlayerSv/payments/internal/auth/service"
+	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
-	"github.com/hashicorp/vault/api"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -23,32 +24,35 @@ func main() {
 	godotenv.Load()
 	connStr := os.Getenv("AUTH_DB_CONN")
 
-	// 1. Создаем пул соединений
-	dbpool, err := pgxpool.New(context.Background(), connStr)
+	var dbpool *pgxpool.Pool
+	var err error
+	for i := 0; i < 5; i++ {
+		dbpool, err = pgxpool.New(context.Background(), connStr)
+		if err == nil {
+			err = dbpool.Ping(context.Background())
+			if err == nil {
+				break
+			}
+		}
+		log.Printf("База еще не готова (попытка %d): %v", i+1, err)
+		time.Sleep(2 * time.Second)
+	}
 	if err != nil {
-		log.Fatalf("Не удалось создать пул соединений: %v\n", err)
+		log.Fatalf("Не удалось подключиться к базе после 5 попыток: %v", err)
 	}
 	defer dbpool.Close()
+	log.Println("Успешное подключение к PostgreSQL!")
+	repo.StartMigrations(connStr)
 
-	// 2. Проверяем соединение
-	err = dbpool.Ping(context.Background())
+	client, err := bao.NewBaoClient()
 	if err != nil {
-		log.Fatalf("Ошибка пинга пула: %v\n", err)
+		log.Fatalf("Не удалось подлючиться к опенбао: %v\n", err)
 	}
-	fmt.Println("Успешное подключение к PostgreSQL!")
-
-	config := api.DefaultConfig()
-	config.Address = "http://localhost:8200" // Адрес OpenBao
-	client, err := api.NewClient(config)
-	if err != nil {
-		log.Fatalf("Не удалось создать клиент опенбао: %v\n", err)
-	}
-	client.SetToken("myroot")
 	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
 	if err != nil {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
-	lis, _ := net.Listen("tcp", "localhost:50051")
+	lis, _ := net.Listen("tcp", ":50051")
 
 	// Настраиваем сервер с ОДНИМ интерцептором
 	srv := grpc.NewServer(

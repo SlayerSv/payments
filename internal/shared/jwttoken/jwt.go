@@ -16,7 +16,9 @@ func GetPublicKey(client *api.Client, keyName string) (crypto.PublicKey, error) 
 	if err != nil {
 		return nil, err
 	}
-
+	if secret == nil {
+		return nil, fmt.Errorf("secret not found")
+	}
 	keysData, ok := secret.Data["keys"].(map[string]any)
 	if !ok {
 		return nil, fmt.Errorf("could not find keys data")

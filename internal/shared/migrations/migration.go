@@ -3,10 +3,10 @@ package migrations
 import (
 	"embed"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/jackc/pgx/v5"
 )
@@ -30,8 +30,8 @@ func RunMigrations(dbURL string, sqlFiles embed.FS, dirName string) {
 	}
 
 	if errors.Is(err, migrate.ErrNoChange) {
-		fmt.Println("Database is up to date")
+		log.Println("Database is up to date")
 	} else {
-		fmt.Println("Migrations applied successfully!")
+		log.Println("Migrations applied successfully!")
 	}
 }

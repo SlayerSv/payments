@@ -7,10 +7,10 @@ import (
 
 	app "github.com/SlayerSv/payments/internal/gateway/api/http"
 	"github.com/SlayerSv/payments/internal/gateway/clients"
+	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/validator"
-	"github.com/hashicorp/vault/api"
 )
 
 // @title           Payments API
@@ -30,19 +30,18 @@ func main() {
 		log.Fatalf("Error getting logger: %v", err)
 	}
 	server := &http.Server{
-		Addr:     "localhost:8081",
+		Addr:     ":8081",
 		ErrorLog: logger.Error,
 	}
-	config := api.DefaultConfig()
-	config.Address = "http://localhost:8200" // Адрес OpenBao
-	client, _ := api.NewClient(config)
-	client.SetToken("myroot")
-
+	client, err := bao.NewBaoClient()
+	if err != nil {
+		log.Fatalf("Не удалось подлючиться к опенбао: %v\n", err)
+	}
 	key, err := jwttoken.GetPublicKey(client, "jwt_key")
 	if err != nil {
 		log.Fatalf("Error getting public key %v", err)
 	}
-	clients, err := clients.InitClients("localhost:50051", "localhost:50051", "localhost:50053", "localhost:50052", "gateway")
+	clients, err := clients.InitClients(os.Getenv("AUTH_ADDR"), os.Getenv("USER_ADDR"), os.Getenv("WALLET_ADDR"), os.Getenv("TRANS_ADDR"), "gateway")
 	if err != nil {
 		log.Fatalf("Error creating clients %v", err)
 	}
