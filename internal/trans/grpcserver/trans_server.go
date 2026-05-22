@@ -41,9 +41,9 @@ func (s *Trans) Deposit(ctx context.Context, req *pb.DepositRequest) (*pb.NewBal
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	accID, err := uuid.Parse(req.AccountId)
+	accID, err := uuid.Parse(req.WalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "error parsing account id: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "error parsing wallet id: %v", err)
 	}
 	newBalance, err := s.service.Deposit(ctx, userID, accID, req.Amount)
 	if err != nil {
@@ -57,9 +57,9 @@ func (s *Trans) Withdraw(ctx context.Context, req *pb.WithdrawRequest) (*pb.NewB
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	accID, err := uuid.Parse(req.AccountId)
+	accID, err := uuid.Parse(req.WalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "error parsing account id: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "error parsing wallet id: %v", err)
 	}
 	newBalance, err := s.service.Withdraw(ctx, userID, accID, req.Amount)
 	if err != nil {
@@ -73,18 +73,18 @@ func (s *Trans) Transfer(ctx context.Context, req *pb.TransferRequest) (*pb.NewB
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	donorAccID, err := uuid.Parse(req.DonorAccountId)
+	donorAccID, err := uuid.Parse(req.DonorWalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid donor account id format: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid donor wallet id format: %v", err)
 	}
-	receiverAccID, err := uuid.Parse(req.ReceiverAccountId)
+	receiverAccID, err := uuid.Parse(req.ReceiverWalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid receiver account id format: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid receiver wallet id format: %v", err)
 	}
 	transreq := models.Transfer{
-		DonorAccountID:    donorAccID,
-		ReceiverAccountID: receiverAccID,
-		Amount:            req.Amount,
+		DonorWalletID:    donorAccID,
+		ReceiverWalletID: receiverAccID,
+		Amount:           req.Amount,
 	}
 	newBalance, err := s.service.Transfer(ctx, userID, transreq)
 	if err != nil {
@@ -98,9 +98,9 @@ func (s *Trans) GetTransactionHistory(ctx context.Context, req *pb.GetTransactio
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id format: %v", err)
 	}
-	accID, err := uuid.Parse(req.AccountId)
+	accID, err := uuid.Parse(req.WalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid wallet_id format: %v", err)
 	}
 	trans, err := s.service.GetTransactionHistory(ctx, userID, accID)
 	if err != nil {
@@ -114,12 +114,12 @@ func (s *Trans) GetTransactionHistory(ctx context.Context, req *pb.GetTransactio
 		tr.Amount = tran.Amount
 		tr.CreatedAt = timestamppb.New(tran.UpdatedAt)
 		if tr.OpType == pb.OperationType_DEPOSIT || tr.OpType == pb.OperationType_TRANSFER {
-			raccid := tran.ReceiverAccountID.String()
-			tr.ReceiverAccountId = &raccid
+			raccid := tran.ReceiverWalletID.String()
+			tr.ReceiverWalletId = &raccid
 		}
 		if tr.OpType == pb.OperationType_WITHDRAW || tr.OpType == pb.OperationType_TRANSFER {
-			daccid := tran.DonorAccountID.String()
-			tr.DonorAccountId = &daccid
+			daccid := tran.DonorWalletID.String()
+			tr.DonorWalletId = &daccid
 		}
 		resp.Transactions = append(resp.Transactions, tr)
 	}

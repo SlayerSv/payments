@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/SlayerSv/payments/gen/auth"
-	"github.com/SlayerSv/payments/internal/auth/models"
 	"github.com/SlayerSv/payments/internal/shared/errs"
+	"github.com/SlayerSv/payments/internal/shared/models"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -40,7 +41,7 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 
 // Register creates a new user
 // @Summary      Register User
-// @Description  Creates a new user account and sends a one time password to the user's email
+// @Description  Creates a new user wallet and sends a one time password to the user's email
 // @Tags         auth
 // @Accept       json
 // @Produce      json
@@ -56,18 +57,45 @@ func (app *App) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ctx := r.Context()
-	resp, err := app.Clients.Auth.Register(ctx, &auth.RegisterRequest{Email: rr.Email})
+	_, err = app.Clients.Auth.Register(ctx, &auth.RegisterRequest{Email: rr.Email})
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error register: %w", errs.Internal, err))
 		return
 	}
 	w.WriteHeader(201)
-	app.Encode(w, r, resp.GetStatus())
 }
 
-// GetUser gets user's account
-// @Summary      Gets user's account information
-// @Description  Gets user`s account information (name, email).
+type OTPRequest struct {
+	Email string `json:"email"`
+}
+
+// Restore creates and sends one-time passwords
+// @Summary      Creates a one-time password for a user with a certain email, saves it to a database and sends to the user
+// @Tags         auth
+// @Security     BearerAuth
+// @Accept       json
+// @Param        email body OTPRequest true "Email of a user"
+// @Success      204
+// @Router       /restore [post]
+func (app *App) Restore(w http.ResponseWriter, r *http.Request) {
+	t := OTPRequest{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		app.ErrorJSON(w, r, fmt.Errorf("%w: error decoding email: %w", errs.BadRequest, err))
+		return
+	}
+	t.Email = strings.TrimSpace(t.Email)
+	_, err = app.Clients.Auth.Restore(r.Context(), &auth.RestoreRequest{Email: t.Email})
+	if err != nil {
+		app.ErrorJSON(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// GetUser gets user's wallet
+// @Summary      Gets user's wallet information
+// @Description  Gets user`s wallet information (name, email).
 // @Tags         users
 // @Security     BearerAuth
 // @Accept       json

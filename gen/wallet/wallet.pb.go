@@ -28,7 +28,7 @@ type ProcessOperationRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	IdempotencyKey string                 `protobuf:"bytes,1,opt,name=idempotency_key,json=idempotencyKey,proto3" json:"idempotency_key,omitempty"` // Уникальный ключ (txID + суффикс)
 	TransactionId  string                 `protobuf:"bytes,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`    // ID транзакции для логов/аутбокса
-	AccountId      string                 `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`                // ID кошелька
+	WalletId       string                 `protobuf:"bytes,3,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`                   // ID кошелька
 	Amount         int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`                                      // Сумма изменения (положительная или отрицательная)
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -78,9 +78,9 @@ func (x *ProcessOperationRequest) GetTransactionId() string {
 	return ""
 }
 
-func (x *ProcessOperationRequest) GetAccountId() string {
+func (x *ProcessOperationRequest) GetWalletId() string {
 	if x != nil {
-		return x.AccountId
+		return x.WalletId
 	}
 	return ""
 }
@@ -152,7 +152,7 @@ func (x *ProcessOperationResponse) GetStatus() string {
 	return ""
 }
 
-type Account struct {
+type Wallet struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	OwnerId       string                 `protobuf:"bytes,2,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
@@ -162,20 +162,20 @@ type Account struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Account) Reset() {
-	*x = Account{}
+func (x *Wallet) Reset() {
+	*x = Wallet{}
 	mi := &file_wallet_wallet_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Account) String() string {
+func (x *Wallet) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Account) ProtoMessage() {}
+func (*Wallet) ProtoMessage() {}
 
-func (x *Account) ProtoReflect() protoreflect.Message {
+func (x *Wallet) ProtoReflect() protoreflect.Message {
 	mi := &file_wallet_wallet_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -187,33 +187,33 @@ func (x *Account) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Account.ProtoReflect.Descriptor instead.
-func (*Account) Descriptor() ([]byte, []int) {
+// Deprecated: Use Wallet.ProtoReflect.Descriptor instead.
+func (*Wallet) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Account) GetId() string {
+func (x *Wallet) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Account) GetOwnerId() string {
+func (x *Wallet) GetOwnerId() string {
 	if x != nil {
 		return x.OwnerId
 	}
 	return ""
 }
 
-func (x *Account) GetBalance() int64 {
+func (x *Wallet) GetBalance() int64 {
 	if x != nil {
 		return x.Balance
 	}
 	return 0
 }
 
-func (x *Account) GetCreateAt() *timestamppb.Timestamp {
+func (x *Wallet) GetCreateAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreateAt
 	}
@@ -266,7 +266,7 @@ func (x *GetRequest) GetId() string {
 
 type GetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Account       *Account               `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	Wallet        *Wallet                `protobuf:"bytes,1,opt,name=wallet,proto3" json:"wallet,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -301,9 +301,9 @@ func (*GetResponse) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetResponse) GetAccount() *Account {
+func (x *GetResponse) GetWallet() *Wallet {
 	if x != nil {
-		return x.Account
+		return x.Wallet
 	}
 	return nil
 }
@@ -354,7 +354,7 @@ func (x *GetAllRequest) GetOwnerId() string {
 
 type GetAllResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Accounts      []*Account             `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
+	Wallets       []*Wallet              `protobuf:"bytes,1,rep,name=wallets,proto3" json:"wallets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -389,16 +389,16 @@ func (*GetAllResponse) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GetAllResponse) GetAccounts() []*Account {
+func (x *GetAllResponse) GetWallets() []*Wallet {
 	if x != nil {
-		return x.Accounts
+		return x.Wallets
 	}
 	return nil
 }
 
 type CreateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -433,9 +433,9 @@ func (*CreateResponse) Descriptor() ([]byte, []int) {
 	return file_wallet_wallet_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *CreateResponse) GetAccountId() string {
+func (x *CreateResponse) GetWalletId() string {
 	if x != nil {
-		return x.AccountId
+		return x.WalletId
 	}
 	return ""
 }
@@ -488,35 +488,33 @@ var File_wallet_wallet_proto protoreflect.FileDescriptor
 
 const file_wallet_wallet_proto_rawDesc = "" +
 	"\n" +
-	"\x13wallet/wallet.proto\x12\x06wallet\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa0\x01\n" +
+	"\x13wallet/wallet.proto\x12\x06wallet\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9e\x01\n" +
 	"\x17ProcessOperationRequest\x12'\n" +
 	"\x0fidempotency_key\x18\x01 \x01(\tR\x0eidempotencyKey\x12%\n" +
-	"\x0etransaction_id\x18\x02 \x01(\tR\rtransactionId\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x03 \x01(\tR\taccountId\x12\x16\n" +
+	"\x0etransaction_id\x18\x02 \x01(\tR\rtransactionId\x12\x1b\n" +
+	"\twallet_id\x18\x03 \x01(\tR\bwalletId\x12\x16\n" +
 	"\x06amount\x18\x04 \x01(\x03R\x06amount\"c\n" +
 	"\x18ProcessOperationResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vnew_balance\x18\x02 \x01(\x03R\n" +
 	"newBalance\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"\x87\x01\n" +
-	"\aAccount\x12\x0e\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"\x86\x01\n" +
+	"\x06Wallet\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bowner_id\x18\x02 \x01(\tR\aownerId\x12\x18\n" +
 	"\abalance\x18\x03 \x01(\x03R\abalance\x127\n" +
 	"\tcreate_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bcreateAt\"\x1c\n" +
 	"\n" +
 	"GetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"8\n" +
-	"\vGetResponse\x12)\n" +
-	"\aaccount\x18\x01 \x01(\v2\x0f.wallet.AccountR\aaccount\"*\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"5\n" +
+	"\vGetResponse\x12&\n" +
+	"\x06wallet\x18\x01 \x01(\v2\x0e.wallet.WalletR\x06wallet\"*\n" +
 	"\rGetAllRequest\x12\x19\n" +
-	"\bowner_id\x18\x01 \x01(\tR\aownerId\"=\n" +
-	"\x0eGetAllResponse\x12+\n" +
-	"\baccounts\x18\x01 \x03(\v2\x0f.wallet.AccountR\baccounts\"/\n" +
-	"\x0eCreateResponse\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\"\x1f\n" +
+	"\bowner_id\x18\x01 \x01(\tR\aownerId\":\n" +
+	"\x0eGetAllResponse\x12(\n" +
+	"\awallets\x18\x01 \x03(\v2\x0e.wallet.WalletR\awallets\"-\n" +
+	"\x0eCreateResponse\x12\x1b\n" +
+	"\twallet_id\x18\x01 \x01(\tR\bwalletId\"\x1f\n" +
 	"\rDeleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id2\xc2\x02\n" +
 	"\rWalletService\x12U\n" +
@@ -542,7 +540,7 @@ var file_wallet_wallet_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_wallet_wallet_proto_goTypes = []any{
 	(*ProcessOperationRequest)(nil),  // 0: wallet.ProcessOperationRequest
 	(*ProcessOperationResponse)(nil), // 1: wallet.ProcessOperationResponse
-	(*Account)(nil),                  // 2: wallet.Account
+	(*Wallet)(nil),                   // 2: wallet.Wallet
 	(*GetRequest)(nil),               // 3: wallet.GetRequest
 	(*GetResponse)(nil),              // 4: wallet.GetResponse
 	(*GetAllRequest)(nil),            // 5: wallet.GetAllRequest
@@ -553,9 +551,9 @@ var file_wallet_wallet_proto_goTypes = []any{
 	(*emptypb.Empty)(nil),            // 10: google.protobuf.Empty
 }
 var file_wallet_wallet_proto_depIdxs = []int32{
-	9,  // 0: wallet.Account.create_at:type_name -> google.protobuf.Timestamp
-	2,  // 1: wallet.GetResponse.account:type_name -> wallet.Account
-	2,  // 2: wallet.GetAllResponse.accounts:type_name -> wallet.Account
+	9,  // 0: wallet.Wallet.create_at:type_name -> google.protobuf.Timestamp
+	2,  // 1: wallet.GetResponse.wallet:type_name -> wallet.Wallet
+	2,  // 2: wallet.GetAllResponse.wallets:type_name -> wallet.Wallet
 	0,  // 3: wallet.WalletService.ProcessOperation:input_type -> wallet.ProcessOperationRequest
 	10, // 4: wallet.WalletService.Create:input_type -> google.protobuf.Empty
 	3,  // 5: wallet.WalletService.Get:input_type -> wallet.GetRequest

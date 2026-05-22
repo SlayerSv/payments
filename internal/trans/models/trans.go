@@ -42,52 +42,18 @@ func GetOperationType(acctype string) OperationType {
 }
 
 type Transaction struct {
-	ID                uuid.UUID
-	OpType            OperationType
-	DonorAccountID    *uuid.UUID
-	ReceiverAccountID *uuid.UUID
-	Amount            int64
-	Status            TransactionStatus
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
-}
-
-type TransactionDTO struct {
-	ID                string    `json:"id"`
-	OpType            string    `json:"op_type"`
-	DonorAccountID    *string   `json:"donor_account_id,omitzero"`
-	DonorEmail        *string   `json:"donor_email,omitzero"`
-	DonorName         *string   `json:"donor_name,omitzero"`
-	ReceiverAccountID *string   `json:"receiver_account_id,omitzero"`
-	ReceiverEmail     *string   `json:"receiver_email,omitzero"`
-	ReceiverName      *string   `json:"receiver_name,omitzero"`
-	Amount            int64     `json:"amount"`
-	CompletedAt       time.Time `json:"completed_at"`
-}
-
-type TransactionHistory struct {
-	Transactions []TransactionDTO `json:"transactions"`
-}
-
-type DepositRequest struct {
-	Amount int64 `json:"amount" validate:"required,gt=0"`
-}
-
-type WithdrawRequest struct {
-	Amount int64 `json:"amount" validate:"required,gt=0"`
-}
-
-type TransferRequest struct {
-	ReceiverAccountID string `json:"receiver_account_id" validate:"required,uuid"`
-	Amount            int64  `json:"amount" validate:"required,gt=0"`
+	ID               uuid.UUID
+	OpType           OperationType
+	DonorWalletID    *uuid.UUID
+	ReceiverWalletID *uuid.UUID
+	Amount           int64
+	Status           TransactionStatus
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 type Transfer struct {
-	DonorAccountID    uuid.UUID `json:"donor_account_id" validate:"required,uuid"`
-	ReceiverAccountID uuid.UUID `json:"receiver_account_id" validate:"required,uuid"`
-	Amount            int64     `json:"amount" validate:"required,gt=0"`
-}
-
-type NewBalanceResponse struct {
-	NewBalance int64 `json:"new_balance"`
+	DonorWalletID    uuid.UUID `json:"donor_wallet_id" validate:"required,uuid"`
+	ReceiverWalletID uuid.UUID `json:"receiver_wallet_id" validate:"required,uuid"`
+	Amount           int64     `json:"amount" validate:"required,gt=0"`
 }

@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.LoginRequest"
                         }
                     }
                 ],
@@ -44,7 +44,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.LoginResponse"
                         }
                     },
                     "400": {
@@ -69,7 +69,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets user` + "`" + `s account information (name, email).",
+                "description": "Gets user` + "`" + `s wallet information (name, email).",
                 "consumes": [
                     "application/json"
                 ],
@@ -79,12 +79,12 @@ const docTemplate = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Gets user's account information",
+                "summary": "Gets user's wallet information",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
@@ -119,7 +119,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.UpdateUserRequest"
                         }
                     }
                 ],
@@ -127,7 +127,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
@@ -139,14 +139,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts": {
+        "/me/wallets": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets user` + "`" + `s all wallet/savings accounts",
+                "description": "Gets all user` + "`" + `s wallets",
                 "consumes": [
                     "application/json"
                 ],
@@ -154,14 +154,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "wallets"
                 ],
-                "summary": "Gets user's all wallet/savings accounts",
+                "summary": "Gets all user's wallets",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletsDTO"
                         }
                     },
                     "400": {
@@ -178,7 +178,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates wallet/savings account",
+                "description": "Creates wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,14 +186,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "wallets"
                 ],
-                "summary": "Creates wallet/savings account",
+                "summary": "Creates wallet",
                 "responses": {
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.AccountID"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletID"
                         }
                     },
                     "400": {
@@ -205,14 +205,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts/{account_id}": {
+        "/me/wallets/{wallet_id}": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets user` + "`" + `s wallet/savings account information.",
+                "description": "Gets user` + "`" + `s wallet information.",
                 "consumes": [
                     "application/json"
                 ],
@@ -220,14 +220,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "wallets"
                 ],
-                "summary": "Gets user's wallet/savings account information",
+                "summary": "Gets user's wallet information",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "Wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     }
@@ -236,7 +236,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletDTO"
                         }
                     },
                     "400": {
@@ -253,7 +253,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Deletes wallet/savings account",
+                "description": "Deletes wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -261,14 +261,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "wallets"
                 ],
-                "summary": "Deletes wallet/savings account",
+                "summary": "Deletes wallet",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "Wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     }
@@ -286,14 +286,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts/{account_id}/deposit": {
+        "/me/wallets/{wallet_id}/deposit": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Deposits funds to a specified account",
+                "description": "Deposits funds to a specified wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -303,12 +303,12 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Deposits funds to a specified account",
+                "summary": "Deposits funds to a specified wallet",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     },
@@ -318,7 +318,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.DepositRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.DepositRequest"
                         }
                     }
                 ],
@@ -326,7 +326,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse"
                         }
                     },
                     "400": {
@@ -338,14 +338,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts/{account_id}/transactions": {
+        "/me/wallets/{wallet_id}/transactions": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Gets history of transactions of an account",
+                "description": "Gets history of transactions of an wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -355,12 +355,12 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Gets history of transactions of an account",
+                "summary": "Gets history of transactions of an wallet",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     }
@@ -369,7 +369,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.History"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransactionHistory"
                         }
                     },
                     "400": {
@@ -381,14 +381,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts/{account_id}/transfer": {
+        "/me/wallets/{wallet_id}/transfer": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Transfers funds to a specified account",
+                "description": "Transfers funds to a specified wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -398,12 +398,12 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Transfers funds to a specified account",
+                "summary": "Transfers funds to a specified wallet",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     },
@@ -413,7 +413,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransferRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransferRequest"
                         }
                     }
                 ],
@@ -421,7 +421,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse"
                         }
                     },
                     "400": {
@@ -433,14 +433,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/me/accounts/{account_id}/withdraw": {
+        "/me/wallets/{wallet_id}/withdraw": {
             "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Withdraws funds from a specified account",
+                "description": "Withdraws funds from a specified wallet",
                 "consumes": [
                     "application/json"
                 ],
@@ -450,12 +450,12 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Withdraws funds from a specified account",
+                "summary": "Withdraws funds from a specified wallet",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
-                        "name": "account_id",
+                        "description": "wallet ID",
+                        "name": "wallet_id",
                         "in": "path",
                         "required": true
                     },
@@ -465,7 +465,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.WithdrawRequest"
                         }
                     }
                 ],
@@ -473,7 +473,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse"
                         }
                     },
                     "400": {
@@ -487,7 +487,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Creates a new user account and sends a one time password to the user's email",
+                "description": "Creates a new user wallet and sends a one time password to the user's email",
                 "consumes": [
                     "application/json"
                 ],
@@ -505,7 +505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_auth_models.RegisterRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.RegisterRequest"
                         }
                     }
                 ],
@@ -559,64 +559,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_SlayerSv_payments_internal_auth_models.LoginRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_SlayerSv_payments_internal_auth_models.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_SlayerSv_payments_internal_auth_models.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_SlayerSv_payments_internal_auth_models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_SlayerSv_payments_internal_shared_errs.Response": {
             "type": "object",
             "properties": {
@@ -625,22 +567,37 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_trans_models.DepositRequest": {
+        "github_com_SlayerSv_payments_internal_shared_models.DepositRequest": {
             "type": "object",
             "required": [
-                "account_type",
                 "amount"
             ],
             "properties": {
-                "account_type": {
-                    "type": "string"
-                },
                 "amount": {
                     "type": "integer"
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse": {
+        "github_com_SlayerSv_payments_internal_shared_models.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_shared_models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse": {
             "type": "object",
             "properties": {
                 "new_balance": {
@@ -648,7 +605,15 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_trans_models.TransactionDTO": {
+        "github_com_SlayerSv_payments_internal_shared_models.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_shared_models.TransactionDTO": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -657,16 +622,13 @@ const docTemplate = `{
                 "completed_at": {
                     "type": "string"
                 },
-                "donor_account_id": {
-                    "type": "string"
-                },
-                "donor_account_type": {
-                    "type": "string"
-                },
                 "donor_email": {
                     "type": "string"
                 },
                 "donor_name": {
+                    "type": "string"
+                },
+                "donor_wallet_id": {
                     "type": "string"
                 },
                 "id": {
@@ -675,59 +637,55 @@ const docTemplate = `{
                 "op_type": {
                     "type": "string"
                 },
-                "receiver_account_id": {
-                    "type": "string"
-                },
-                "receiver_account_type": {
-                    "type": "string"
-                },
                 "receiver_email": {
                     "type": "string"
                 },
                 "receiver_name": {
                     "type": "string"
+                },
+                "receiver_wallet_id": {
+                    "type": "string"
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_trans_models.TransferRequest": {
+        "github_com_SlayerSv_payments_internal_shared_models.TransactionHistory": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransactionDTO"
+                    }
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_shared_models.TransferRequest": {
             "type": "object",
             "required": [
                 "amount",
-                "donor_account_type",
-                "receiver_account_id",
-                "receiver_account_type"
+                "receiver_wallet_id"
             ],
             "properties": {
                 "amount": {
                     "type": "integer"
                 },
-                "donor_account_type": {
-                    "type": "string"
-                },
-                "receiver_account_id": {
-                    "type": "string"
-                },
-                "receiver_account_type": {
+                "receiver_wallet_id": {
                     "type": "string"
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest": {
+        "github_com_SlayerSv_payments_internal_shared_models.UpdateUserRequest": {
             "type": "object",
-            "required": [
-                "account_type",
-                "amount"
-            ],
             "properties": {
-                "account_type": {
+                "name": {
                     "type": "string"
                 },
-                "amount": {
-                    "type": "integer"
+                "password": {
+                    "type": "string"
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_wallet_models.AccountResponse": {
+        "github_com_SlayerSv_payments_internal_shared_models.WalletDTO": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -744,18 +702,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse": {
-            "type": "object",
-            "properties": {
-                "accounts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse"
-                    }
-                }
-            }
-        },
-        "internal_gateway_api_http.AccountID": {
+        "github_com_SlayerSv_payments_internal_shared_models.WalletID": {
             "type": "object",
             "properties": {
                 "id": {
@@ -763,14 +710,25 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_gateway_api_http.History": {
+        "github_com_SlayerSv_payments_internal_shared_models.WalletsDTO": {
             "type": "object",
             "properties": {
-                "transactions": {
+                "wallets": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransactionDTO"
+                        "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletDTO"
                     }
+                }
+            }
+        },
+        "github_com_SlayerSv_payments_internal_shared_models.WithdrawRequest": {
+            "type": "object",
+            "required": [
+                "amount"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
                 }
             }
         },
@@ -778,6 +736,26 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }

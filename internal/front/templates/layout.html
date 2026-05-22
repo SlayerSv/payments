@@ -6,48 +6,225 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{.Title}}</title>
     <style>
-        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; line-height: 1.45; }
-        header, section, nav, article { margin-bottom: 20px; }
-        .box { border: 1px solid #ddd; border-radius: 12px; padding: 16px; }
-        .row { display: flex; gap: 12px; flex-wrap: wrap; }
-        .col { flex: 1 1 280px; }
-        input, button { padding: 10px 12px; font: inherit; }
-        input { width: 100%; box-sizing: border-box; }
-        button { cursor: pointer; background-color: #0b66c3; color: white; border: none; border-radius: 6px; }
-        button:hover { background-color: #09529b; }
-        a { color: #0b66c3; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .err { background: #fff4f4; border: 1px solid #f1b2b2; padding: 10px 12px; border-radius: 10px; margin: 12px 0; color: #cc0000; }
-        .muted { color: #666; }
-        .tabs a { margin-right: 12px; font-weight: 500; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background-color: #f9f9f9; }
-        .actions form { display: grid; gap: 10px; margin-top: 10px; }
-        label { font-weight: 500; margin-bottom: 4px; display: block; }
+        :root {
+            --bg: #ffffff;
+            --bg-box: #f9f9f9;
+            --bg-input: #ffffff;
+            --text: #1a1a1a;
+            --text-muted: #666666;
+            --btn-text: #ffffff;
+            --border: #dddddd;
+            --primary: #0b66c3;
+            --primary-hover: #09529b;
+            --error-bg: #fff4f4;
+            --error-text: #cc0000;
+            --footer-text: #888888;
+        }
+
+        /* Цвета для темной темы */
+        [data-theme="dark"] {
+            --bg: #121212;
+            --bg-box: #1e1e1e;
+            --bg-input: #2d2d2d;
+            --text: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --btn-text: #050505;
+            --border: #333333;
+            --primary: #4dabff;
+            --primary-hover: #70bcff;
+            --error-bg: #2d1a1a;
+            --error-text: #ff8080;
+            --footer-text: #666666;
+        }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: system-ui, -apple-system, sans-serif; 
+            max-width: 700px; margin: 0 auto; padding: 24px; line-height: 1.45;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .box { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--bg-box); }
+        header { background: var(--bg-box); }
+        .tabs { display: flex; align-items: center; gap: 25px; }
+        .tabs a { 
+            color: var(--text); 
+            text-decoration: none; 
+            font-weight: 500; 
+            font-size: 0.95em;
+            transition: color 0.2s;
+        }
+        .tabs a:hover { color: var(--primary); }
+        
+        input { 
+            background: var(--bg-input); 
+            color: var(--text); 
+            border: 1px solid var(--border); 
+            padding: 10px; border-radius: 6px; width: 100%; box-sizing: border-box;
+        }
+
+        button { 
+            cursor: pointer; background-color: var(--primary); color: var(--btn-text); 
+            border: none; padding: 10px 15px; border-radius: 6px; 
+        }
+        button:hover { 
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+
+        a { color: var(--primary); text-decoration: none; }
+        .err { background: var(--error-bg); border: 1px solid var(--error-text); color: var(--error-text); padding: 10px; border-radius: 10px; }
+        .muted { color: var(--text-muted); }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; }
+
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            background: var(--primary); border: 1px solid var(--border); color: var(--btn-text); padding: 5px 10px; font-size: 0.8em;
+        }
+        .card {
+            background: var(--bg-box);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            padding-left: 12px;
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.1);
+        }
+
+        /* Стили для валидации */
+        .input-error {
+            border-color: var(--error-text) !important;
+        }
+
+        .error-hint {
+            color: var(--error-text);
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .avatar-circle {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: var(--btn-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 60px;
+            padding: 20px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--footer-text);
+            font-size: 0.85em;
+        }
+        .footer-links { margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
+        .footer-links a { color: var(--footer-text); text-decoration: none; }
+        .footer-links a:hover { color: var(--primary); }
     </style>
 </head>
 <body>
     <header class="box">
-        <div class="row" style="justify-content: space-between; align-items: center">
-            <strong>MyBank Frontend</strong>
+        <div style="display: flex; justify-content: space-between; align-items: center">
+            <strong style="font-size: 30px;">Платежная система</strong>
             <nav class="tabs">
+                <button class="theme-toggle" id="theme-btn">🌙 Тема</button>
                 {{if .Authed}}
                     <a href="/me">Профиль</a>
-                    <a href="/me/accounts">Счета</a>
+                    <a href="/me/wallets">Счета</a>
                     <a href="/logout">Выйти</a>
                 {{else}}
                     <a href="/login">Вход</a>
-                    <a href="/register">Регистрация</a>
-                    <a href="/restore">Восстановление</a>
                 {{end}}
             </nav>
         </div>
     </header>
 
-    <main class="box">
+    <main class="box" style="margin-top: 20px;">
         {{template "content" .}}
     </main>
+    <footer>
+        <div>&copy; 2026 Платежная система. Все права защищены.</div>
+        <div class="footer-links">
+            <a href="#">Поддержка</a>
+            <a href="#">API Docs</a>
+            <a href="#">Конфиденциальность</a>
+        </div>
+    </footer>
+
+    <script>
+        const btn = document.getElementById("theme-btn");
+        const currentTheme = localStorage.getItem("theme");
+
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            btn.innerText = "☀️ Светлая";
+        }
+
+        btn.addEventListener("click", () => {
+            let theme = document.documentElement.getAttribute("data-theme");
+            if (theme === "dark") {
+                document.documentElement.removeAttribute("data-theme");
+                localStorage.setItem("theme", "light");
+                btn.innerText = "🌙 Темная";
+            } else {
+                document.documentElement.setAttribute("data-theme", "dark");
+                localStorage.setItem("theme", "dark");
+                btn.innerText = "☀️ Светлая";
+            }
+        });
+    </script>
 </body>
 </html>
 {{end}}

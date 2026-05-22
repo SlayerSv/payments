@@ -12,8 +12,8 @@ CREATE TYPE operation_type AS ENUM ('DEPOSIT', 'WITHDRAW', 'TRANSFER');
 CREATE TABLE transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     operation_type operation_type NOT NULL,
-    donor_account_id UUID,
-    receiver_account_id UUID,
+    donor_wallet_id UUID,
+    receiver_wallet_id UUID,
     amount BIGINT NOT NULL CHECK (amount > 0),
     status transaction_status NOT NULL DEFAULT 'CREATED',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -21,8 +21,8 @@ CREATE TABLE transactions (
 );
 
 -- 3. Создаем индексы для быстрого поиска по отправителю и получателю
-CREATE INDEX idx_transactions_donor_account_id ON transactions(donor_account_id);
-CREATE INDEX idx_transactions_receiver_account_id ON transactions(receiver_account_id);
+CREATE INDEX idx_transactions_donor_wallet_id ON transactions(donor_wallet_id);
+CREATE INDEX idx_transactions_receiver_wallet_id ON transactions(receiver_wallet_id);
 CREATE INDEX idx_transactions_status ON transactions(status);
 
 -- 4. Автоматизация обновления поля updated_at
@@ -40,7 +40,7 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 ALTER TABLE transactions ADD CONSTRAINT check_transaction_participants CHECK (
-    (operation_type = 'DEPOSIT'  AND donor_account_id IS NULL     AND receiver_account_id IS NOT NULL) OR
-    (operation_type = 'WITHDRAW' AND donor_account_id IS NOT NULL AND receiver_account_id IS NULL)     OR
-    (operation_type = 'TRANSFER' AND donor_account_id IS NOT NULL AND receiver_account_id IS NOT NULL)
+    (operation_type = 'DEPOSIT'  AND donor_wallet_id IS NULL     AND receiver_wallet_id IS NOT NULL) OR
+    (operation_type = 'WITHDRAW' AND donor_wallet_id IS NOT NULL AND receiver_wallet_id IS NULL)     OR
+    (operation_type = 'TRANSFER' AND donor_wallet_id IS NOT NULL AND receiver_wallet_id IS NOT NULL)
 );

@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Account struct {
+type Wallet struct {
 	ID        uuid.UUID
 	OwnerID   uuid.UUID
 	Balance   int64
@@ -14,20 +14,9 @@ type Account struct {
 	CreatedAt time.Time
 }
 
-type AccountResponse struct {
-	ID        string `json:"id"`
-	OwnerID   string `json:"owner_id"`
-	Balance   int64  `json:"balance"`
-	CreatedAt string `json:"created_at"`
-}
-
-type AccountsResponse struct {
-	Accounts []AccountResponse `json:"accounts"`
-}
-
 type LedgerEntry struct {
 	ID            uuid.UUID
-	AccountID     uuid.UUID
+	WalletID      uuid.UUID
 	TransactionID uuid.UUID
 	Amount        int64
 	CreatedAt     time.Time
@@ -41,7 +30,7 @@ type OutboxMessage struct {
 }
 
 type UpdateBalanceParams struct {
-	AccountID           uuid.UUID
+	WalletID            uuid.UUID
 	TransactionID       uuid.UUID // ID из сервиса транзакций (Correlation ID)
 	Amount              int64     // Сколько прибавить (положительное) или отнять (отрицательное)
 	ExpectedVersion     int64     // Текущая версия для Optimistic Lock
@@ -56,13 +45,13 @@ type OperationRequest struct {
 	IdempotencyKey string    // Уникальный ключ запроса (от Transaction Service)
 	TransactionID  uuid.UUID // ID транзакции для связи
 	OwnerID        uuid.UUID // ID владельца кошелька
-	AccountID      uuid.UUID // Кошелек, который меняем
+	WalletID       uuid.UUID // Кошелек, который меняем
 	Amount         int64     // Сумма: положительная (пополнение) или отрицательная (списание)
 }
 
 // OperationResponse — DTO ответа
 type OperationResponse struct {
-	AccountID  uuid.UUID `json:"account_id"`
+	WalletID   uuid.UUID `json:"wallet_id"`
 	NewBalance int64     `json:"new_balance"`
 	Status     string    `json:"status"`
 }

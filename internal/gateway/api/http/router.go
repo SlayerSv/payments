@@ -14,21 +14,21 @@ func (app *App) NewRouter() http.Handler {
 
 	router.HandleFunc("POST /login", app.Login)
 	router.HandleFunc("POST /register", app.Register)
-	router.HandleFunc("POST /restore", app.SendOTP)
+	router.HandleFunc("POST /restore", app.Restore)
 
 	router.HandleFunc("PATCH /me", app.Auth(app.UpdateUser))
 	router.HandleFunc("GET /me", app.Auth(app.GetUser))
 
-	router.HandleFunc("POST /me/accounts", app.Auth(app.CreateAccount))
-	router.HandleFunc("GET /me/accounts/{account_id}", app.Auth(app.GetAccount))
-	router.HandleFunc("GET /me/accounts", app.Auth(app.GetAllAccounts))
-	router.HandleFunc("DELETE /me/accounts/{account_id}", app.Auth(app.DeleteAccount))
+	router.HandleFunc("POST /me/wallets", app.Auth(app.CreateWallet))
+	router.HandleFunc("GET /me/wallets/{wallet_id}", app.Auth(app.GetWallet))
+	router.HandleFunc("GET /me/wallets", app.Auth(app.GetAllWallets))
+	router.HandleFunc("DELETE /me/wallets/{wallet_id}", app.Auth(app.DeleteWallet))
 
-	router.HandleFunc("/me/accounts/{account_id}/transactions", app.Auth(app.GetTransactionHistory))
+	router.HandleFunc("/me/wallets/{wallet_id}/transactions", app.Auth(app.GetTransactionHistory))
 
-	router.HandleFunc("POST /me/accounts/{account_id}/deposit", app.Auth(app.Deposit))
-	router.HandleFunc("POST /me/accounts/{account_id}/withdraw", app.Auth(app.Withdraw))
-	router.HandleFunc("POST /me/accounts/{account_id}/transfer", app.Auth(app.Transfer))
+	router.HandleFunc("POST /me/wallets/{wallet_id}/deposit", app.Auth(app.Deposit))
+	router.HandleFunc("POST /me/wallets/{wallet_id}/withdraw", app.Auth(app.Withdraw))
+	router.HandleFunc("POST /me/wallets/{wallet_id}/transfer", app.Auth(app.Transfer))
 
 	return router
 }

@@ -8,12 +8,12 @@ import (
 )
 
 type Wallet interface {
-	CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error)
-	GetAccount(ctx context.Context, ownerID, ID uuid.UUID) (models.Account, error)
-	GetAccounts(ctx context.Context, ownerID uuid.UUID) ([]models.Account, error)
+	Create(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error)
+	Get(ctx context.Context, ownerID, ID uuid.UUID) (models.Wallet, error)
+	GetAll(ctx context.Context, ownerID uuid.UUID) ([]models.Wallet, error)
 	// Проверка ключа идемпотентности
 	GetIdempotencyResponse(ctx context.Context, key string) ([]byte, bool, error)
 	// обновление баланса: делает всё в одной DB-транзакции
 	UpdateBalanceAtomic(ctx context.Context, args models.UpdateBalanceParams) error
-	DeleteAccount(ctx context.Context, ownerID, accountID uuid.UUID) error
+	Delete(ctx context.Context, ownerID, walletID uuid.UUID) error
 }

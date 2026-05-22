@@ -21,50 +21,50 @@ func NewWallet(pool *pgxpool.Pool) *Wallet {
 	return &Wallet{pool: pool}
 }
 
-// CreateAccount — создает новый кошелек для пользователя
-func (r *Wallet) CreateAccount(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
-	query := `INSERT INTO accounts (owner_id) VALUES ($1) RETURNING id`
+// Create — создает новый кошелек для пользователя
+func (r *Wallet) Create(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
+	query := `INSERT INTO wallets (owner_id) VALUES ($1) RETURNING id`
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, query, ownerID).Scan(&id)
 	return id, errs.WrapErr(err)
 }
 
-// GetAccount — получает стейт кошелька (включая его version)
-func (r *Wallet) GetAccount(ctx context.Context, ownerID, ID uuid.UUID) (models.Account, error) {
+// Get — получает стейт кошелька (включая его version)
+func (r *Wallet) Get(ctx context.Context, ownerID, ID uuid.UUID) (models.Wallet, error) {
 	query := `
 		SELECT id, owner_id, balance, version, created_at 
-		FROM accounts 
+		FROM wallets 
 		WHERE id = $1 and owner_id = $2`
 
-	var acc models.Account
+	var wallet models.Wallet
 	err := r.pool.QueryRow(ctx, query, ID, ownerID).Scan(
-		&acc.ID, &acc.OwnerID, &acc.Balance, &acc.Version, &acc.CreatedAt,
+		&wallet.ID, &wallet.OwnerID, &wallet.Balance, &wallet.Version, &wallet.CreatedAt,
 	)
-	return acc, errs.WrapErr(err)
+	return wallet, errs.WrapErr(err)
 }
 
-// GetAccount — получает стейт кошелька (включая его version)
-func (r *Wallet) GetAccounts(ctx context.Context, userID uuid.UUID) ([]models.Account, error) {
+// GetAll — все кошельки пользователя
+func (r *Wallet) GetAll(ctx context.Context, userID uuid.UUID) ([]models.Wallet, error) {
 	query := `
 		SELECT id, owner_id, balance, version, created_at 
-		FROM accounts 
+		FROM wallets 
 		WHERE owner_id = $1`
 
-	var accs []models.Account
+	var wallets []models.Wallet
 	rows, err := r.pool.Query(ctx, query, userID)
 	for rows.Next() {
-		var acc models.Account
-		err = rows.Scan(&acc.ID, &acc.OwnerID, &acc.Balance, &acc.Version, &acc.CreatedAt)
+		var wallet models.Wallet
+		err = rows.Scan(&wallet.ID, &wallet.OwnerID, &wallet.Balance, &wallet.Version, &wallet.CreatedAt)
 		if err != nil {
 			return nil, errs.WrapErr(err)
 		}
-		accs = append(accs, acc)
+		wallets = append(wallets, wallet)
 	}
 	err = rows.Err()
 	if err != nil {
 		return nil, errs.WrapErr(err)
 	}
-	return accs, nil
+	return wallets, nil
 }
 
 // GetIdempotencyResponse — проверяет, обрабатывали ли мы уже этот запрос
@@ -95,15 +95,15 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 	defer tx.Rollback(ctx)
 
 	// 2. Optimistic Locking: обновляем баланс только если версия совпадает
-	updateAccQuery := `
-		UPDATE accounts 
+	updateWalletQuery := `
+		UPDATE wallets 
 		SET balance = balance + $1, 
 		    version = version + 1 
 		WHERE id = $2 AND version = $3`
 
-	res, err := tx.Exec(ctx, updateAccQuery, args.Amount, args.AccountID, args.ExpectedVersion)
+	res, err := tx.Exec(ctx, updateWalletQuery, args.Amount, args.WalletID, args.ExpectedVersion)
 	if err != nil {
-		return errs.WrapErr(fmt.Errorf("failed to update account: %w", err))
+		return errs.WrapErr(fmt.Errorf("failed to update wallet: %w", err))
 	}
 
 	// Если ни одна строка не обновилась, значит кто-то успел изменить баланс до нас
@@ -114,10 +114,10 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 
 	// 3. Пишем в Ledger (история для аудита)
 	ledgerQuery := `
-		INSERT INTO ledger_entries (account_id, transaction_id, amount) 
+		INSERT INTO ledger_entries (wallet_id, transaction_id, amount) 
 		VALUES ($1, $2, $3)`
 
-	_, err = tx.Exec(ctx, ledgerQuery, args.AccountID, args.TransactionID, args.Amount)
+	_, err = tx.Exec(ctx, ledgerQuery, args.WalletID, args.TransactionID, args.Amount)
 	if err != nil {
 		return errs.WrapErr(fmt.Errorf("failed to insert ledger entry: %w", err))
 	}
@@ -152,10 +152,10 @@ func (r *Wallet) UpdateBalanceAtomic(ctx context.Context, args models.UpdateBala
 	return nil
 }
 
-// DeleteAccount — удаляет кошелек пользователя
-func (r *Wallet) DeleteAccount(ctx context.Context, ownerID, accountID uuid.UUID) error {
-	query := `DELETE from accounts WHERE id = $1 and owner_id = $2 RETURNING id`
-	resp, err := r.pool.Exec(ctx, query, accountID, ownerID)
+// Delete — удаляет кошелек пользователя
+func (r *Wallet) Delete(ctx context.Context, ownerID, walletID uuid.UUID) error {
+	query := `DELETE from wallets WHERE id = $1 and owner_id = $2 RETURNING id`
+	resp, err := r.pool.Exec(ctx, query, walletID, ownerID)
 	if err != nil {
 		return errs.WrapErr(err)
 	}

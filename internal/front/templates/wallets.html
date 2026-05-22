@@ -2,7 +2,7 @@
 <h1>Управление счетами</h1>
 {{if .Error}}<div class="err">{{.Error}}</div>{{end}}
 
-<form method="post" action="/me/accounts" class="actions" style="max-width: 200px;">
+<form method="post" action="/me/wallets" class="actions" style="max-width: 200px;">
     <button type="submit">+ Создать счет</button>
 </form>
 
@@ -17,11 +17,11 @@
         </tr>
     </thead>
     <tbody>
-        {{range .Accounts}}
+        {{range .Wallets}}
         <tr>
             <td style="font-family: monospace;">{{.ID}}</td>
             <td><strong>{{formatMoney .Balance}}</strong></td>
-            <td><a href="/me/accounts/{{.ID}}">Управление</a></td>
+            <td><a href="/me/wallets/{{.ID}}">Управление</a></td>
         </tr>
         {{end}}
     </tbody>

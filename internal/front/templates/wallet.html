@@ -1,0 +1,91 @@
+{{define "content"}}
+<h1>Детали счета</h1>
+<p class="muted" style="font-family: monospace;">UUID: {{.Wallet.ID}}</p>
+
+{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+
+<div class="box" style="background: var(--bg-box); margin-bottom: 20px;">
+    <h2>Текущий баланс: <span style="color: var(--text);">{{formatMoney .Wallet.Balance}}</span></h2>
+</div>
+
+<section class="row">
+    <div class="col box" style="margin-bottom: 20px;">
+        <h3>Пополнить</h3>
+        <form method="post" action="/me/wallets/{{.Wallet.ID}}/deposit" class="actions">
+            <div class="input-wrapper form-group">
+                <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            </div>
+            <button type="submit">Внести депозит</button>
+        </form>
+    </div>
+
+    <div class="col box" style="margin-bottom: 20px;">
+        <h3>Вывести</h3>
+        <form method="post" action="/me/wallets/{{.Wallet.ID}}/withdraw" class="actions">
+            <div class="input-wrapper form-group">
+                <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            </div>
+            <button type="submit">Снять средства</button>
+        </form>
+    </div>
+
+    <div class="col box">
+        <h3>Перевести</h3>
+        <form method="post" action="/me/wallets/{{.Wallet.ID}}/transfer" class="actions">
+            <div class="input-wrapper form-group">
+                <input name="to_wallet_id" type="text" required placeholder="UUID счета получателя">
+            </div>
+            <div class="input-wrapper form-group">
+                <input name="amount" type="number" step="0.01" min="0" required placeholder="Сумма">
+            </div>
+            <button type="submit">Перевести</button>
+        </form>
+    </div>
+</section>
+<hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+<h3>История транзакций</h3>
+{{if .Transactions}}
+<table>
+    <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Сумма</th>
+            <th>Контрагент</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Transactions}}
+        <tr>
+            <td>{{prettyDate .CompletedAt}}</td>
+            <td>
+                {{if eq .OpType "DEPOSIT"}}<span style="color: #45a049;">Пополнение</span>
+                {{else if eq .OpType "WITHDRAW"}}<span style="color: #e53935;">Вывод</span>
+                {{else if eq .OpType "TRANSFER"}}<span style="color: rgb(49, 49, 235);">Перевод</span>
+                {{else}}{{.OpType}}{{end}}
+            </td>
+            <td>
+                {{if or (eq .OpType "WITHDRAW") (and (eq .OpType "TRANSFER")  (ne (strVal .ReceiverWalletID) $.Wallet.ID))}}
+                    <span style="color: #e53935;">-{{formatMoney .Amount}}</span>
+                {{else}}
+                    <span style="color: #45a049;">+{{formatMoney .Amount}}</span>
+                {{end}}
+            </td>
+            <td style="font-family: monospace; font-size: 0.9em;">
+                {{if eq .OpType "TRANSFER"}}
+                    {{if ne (strVal .ReceiverWalletID) $.Wallet.ID}}
+                        <span style="color: #666;">Кому:</span> {{strVal .ReceiverWalletID}}
+                    {{else}}
+                        <span style="color: #666;">От:</span> {{strVal .DonorWalletID}}
+                    {{end}}
+                {{end}}
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+{{else}}
+    <p class="muted">Транзакций по этому счету пока не было.</p>
+{{end}}
+{{end}}

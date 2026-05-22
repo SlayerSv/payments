@@ -2,7 +2,7 @@
 CREATE TYPE outbox_status AS ENUM ('PENDING', 'PROCESSED');
 
 -- Таблица аккаунтов (кошельков)
-CREATE TABLE accounts (
+CREATE TABLE wallets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     owner_id UUID NOT NULL,
     balance BIGINT NOT NULL DEFAULT 0,
@@ -13,7 +13,7 @@ CREATE TABLE accounts (
 -- Таблица истории изменений (аудит)
 CREATE TABLE ledger_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id UUID NOT NULL REFERENCES accounts(id),
+    wallet_id UUID NOT NULL REFERENCES wallets(id),
     transaction_id UUID NOT NULL, -- ID из сервиса транзакций
     amount BIGINT NOT NULL,       -- Может быть отрицательным (списание)
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -36,6 +36,6 @@ CREATE TABLE idempotency_log (
 );
 
 -- Индексы
-CREATE INDEX idx_accounts_owner ON accounts(owner_id);
+CREATE INDEX idx_wallet_owner ON wallets(owner_id);
 CREATE INDEX idx_ledger_transaction ON ledger_entries(transaction_id);
 CREATE INDEX idx_outbox_status ON outbox(status) WHERE status = 'PENDING';

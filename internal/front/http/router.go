@@ -17,11 +17,11 @@ func (app *App) NewRouter() http.Handler {
 
 	mux.HandleFunc("GET /me", app.requireAuth(app.mePage))
 	mux.HandleFunc("POST /me", app.requireAuth(app.meUpdate))
-	mux.HandleFunc("POST /me/accounts", app.requireAuth(app.createAccount))
-	mux.HandleFunc("GET /me/accounts", app.requireAuth(app.accountsPage))
-	mux.HandleFunc("GET /me/accounts/{account_id}", app.requireAuth(app.accountPage))
-	mux.HandleFunc("POST /me/accounts/{account_id}/deposit", app.requireAuth(app.deposit))
-	mux.HandleFunc("POST /me/accounts/{account_id}/withdraw", app.requireAuth(app.withdraw))
-	mux.HandleFunc("POST /me/accounts/{account_id}/transfer", app.requireAuth(app.transfer))
+	mux.HandleFunc("POST /me/wallets", app.requireAuth(app.createWallet))
+	mux.HandleFunc("GET /me/wallets", app.requireAuth(app.walletsPage))
+	mux.HandleFunc("GET /me/wallets/{wallet_id}", app.requireAuth(app.walletPage))
+	mux.HandleFunc("POST /me/wallets/{wallet_id}/deposit", app.requireAuth(app.deposit))
+	mux.HandleFunc("POST /me/wallets/{wallet_id}/withdraw", app.requireAuth(app.withdraw))
+	mux.HandleFunc("POST /me/wallets/{wallet_id}/transfer", app.requireAuth(app.transfer))
 	return mux
 }

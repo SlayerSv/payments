@@ -27,18 +27,18 @@ func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient
 	}
 }
 
-func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, amount int64) (int64, error) {
-	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: accountID.String()})
+func (s *Transaction) Deposit(ctx context.Context, userID, walletID uuid.UUID, amount int64) (int64, error) {
+	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: walletID.String()})
 	if err != nil {
-		return 0, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
+		return 0, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
 	}
-	if acc.Account.OwnerId != userID.String() {
-		return 0, fmt.Errorf("%w: account's owner id does not match user id", errs.Forbidden)
+	if wallet.Wallet.OwnerId != userID.String() {
+		return 0, fmt.Errorf("%w: wallet's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		ReceiverAccountID: &accountID,
-		Amount:            amount,
-		OpType:            models.OperationDeposit,
+		ReceiverWalletID: &walletID,
+		Amount:           amount,
+		OpType:           models.OperationDeposit,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, 
 	req := &walletpb.ProcessOperationRequest{}
 	req.IdempotencyKey = id.String() + " " + "CREDIT"
 	req.TransactionId = id.String()
-	req.AccountId = accountID.String()
+	req.WalletId = walletID.String()
 	req.Amount = amount
 	resp, err := s.wallet.ProcessOperation(ctx, req)
 	if err != nil {
@@ -61,18 +61,18 @@ func (s *Transaction) Deposit(ctx context.Context, userID, accountID uuid.UUID, 
 	return resp.NewBalance, nil
 }
 
-func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID, amount int64) (int64, error) {
-	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: accountID.String()})
+func (s *Transaction) Withdraw(ctx context.Context, userID, walletID uuid.UUID, amount int64) (int64, error) {
+	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: walletID.String()})
 	if err != nil {
-		return 0, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
+		return 0, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
 	}
-	if acc.Account.OwnerId != userID.String() {
-		return 0, fmt.Errorf("%w: account's owner id does not match user id", errs.Forbidden)
+	if wallet.Wallet.OwnerId != userID.String() {
+		return 0, fmt.Errorf("%w: wallet's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		DonorAccountID: &accountID,
-		Amount:         amount,
-		OpType:         models.OperationWithdraw,
+		DonorWalletID: &walletID,
+		Amount:        amount,
+		OpType:        models.OperationWithdraw,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {
@@ -81,7 +81,7 @@ func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID,
 	req := &walletpb.ProcessOperationRequest{}
 	req.IdempotencyKey = id.String() + " " + "DEBIT"
 	req.TransactionId = id.String()
-	req.AccountId = accountID.String()
+	req.WalletId = walletID.String()
 	req.Amount = -amount
 	resp, err := s.wallet.ProcessOperation(ctx, req)
 	if err != nil {
@@ -93,18 +93,18 @@ func (s *Transaction) Withdraw(ctx context.Context, userID, accountID uuid.UUID,
 }
 
 func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans models.Transfer) (int64, error) {
-	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: trans.DonorAccountID.String()})
+	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: trans.DonorWalletID.String()})
 	if err != nil {
-		return 0, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
+		return 0, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
 	}
-	if acc.Account.OwnerId != userID.String() {
-		return 0, fmt.Errorf("%w: donor account's owner id does not match user id", errs.Forbidden)
+	if wallet.Wallet.OwnerId != userID.String() {
+		return 0, fmt.Errorf("%w: donor wallet's owner id does not match user id", errs.Forbidden)
 	}
 	tx := models.Transaction{
-		DonorAccountID:    &trans.DonorAccountID,
-		ReceiverAccountID: &trans.ReceiverAccountID,
-		Amount:            trans.Amount,
-		OpType:            models.OperationTransfer,
+		DonorWalletID:    &trans.DonorWalletID,
+		ReceiverWalletID: &trans.ReceiverWalletID,
+		Amount:           trans.Amount,
+		OpType:           models.OperationTransfer,
 	}
 	id, err := s.repo.Create(ctx, tx)
 	if err != nil {
@@ -113,7 +113,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	debreq := &walletpb.ProcessOperationRequest{}
 	debreq.IdempotencyKey = id.String() + " " + "DEBIT"
 	debreq.TransactionId = id.String()
-	debreq.AccountId = trans.DonorAccountID.String()
+	debreq.WalletId = trans.DonorWalletID.String()
 	debreq.Amount = -trans.Amount
 	resp, err := s.wallet.ProcessOperation(ctx, debreq)
 	if err != nil {
@@ -125,7 +125,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	credreq := &walletpb.ProcessOperationRequest{}
 	credreq.IdempotencyKey = id.String() + " " + "CREDIT"
 	credreq.TransactionId = id.String()
-	credreq.AccountId = trans.ReceiverAccountID.String()
+	credreq.WalletId = trans.ReceiverWalletID.String()
 	credreq.Amount = trans.Amount
 	_, err = s.wallet.ProcessOperation(ctx, credreq)
 	if err != nil {
@@ -140,13 +140,13 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	return resp.NewBalance, err
 }
 
-func (s *Transaction) GetTransactionHistory(ctx context.Context, userID, accountID uuid.UUID) ([]models.Transaction, error) {
-	acc, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: accountID.String()})
+func (s *Transaction) GetTransactionHistory(ctx context.Context, userID, walletID uuid.UUID) ([]models.Transaction, error) {
+	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: walletID.String()})
 	if err != nil {
-		return nil, fmt.Errorf("%w: error getting account: %w", errs.Internal, err)
+		return nil, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
 	}
-	if acc.Account.OwnerId != userID.String() {
-		return nil, fmt.Errorf("%w: donor account's owner id does not match user id", errs.Forbidden)
+	if wallet.Wallet.OwnerId != userID.String() {
+		return nil, fmt.Errorf("%w: donor wallet's owner id does not match user id", errs.Forbidden)
 	}
-	return s.repo.GetTransactionHistory(ctx, accountID)
+	return s.repo.GetTransactionHistory(ctx, walletID)
 }

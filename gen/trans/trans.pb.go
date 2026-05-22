@@ -76,7 +76,7 @@ func (OperationType) EnumDescriptor() ([]byte, []int) {
 
 type DepositRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -112,9 +112,9 @@ func (*DepositRequest) Descriptor() ([]byte, []int) {
 	return file_trans_trans_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *DepositRequest) GetAccountId() string {
+func (x *DepositRequest) GetWalletId() string {
 	if x != nil {
-		return x.AccountId
+		return x.WalletId
 	}
 	return ""
 }
@@ -128,7 +128,7 @@ func (x *DepositRequest) GetAmount() int64 {
 
 type WithdrawRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -164,9 +164,9 @@ func (*WithdrawRequest) Descriptor() ([]byte, []int) {
 	return file_trans_trans_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *WithdrawRequest) GetAccountId() string {
+func (x *WithdrawRequest) GetWalletId() string {
 	if x != nil {
-		return x.AccountId
+		return x.WalletId
 	}
 	return ""
 }
@@ -179,12 +179,12 @@ func (x *WithdrawRequest) GetAmount() int64 {
 }
 
 type TransferRequest struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	DonorAccountId    string                 `protobuf:"bytes,1,opt,name=donor_account_id,json=donorAccountId,proto3" json:"donor_account_id,omitempty"`
-	ReceiverAccountId string                 `protobuf:"bytes,2,opt,name=receiver_account_id,json=receiverAccountId,proto3" json:"receiver_account_id,omitempty"`
-	Amount            int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	DonorWalletId    string                 `protobuf:"bytes,1,opt,name=donor_wallet_id,json=donorWalletId,proto3" json:"donor_wallet_id,omitempty"`
+	ReceiverWalletId string                 `protobuf:"bytes,2,opt,name=receiver_wallet_id,json=receiverWalletId,proto3" json:"receiver_wallet_id,omitempty"`
+	Amount           int64                  `protobuf:"varint,3,opt,name=amount,proto3" json:"amount,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *TransferRequest) Reset() {
@@ -217,16 +217,16 @@ func (*TransferRequest) Descriptor() ([]byte, []int) {
 	return file_trans_trans_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *TransferRequest) GetDonorAccountId() string {
+func (x *TransferRequest) GetDonorWalletId() string {
 	if x != nil {
-		return x.DonorAccountId
+		return x.DonorWalletId
 	}
 	return ""
 }
 
-func (x *TransferRequest) GetReceiverAccountId() string {
+func (x *TransferRequest) GetReceiverWalletId() string {
 	if x != nil {
-		return x.ReceiverAccountId
+		return x.ReceiverWalletId
 	}
 	return ""
 }
@@ -284,7 +284,7 @@ func (x *NewBalanceResponse) GetNewBalance() int64 {
 
 type GetTransactionHistoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AccountId     string                 `protobuf:"bytes,1,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	WalletId      string                 `protobuf:"bytes,1,opt,name=wallet_id,json=walletId,proto3" json:"wallet_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -319,9 +319,9 @@ func (*GetTransactionHistoryRequest) Descriptor() ([]byte, []int) {
 	return file_trans_trans_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetTransactionHistoryRequest) GetAccountId() string {
+func (x *GetTransactionHistoryRequest) GetWalletId() string {
 	if x != nil {
-		return x.AccountId
+		return x.WalletId
 	}
 	return ""
 }
@@ -371,15 +371,15 @@ func (x *GetTransactionHistoryResponse) GetTransactions() []*Transaction {
 }
 
 type Transaction struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Id                string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OpType            OperationType          `protobuf:"varint,2,opt,name=op_type,json=opType,proto3,enum=trans.OperationType" json:"op_type,omitempty"`
-	DonorAccountId    *string                `protobuf:"bytes,3,opt,name=donor_account_id,json=donorAccountId,proto3,oneof" json:"donor_account_id,omitempty"`
-	ReceiverAccountId *string                `protobuf:"bytes,5,opt,name=receiver_account_id,json=receiverAccountId,proto3,oneof" json:"receiver_account_id,omitempty"`
-	Amount            int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
-	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	OpType           OperationType          `protobuf:"varint,2,opt,name=op_type,json=opType,proto3,enum=trans.OperationType" json:"op_type,omitempty"`
+	DonorWalletId    *string                `protobuf:"bytes,3,opt,name=donor_wallet_id,json=donorWalletId,proto3,oneof" json:"donor_wallet_id,omitempty"`
+	ReceiverWalletId *string                `protobuf:"bytes,5,opt,name=receiver_wallet_id,json=receiverWalletId,proto3,oneof" json:"receiver_wallet_id,omitempty"`
+	Amount           int64                  `protobuf:"varint,7,opt,name=amount,proto3" json:"amount,omitempty"`
+	CreatedAt        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Transaction) Reset() {
@@ -426,16 +426,16 @@ func (x *Transaction) GetOpType() OperationType {
 	return OperationType_OPERATION_UNSPECIFIED
 }
 
-func (x *Transaction) GetDonorAccountId() string {
-	if x != nil && x.DonorAccountId != nil {
-		return *x.DonorAccountId
+func (x *Transaction) GetDonorWalletId() string {
+	if x != nil && x.DonorWalletId != nil {
+		return *x.DonorWalletId
 	}
 	return ""
 }
 
-func (x *Transaction) GetReceiverAccountId() string {
-	if x != nil && x.ReceiverAccountId != nil {
-		return *x.ReceiverAccountId
+func (x *Transaction) GetReceiverWalletId() string {
+	if x != nil && x.ReceiverWalletId != nil {
+		return *x.ReceiverWalletId
 	}
 	return ""
 }
@@ -458,37 +458,34 @@ var File_trans_trans_proto protoreflect.FileDescriptor
 
 const file_trans_trans_proto_rawDesc = "" +
 	"\n" +
-	"\x11trans/trans.proto\x12\x05trans\x1a\x1fgoogle/protobuf/timestamp.proto\"G\n" +
-	"\x0eDepositRequest\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\"H\n" +
-	"\x0fWithdrawRequest\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\"\x83\x01\n" +
-	"\x0fTransferRequest\x12(\n" +
-	"\x10donor_account_id\x18\x01 \x01(\tR\x0edonorAccountId\x12.\n" +
-	"\x13receiver_account_id\x18\x02 \x01(\tR\x11receiverAccountId\x12\x16\n" +
+	"\x11trans/trans.proto\x12\x05trans\x1a\x1fgoogle/protobuf/timestamp.proto\"E\n" +
+	"\x0eDepositRequest\x12\x1b\n" +
+	"\twallet_id\x18\x01 \x01(\tR\bwalletId\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\"F\n" +
+	"\x0fWithdrawRequest\x12\x1b\n" +
+	"\twallet_id\x18\x01 \x01(\tR\bwalletId\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\"\x7f\n" +
+	"\x0fTransferRequest\x12&\n" +
+	"\x0fdonor_wallet_id\x18\x01 \x01(\tR\rdonorWalletId\x12,\n" +
+	"\x12receiver_wallet_id\x18\x02 \x01(\tR\x10receiverWalletId\x12\x16\n" +
 	"\x06amount\x18\x03 \x01(\x03R\x06amount\"5\n" +
 	"\x12NewBalanceResponse\x12\x1f\n" +
 	"\vnew_balance\x18\x01 \x01(\x03R\n" +
-	"newBalance\"=\n" +
-	"\x1cGetTransactionHistoryRequest\x12\x1d\n" +
-	"\n" +
-	"account_id\x18\x01 \x01(\tR\taccountId\"W\n" +
+	"newBalance\";\n" +
+	"\x1cGetTransactionHistoryRequest\x12\x1b\n" +
+	"\twallet_id\x18\x01 \x01(\tR\bwalletId\"W\n" +
 	"\x1dGetTransactionHistoryResponse\x126\n" +
-	"\ftransactions\x18\x01 \x03(\v2\x12.trans.TransactionR\ftransactions\"\xb1\x02\n" +
+	"\ftransactions\x18\x01 \x03(\v2\x12.trans.TransactionR\ftransactions\"\xab\x02\n" +
 	"\vTransaction\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
-	"\aop_type\x18\x02 \x01(\x0e2\x15.trans.operation_typeR\x06opType\x12-\n" +
-	"\x10donor_account_id\x18\x03 \x01(\tH\x00R\x0edonorAccountId\x88\x01\x01\x123\n" +
-	"\x13receiver_account_id\x18\x05 \x01(\tH\x01R\x11receiverAccountId\x88\x01\x01\x12\x16\n" +
+	"\aop_type\x18\x02 \x01(\x0e2\x15.trans.operation_typeR\x06opType\x12+\n" +
+	"\x0fdonor_wallet_id\x18\x03 \x01(\tH\x00R\rdonorWalletId\x88\x01\x01\x121\n" +
+	"\x12receiver_wallet_id\x18\x05 \x01(\tH\x01R\x10receiverWalletId\x88\x01\x01\x12\x16\n" +
 	"\x06amount\x18\a \x01(\x03R\x06amount\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x13\n" +
-	"\x11_donor_account_idB\x16\n" +
-	"\x14_receiver_account_id*T\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x12\n" +
+	"\x10_donor_wallet_idB\x15\n" +
+	"\x13_receiver_wallet_id*T\n" +
 	"\x0eoperation_type\x12\x19\n" +
 	"\x15OPERATION_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aDEPOSIT\x10\x01\x12\f\n" +

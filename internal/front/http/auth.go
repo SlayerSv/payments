@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/SlayerSv/payments/internal/auth/models"
+	"github.com/SlayerSv/payments/internal/shared/models"
 )
 
 func (a *App) loginPage(w http.ResponseWriter, r *http.Request) {

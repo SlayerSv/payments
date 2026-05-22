@@ -35,9 +35,9 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 		return nil, status.Errorf(codes.InvalidArgument, "invalid transaction_id format: %v", err)
 	}
 
-	accID, err := uuid.Parse(req.AccountId)
+	accID, err := uuid.Parse(req.WalletId)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format: %v", err)
+		return nil, status.Errorf(codes.InvalidArgument, "invalid wallet_id format: %v", err)
 	}
 
 	if req.IdempotencyKey == "" {
@@ -56,7 +56,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 		IdempotencyKey: req.IdempotencyKey,
 		TransactionID:  txID,
 		OwnerID:        ownerId,
-		AccountID:      accID,
+		WalletID:       accID,
 		Amount:         req.Amount,
 	}
 
@@ -79,7 +79,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req *pb.ProcessOperationR
 
 	// 4. Возвращаем успешный ответ
 	return &pb.ProcessOperationResponse{
-		Id:         resp.AccountID.String(),
+		Id:         resp.WalletID.String(),
 		NewBalance: resp.NewBalance,
 		Status:     resp.Status,
 	}, nil
@@ -92,13 +92,13 @@ func (s *Wallet) Create(ctx context.Context, req *emptypb.Empty) (*pb.CreateResp
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 
-	accountID, err := s.walletService.Create(ctx, ownerID)
+	walletID, err := s.walletService.Create(ctx, ownerID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create wallet: %v", err)
 	}
 
 	return &pb.CreateResponse{
-		AccountId: accountID.String(),
+		WalletId: walletID.String(),
 	}, nil
 }
 
@@ -109,15 +109,15 @@ func (s *Wallet) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, 
 	}
 	accID, err := uuid.Parse(req.GetId())
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
+		return nil, status.Errorf(codes.InvalidArgument, "invalid wallet_id format")
 	}
 
-	acc, err := s.walletService.GetAccount(ctx, ownerID, accID)
+	acc, err := s.walletService.Get(ctx, ownerID, accID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to get account: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get wallet: %v", err)
 	}
 	return &pb.GetResponse{
-		Account: toPbAccount(acc),
+		Wallet: toPbWallet(acc),
 	}, nil
 }
 
@@ -127,13 +127,13 @@ func (s *Wallet) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllR
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")
 	}
 
-	accs, err := s.walletService.GetAccounts(ctx, ownerID)
+	wallets, err := s.walletService.GetAll(ctx, ownerID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to get accounts: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get wallets: %v", err)
 	}
 	resp := &pb.GetAllResponse{}
-	for _, acc := range accs {
-		resp.Accounts = append(resp.Accounts, toPbAccount(acc))
+	for _, wallet := range wallets {
+		resp.Wallets = append(resp.Wallets, toPbWallet(wallet))
 	}
 	return resp, nil
 }
@@ -145,18 +145,18 @@ func (s *Wallet) Delete(ctx context.Context, req *pb.DeleteRequest) (*emptypb.Em
 	}
 	accID, err := uuid.Parse(req.GetId())
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid account_id format")
+		return nil, status.Errorf(codes.InvalidArgument, "invalid wallett_id format")
 	}
 
-	err = s.walletService.DeleteAccount(ctx, ownerID, accID)
+	err = s.walletService.Delete(ctx, ownerID, accID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to delete account: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to delete wallett: %v", err)
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func toPbAccount(acc models.Account) *pb.Account {
-	return &pb.Account{
+func toPbWallet(acc models.Wallet) *pb.Wallet {
+	return &pb.Wallet{
 		Id:       acc.ID.String(),
 		OwnerId:  acc.OwnerID.String(),
 		Balance:  acc.Balance,

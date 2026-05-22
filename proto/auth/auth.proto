@@ -37,7 +37,7 @@ message UserResponse {
 }
 
 service AuthService {
-  rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc Register (RegisterRequest) returns (google.protobuf.Empty);
   rpc Login (LoginRequest) returns (LoginResponse);
   rpc Restore (RestoreRequest) returns (RestoreResponse);
 }
@@ -46,7 +46,6 @@ message RestoreRequest { string email = 1; }
 message RestoreResponse { string status = 1; }
 
 message RegisterRequest { string email = 1; }
-message RegisterResponse { string status = 1; }
 
 message LoginRequest {
   string email = 1;

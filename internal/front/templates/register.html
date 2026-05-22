@@ -3,9 +3,11 @@
 {{if .Error}}<div class="err">{{.Error}}</div>{{end}}
 
 <form method="post" class="row">
-    <div class="col">
-        <label>Email</label>
-        <input name="email" type="email" required>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+            <input name="email" type="email" id="email" required placeholder="Введите свой email">
+        </div>
     </div>
     <div style="flex-basis: 100%">
         <button type="submit">Отправить код на почту</button>

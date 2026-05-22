@@ -11,6 +11,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/validator"
+	"github.com/joho/godotenv"
 )
 
 // @title           Payments API
@@ -25,6 +26,7 @@ import (
 // @in header
 // @name Authorization
 func main() {
+	godotenv.Load()
 	logger, err := logger.NewConsoleLogger()
 	if err != nil {
 		log.Fatalf("Error getting logger: %v", err)

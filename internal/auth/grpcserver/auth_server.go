@@ -37,12 +37,12 @@ func NewAuthServer(authLogic AuthProvider, userLogic UserProvider) *AuthServer {
 	}
 }
 
-func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*emptypb.Empty, error) {
 	err := s.auth.Register(ctx, req.GetEmail())
 	if err != nil {
 		return nil, err
 	}
-	return &pb.RegisterResponse{Status: "ok"}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {

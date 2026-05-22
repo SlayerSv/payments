@@ -423,50 +423,6 @@ func (x *RegisterRequest) GetEmail() string {
 	return ""
 }
 
-type RegisterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RegisterResponse) Reset() {
-	*x = RegisterResponse{}
-	mi := &file_auth_auth_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RegisterResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RegisterResponse) ProtoMessage() {}
-
-func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_auth_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
-func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return file_auth_auth_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *RegisterResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
@@ -477,7 +433,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_auth_auth_proto_msgTypes[9]
+	mi := &file_auth_auth_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -489,7 +445,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_auth_proto_msgTypes[9]
+	mi := &file_auth_auth_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -502,7 +458,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_auth_auth_proto_rawDescGZIP(), []int{9}
+	return file_auth_auth_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *LoginRequest) GetEmail() string {
@@ -528,7 +484,7 @@ type LoginResponse struct {
 
 func (x *LoginResponse) Reset() {
 	*x = LoginResponse{}
-	mi := &file_auth_auth_proto_msgTypes[10]
+	mi := &file_auth_auth_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +496,7 @@ func (x *LoginResponse) String() string {
 func (*LoginResponse) ProtoMessage() {}
 
 func (x *LoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_auth_proto_msgTypes[10]
+	mi := &file_auth_auth_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -553,7 +509,7 @@ func (x *LoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
 func (*LoginResponse) Descriptor() ([]byte, []int) {
-	return file_auth_auth_proto_rawDescGZIP(), []int{10}
+	return file_auth_auth_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *LoginResponse) GetToken() string {
@@ -596,9 +552,7 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\x0fRestoreResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\"'\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\"*\n" +
-	"\x10RegisterResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\"@\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
@@ -611,7 +565,7 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\tGetEmails\x12\x16.auth.GetEmailsRequest\x1a\x17.auth.GetEmailsResponse\x121\n" +
 	"\x06Update\x12\x13.auth.UpdateRequest\x1a\x12.auth.UserResponse2\xb2\x01\n" +
 	"\vAuthService\x129\n" +
-	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.auth.RegisterResponse\x120\n" +
+	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x16.google.protobuf.Empty\x120\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\x126\n" +
 	"\aRestore\x12\x14.auth.RestoreRequest\x1a\x15.auth.RestoreResponseB'Z%github.com/SlayerSv/payments/gen/authb\x06proto3"
 
@@ -627,7 +581,7 @@ func file_auth_auth_proto_rawDescGZIP() []byte {
 	return file_auth_auth_proto_rawDescData
 }
 
-var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_auth_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_auth_auth_proto_goTypes = []any{
 	(*GetByEmailRequest)(nil),     // 0: auth.GetByEmailRequest
 	(*GetEmailsRequest)(nil),      // 1: auth.GetEmailsRequest
@@ -637,30 +591,29 @@ var file_auth_auth_proto_goTypes = []any{
 	(*RestoreRequest)(nil),        // 5: auth.RestoreRequest
 	(*RestoreResponse)(nil),       // 6: auth.RestoreResponse
 	(*RegisterRequest)(nil),       // 7: auth.RegisterRequest
-	(*RegisterResponse)(nil),      // 8: auth.RegisterResponse
-	(*LoginRequest)(nil),          // 9: auth.LoginRequest
-	(*LoginResponse)(nil),         // 10: auth.LoginResponse
-	nil,                           // 11: auth.GetEmailsResponse.EmailsEntry
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 13: google.protobuf.Empty
+	(*LoginRequest)(nil),          // 8: auth.LoginRequest
+	(*LoginResponse)(nil),         // 9: auth.LoginResponse
+	nil,                           // 10: auth.GetEmailsResponse.EmailsEntry
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 12: google.protobuf.Empty
 }
 var file_auth_auth_proto_depIdxs = []int32{
-	11, // 0: auth.GetEmailsResponse.emails:type_name -> auth.GetEmailsResponse.EmailsEntry
-	12, // 1: auth.UserResponse.created_at:type_name -> google.protobuf.Timestamp
-	12, // 2: auth.UserResponse.updated_at:type_name -> google.protobuf.Timestamp
-	13, // 3: auth.UserService.Get:input_type -> google.protobuf.Empty
+	10, // 0: auth.GetEmailsResponse.emails:type_name -> auth.GetEmailsResponse.EmailsEntry
+	11, // 1: auth.UserResponse.created_at:type_name -> google.protobuf.Timestamp
+	11, // 2: auth.UserResponse.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 3: auth.UserService.Get:input_type -> google.protobuf.Empty
 	0,  // 4: auth.UserService.GetByEmail:input_type -> auth.GetByEmailRequest
 	1,  // 5: auth.UserService.GetEmails:input_type -> auth.GetEmailsRequest
 	3,  // 6: auth.UserService.Update:input_type -> auth.UpdateRequest
 	7,  // 7: auth.AuthService.Register:input_type -> auth.RegisterRequest
-	9,  // 8: auth.AuthService.Login:input_type -> auth.LoginRequest
+	8,  // 8: auth.AuthService.Login:input_type -> auth.LoginRequest
 	5,  // 9: auth.AuthService.Restore:input_type -> auth.RestoreRequest
 	4,  // 10: auth.UserService.Get:output_type -> auth.UserResponse
 	4,  // 11: auth.UserService.GetByEmail:output_type -> auth.UserResponse
 	2,  // 12: auth.UserService.GetEmails:output_type -> auth.GetEmailsResponse
 	4,  // 13: auth.UserService.Update:output_type -> auth.UserResponse
-	8,  // 14: auth.AuthService.Register:output_type -> auth.RegisterResponse
-	10, // 15: auth.AuthService.Login:output_type -> auth.LoginResponse
+	12, // 14: auth.AuthService.Register:output_type -> google.protobuf.Empty
+	9,  // 15: auth.AuthService.Login:output_type -> auth.LoginResponse
 	6,  // 16: auth.AuthService.Restore:output_type -> auth.RestoreResponse
 	10, // [10:17] is the sub-list for method output_type
 	3,  // [3:10] is the sub-list for method input_type
@@ -681,7 +634,7 @@ func file_auth_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_auth_proto_rawDesc), len(file_auth_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

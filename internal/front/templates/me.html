@@ -1,23 +1,80 @@
 {{define "content"}}
-<h1>Личный кабинет</h1>
-{{if .Error}}<div class="err">{{.Error}}</div>{{end}}
+    <div class="profile-header">
+        <div class="avatar-circle">
+            {{if .User.Name}}{{slice .User.Name 0 1}}{{else}}U{{end}}
+        </div>
+        <div>
+            <h1 style="margin: 0;">Личный кабинет</h1>
+            <p class="muted" style="margin: 5px 0 0 0;">{{.User.Email}}</p>
+        </div>
+    </div>
 
-<section class="row">
-    <div class="col">
-        <h3>Мой профиль</h3>
-        <p><strong>Email:</strong> {{.User.Email}}</p>
-        
-        <form method="post" action="/me" class="actions">
-            <div>
-                <label>Имя</label>
-                <input name="name" value="{{.User.Name}}" placeholder="Введите ваше имя">
+    {{if .Error}}<div class="err" style="margin-bottom: 20px;">{{.Error}}</div>{{end}}
+
+    <div class="card">
+        <form method="post" action="/me" id="profileForm">
+            <h3 style="margin-top: 0; margin-bottom: 20px;">Настройки профиля</h3>
+            
+            <div class="form-group">
+                <label for="name">Ваше имя</label>
+                <div class="input-wrapper">
+                    <input type="text" id="name" name="name" value="{{.User.Name}}" placeholder="Как вас зовут?">
+                </div>
             </div>
-            <div>
-                <label>Сменить пароль</label>
-                <input name="password" type="text" placeholder="Оставьте пустым, если не меняете">
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 25px 0;">
+            
+            <h3 style="margin-bottom: 20px;">Безопасность</h3>
+
+            <div class="form-group">
+                <label for="password">Новый пароль</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" placeholder="Оставьте пустым, чтобы не менять">
+                </div>
             </div>
-            <button type="submit">Сохранить изменения</button>
+
+            <div class="form-group">
+                <label for="confirm_password">Повторите новый пароль</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirm_password" placeholder="Введите пароль еще раз">
+                    <div id="match-error" class="error-hint">Пароли не совпадают</div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">Сохранить изменения</button>
         </form>
     </div>
-</section>
+
+
+<script>
+    const form = document.getElementById('profileForm');
+    const password = document.getElementById('password');
+    const confirm = document.getElementById('confirm_password');
+    const errorHint = document.getElementById('match-error');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function validate() {
+        if (confirm.value.length > 0 && password.value !== confirm.value) {
+            confirm.classList.add('input-error');
+            errorHint.style.display = 'block';
+            return false;
+        } else {
+            confirm.classList.remove('input-error');
+            errorHint.style.display = 'none';
+            return true;
+        }
+    }
+
+    // Проверка при вводе
+    confirm.addEventListener('input', validate);
+    password.addEventListener('input', validate);
+
+    // Проверка перед отправкой
+    form.addEventListener('submit', (e) => {
+        if (!validate()) {
+            e.preventDefault(); // отменяем отправку, если не совпали
+            alert("Пароли не совпадают!");
+        }
+    });
+</script>
 {{end}}

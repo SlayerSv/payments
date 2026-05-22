@@ -10,10 +10,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
-	authmodels "github.com/SlayerSv/payments/internal/auth/models"
-	transmodels "github.com/SlayerSv/payments/internal/trans/models"
-	walletmodels "github.com/SlayerSv/payments/internal/wallet/models"
+	"github.com/SlayerSv/payments/internal/shared/models"
 )
 
 type App struct {
@@ -26,10 +25,10 @@ type PageData struct {
 	Title        string
 	Error        string
 	Authed       bool
-	Accounts     []walletmodels.AccountResponse
-	User         authmodels.UserDTO
-	Transactions []transmodels.TransactionDTO
-	Account      walletmodels.AccountResponse
+	Wallets      []models.WalletDTO
+	User         models.UserDTO
+	Transactions []models.TransactionDTO
+	Wallet       models.WalletDTO
 }
 
 func (a *App) api(ctx context.Context, method, path, token string, in any, out any) ([]byte, int, error) {
@@ -117,6 +116,10 @@ func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 				return ""
 			}
 			return *p
+		},
+		"prettyDate": func(date time.Time) string {
+			// Возвращаем в формате: 20.05.2024 15:30
+			return date.Format("02.01.2006 15:04")
 		},
 	})
 

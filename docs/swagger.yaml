@@ -1,116 +1,87 @@
 basePath: /
 definitions:
-  github_com_SlayerSv_payments_internal_auth_models.LoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  github_com_SlayerSv_payments_internal_auth_models.LoginResponse:
-    properties:
-      token:
-        type: string
-    type: object
-  github_com_SlayerSv_payments_internal_auth_models.RegisterRequest:
-    properties:
-      email:
-        type: string
-    type: object
-  github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest:
-    properties:
-      name:
-        type: string
-      password:
-        type: string
-    type: object
-  github_com_SlayerSv_payments_internal_auth_models.User:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updated_at:
-        type: string
-    type: object
   github_com_SlayerSv_payments_internal_shared_errs.Response:
     properties:
       error:
         type: string
     type: object
-  github_com_SlayerSv_payments_internal_trans_models.DepositRequest:
+  github_com_SlayerSv_payments_internal_shared_models.DepositRequest:
     properties:
-      account_type:
-        type: string
       amount:
         type: integer
     required:
-    - account_type
     - amount
     type: object
-  github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse:
+  github_com_SlayerSv_payments_internal_shared_models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_shared_models.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse:
     properties:
       new_balance:
         type: integer
     type: object
-  github_com_SlayerSv_payments_internal_trans_models.TransactionDTO:
+  github_com_SlayerSv_payments_internal_shared_models.RegisterRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  github_com_SlayerSv_payments_internal_shared_models.TransactionDTO:
     properties:
       amount:
         type: integer
       completed_at:
         type: string
-      donor_account_id:
-        type: string
-      donor_account_type:
-        type: string
       donor_email:
         type: string
       donor_name:
+        type: string
+      donor_wallet_id:
         type: string
       id:
         type: string
       op_type:
         type: string
-      receiver_account_id:
-        type: string
-      receiver_account_type:
-        type: string
       receiver_email:
         type: string
       receiver_name:
         type: string
+      receiver_wallet_id:
+        type: string
     type: object
-  github_com_SlayerSv_payments_internal_trans_models.TransferRequest:
+  github_com_SlayerSv_payments_internal_shared_models.TransactionHistory:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransactionDTO'
+        type: array
+    type: object
+  github_com_SlayerSv_payments_internal_shared_models.TransferRequest:
     properties:
       amount:
         type: integer
-      donor_account_type:
-        type: string
-      receiver_account_id:
-        type: string
-      receiver_account_type:
+      receiver_wallet_id:
         type: string
     required:
     - amount
-    - donor_account_type
-    - receiver_account_id
-    - receiver_account_type
+    - receiver_wallet_id
     type: object
-  github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest:
+  github_com_SlayerSv_payments_internal_shared_models.UpdateUserRequest:
     properties:
-      account_type:
+      name:
         type: string
-      amount:
-        type: integer
-    required:
-    - account_type
-    - amount
+      password:
+        type: string
     type: object
-  github_com_SlayerSv_payments_internal_wallet_models.AccountResponse:
+  github_com_SlayerSv_payments_internal_shared_models.WalletDTO:
     properties:
       balance:
         type: integer
@@ -121,28 +92,41 @@ definitions:
       owner_id:
         type: string
     type: object
-  github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse:
-    properties:
-      accounts:
-        items:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse'
-        type: array
-    type: object
-  internal_gateway_api_http.AccountID:
+  github_com_SlayerSv_payments_internal_shared_models.WalletID:
     properties:
       id:
         type: string
     type: object
-  internal_gateway_api_http.History:
+  github_com_SlayerSv_payments_internal_shared_models.WalletsDTO:
     properties:
-      transactions:
+      wallets:
         items:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransactionDTO'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletDTO'
         type: array
+    type: object
+  github_com_SlayerSv_payments_internal_shared_models.WithdrawRequest:
+    properties:
+      amount:
+        type: integer
+    required:
+    - amount
     type: object
   internal_gateway_api_http.OTPRequest:
     properties:
       email:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
         type: string
     type: object
 host: localhost:8081
@@ -164,14 +148,14 @@ paths:
         name: email&password
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.LoginResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.LoginResponse'
         "400":
           description: Bad Request
           schema:
@@ -187,21 +171,21 @@ paths:
     get:
       consumes:
       - application/json
-      description: Gets user`s account information (name, email).
+      description: Gets user`s wallet information (name, email).
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.User'
+            $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Gets user's account information
+      summary: Gets user's wallet information
       tags:
       - users
     patch:
@@ -214,14 +198,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.UpdateUserRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.UpdateUserRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.User'
+            $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
           schema:
@@ -231,56 +215,56 @@ paths:
       summary: Updates user
       tags:
       - users
-  /me/accounts:
+  /me/wallets:
     get:
       consumes:
       - application/json
-      description: Gets user`s all wallet/savings accounts
+      description: Gets all user`s wallets
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountsResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletsDTO'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Gets user's all wallet/savings accounts
+      summary: Gets all user's wallets
       tags:
-      - accounts
+      - wallets
     post:
       consumes:
       - application/json
-      description: Creates wallet/savings account
+      description: Creates wallet
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_gateway_api_http.AccountID'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletID'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Creates wallet/savings account
+      summary: Creates wallet
       tags:
-      - accounts
-  /me/accounts/{account_id}:
+      - wallets
+  /me/wallets/{wallet_id}:
     delete:
       consumes:
       - application/json
-      description: Deletes wallet/savings account
+      description: Deletes wallet
       parameters:
-      - description: Account ID
+      - description: Wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       produces:
@@ -294,17 +278,17 @@ paths:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Deletes wallet/savings account
+      summary: Deletes wallet
       tags:
-      - accounts
+      - wallets
     get:
       consumes:
       - application/json
-      description: Gets user`s wallet/savings account information.
+      description: Gets user`s wallet information.
       parameters:
-      - description: Account ID
+      - description: Wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       produces:
@@ -313,25 +297,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_wallet_models.AccountResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.WalletDTO'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Gets user's wallet/savings account information
+      summary: Gets user's wallet information
       tags:
-      - accounts
-  /me/accounts/{account_id}/deposit:
+      - wallets
+  /me/wallets/{wallet_id}/deposit:
     post:
       consumes:
       - application/json
-      description: Deposits funds to a specified account
+      description: Deposits funds to a specified wallet
       parameters:
-      - description: Account ID
+      - description: wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       - description: Amount to deposit
@@ -339,32 +323,32 @@ paths:
         name: amount
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.DepositRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.DepositRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Deposits funds to a specified account
+      summary: Deposits funds to a specified wallet
       tags:
       - transactions
-  /me/accounts/{account_id}/transactions:
+  /me/wallets/{wallet_id}/transactions:
     get:
       consumes:
       - application/json
-      description: Gets history of transactions of an account
+      description: Gets history of transactions of an wallet
       parameters:
-      - description: Account ID
+      - description: wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       produces:
@@ -373,25 +357,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_gateway_api_http.History'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransactionHistory'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Gets history of transactions of an account
+      summary: Gets history of transactions of an wallet
       tags:
       - transactions
-  /me/accounts/{account_id}/transfer:
+  /me/wallets/{wallet_id}/transfer:
     post:
       consumes:
       - application/json
-      description: Transfers funds to a specified account
+      description: Transfers funds to a specified wallet
       parameters:
-      - description: Account ID
+      - description: wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       - description: Transfer details
@@ -399,32 +383,32 @@ paths:
         name: details
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.TransferRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.TransferRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Transfers funds to a specified account
+      summary: Transfers funds to a specified wallet
       tags:
       - transactions
-  /me/accounts/{account_id}/withdraw:
+  /me/wallets/{wallet_id}/withdraw:
     post:
       consumes:
       - application/json
-      description: Withdraws funds from a specified account
+      description: Withdraws funds from a specified wallet
       parameters:
-      - description: Account ID
+      - description: wallet ID
         in: path
-        name: account_id
+        name: wallet_id
         required: true
         type: string
       - description: Amount to withdraw
@@ -432,28 +416,28 @@ paths:
         name: amount
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.WithdrawRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.WithdrawRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github_com_SlayerSv_payments_internal_trans_models.NewBalanceResponse'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.NewBalanceResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_errs.Response'
       security:
       - BearerAuth: []
-      summary: Withdraws funds from a specified account
+      summary: Withdraws funds from a specified wallet
       tags:
       - transactions
   /register:
     post:
       consumes:
       - application/json
-      description: Creates a new user account and sends a one time password to the
+      description: Creates a new user wallet and sends a one time password to the
         user's email
       parameters:
       - description: Email of the user
@@ -461,7 +445,7 @@ paths:
         name: email
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_auth_models.RegisterRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.RegisterRequest'
       produces:
       - application/json
       responses:

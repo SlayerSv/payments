@@ -21,7 +21,7 @@ service WalletService {
 message ProcessOperationRequest {
   string idempotency_key = 1; // Уникальный ключ (txID + суффикс)
   string transaction_id = 2;  // ID транзакции для логов/аутбокса
-  string account_id = 3;      // ID кошелька
+  string wallet_id = 3;      // ID кошелька
   int64 amount = 4;     // Сумма изменения (положительная или отрицательная)
 }
 
@@ -31,7 +31,7 @@ message ProcessOperationResponse {
   string status = 3;
 }
 
-message Account {
+message Wallet {
   string id = 1;
   string owner_id = 2;
   int64 balance = 3;
@@ -43,7 +43,7 @@ message GetRequest {
 }
 
 message GetResponse {
-  Account account = 1;
+  Wallet wallet = 1;
 }
 
 message GetAllRequest {
@@ -51,11 +51,11 @@ message GetAllRequest {
 }
 
 message GetAllResponse {
-  repeated Account accounts = 1;
+  repeated Wallet wallets = 1;
 }
 
 message CreateResponse {
-  string account_id = 1;
+  string wallet_id = 1;
 }
 
 message DeleteRequest {

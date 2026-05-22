@@ -28,15 +28,15 @@ func NewWallet(repo repository.Wallet) *Wallet {
 
 // CreateWallet — регистрация нового кошелька
 func (s *Wallet) Create(ctx context.Context, ownerID uuid.UUID) (uuid.UUID, error) {
-	return s.repo.CreateAccount(ctx, ownerID)
+	return s.repo.Create(ctx, ownerID)
 }
 
-func (s *Wallet) GetAccount(ctx context.Context, ownerID, accountID uuid.UUID) (models.Account, error) {
-	return s.repo.GetAccount(ctx, ownerID, accountID)
+func (s *Wallet) Get(ctx context.Context, ownerID, walletID uuid.UUID) (models.Wallet, error) {
+	return s.repo.Get(ctx, ownerID, walletID)
 }
 
-func (s *Wallet) GetAccounts(ctx context.Context, userID uuid.UUID) ([]models.Account, error) {
-	return s.repo.GetAccounts(ctx, userID)
+func (s *Wallet) GetAll(ctx context.Context, userID uuid.UUID) ([]models.Wallet, error) {
+	return s.repo.GetAll(ctx, userID)
 }
 
 // ProcessOperation — Изменение баланса с ретраями и идемпотентностью (ГЛАВНЫЙ МЕТОД)
@@ -60,23 +60,21 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	// Если параллельный процесс успеет изменить баланс быстрее нас, версия БД изменится,
 	// и repo вернет ErrConcurrentUpdate. В этом случае мы идем на новый круг.
 	for attempt := 0; attempt < MaxOptimisticRetries; attempt++ {
-		fmt.Println("REQ: ", req)
 		// 2.1 Получаем актуальное состояние кошелька (баланс и ВЕРСИЮ)
-		acc, err := s.repo.GetAccount(ctx, req.OwnerID, req.AccountID)
-		fmt.Println("acc: ", acc, "err: ", err)
+		wallet, err := s.repo.Get(ctx, req.OwnerID, req.WalletID)
 		if err != nil {
 			return models.OperationResponse{}, err
 		}
 
 		// 2.2 Бизнес-валидация: Проверка на отрицательный баланс при списании
-		newBalance := acc.Balance + req.Amount
+		newBalance := wallet.Balance + req.Amount
 		if req.Amount < 0 && newBalance < 0 {
 			return models.OperationResponse{}, errs.InsufficientFunds
 		}
 
 		// 2.3 Готовим успешный ответ
 		response := models.OperationResponse{
-			AccountID:  acc.ID,
+			WalletID:   wallet.ID,
 			NewBalance: newBalance,
 			Status:     "APPLIED",
 		}
@@ -85,7 +83,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		// 2.4 Готовим событие для Outbox (чтобы Kafka узнала об изменении)
 		outboxPayload := map[string]interface{}{
 			"transaction_id": req.TransactionID,
-			"account_id":     acc.ID,
+			"wallet_id":      wallet.ID,
 			"amount":         req.Amount,
 			"new_balance":    newBalance,
 		}
@@ -93,10 +91,10 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 
 		// 2.5 Пытаемся применить транзакцию в БД
 		updateParams := models.UpdateBalanceParams{
-			AccountID:           acc.ID,
+			WalletID:            wallet.ID,
 			TransactionID:       req.TransactionID,
 			Amount:              req.Amount,
-			ExpectedVersion:     acc.Version, // Важно! Передаем версию, которую прочитали
+			ExpectedVersion:     wallet.Version, // Важно! Передаем версию, которую прочитали
 			OutboxTopic:         OutboxTopicWalletOp,
 			OutboxPayload:       outboxBytes,
 			IdempotencyKey:      req.IdempotencyKey,
@@ -104,7 +102,6 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		}
 
 		err = s.repo.UpdateBalanceAtomic(ctx, updateParams)
-		fmt.Println("Update: ", err)
 		// 2.6 Обработка результата
 		if err == nil {
 			// Успех! Выходим из функции
@@ -125,6 +122,6 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 	return models.OperationResponse{}, errs.MaxRetriesReached
 }
 
-func (s *Wallet) DeleteAccount(ctx context.Context, ownerID, accountID uuid.UUID) error {
-	return s.repo.DeleteAccount(ctx, ownerID, accountID)
+func (s *Wallet) Delete(ctx context.Context, ownerID, walletID uuid.UUID) error {
+	return s.repo.Delete(ctx, ownerID, walletID)
 }
