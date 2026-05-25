@@ -12,6 +12,11 @@ definitions:
     required:
     - amount
     type: object
+  github_com_SlayerSv_payments_internal_shared_models.EmailDTO:
+    properties:
+      email:
+        type: string
+    type: object
   github_com_SlayerSv_payments_internal_shared_models.LoginRequest:
     properties:
       email:
@@ -28,11 +33,6 @@ definitions:
     properties:
       new_balance:
         type: integer
-    type: object
-  github_com_SlayerSv_payments_internal_shared_models.RegisterRequest:
-    properties:
-      email:
-        type: string
     type: object
   github_com_SlayerSv_payments_internal_shared_models.TransactionDTO:
     properties:
@@ -81,6 +81,19 @@ definitions:
       password:
         type: string
     type: object
+  github_com_SlayerSv_payments_internal_shared_models.UserDTO:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   github_com_SlayerSv_payments_internal_shared_models.WalletDTO:
     properties:
       balance:
@@ -110,24 +123,6 @@ definitions:
         type: integer
     required:
     - amount
-    type: object
-  internal_gateway_api_http.OTPRequest:
-    properties:
-      email:
-        type: string
-    type: object
-  models.User:
-    properties:
-      created_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      updated_at:
-        type: string
     type: object
 host: localhost:8081
 info:
@@ -178,7 +173,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.UserDTO'
         "400":
           description: Bad Request
           schema:
@@ -205,7 +200,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.UserDTO'
         "400":
           description: Bad Request
           schema:
@@ -445,7 +440,7 @@ paths:
         name: email
         required: true
         schema:
-          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.RegisterRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.EmailDTO'
       produces:
       - application/json
       responses:
@@ -470,7 +465,7 @@ paths:
         name: email
         required: true
         schema:
-          $ref: '#/definitions/internal_gateway_api_http.OTPRequest'
+          $ref: '#/definitions/github_com_SlayerSv_payments_internal_shared_models.EmailDTO'
       responses:
         "204":
           description: No Content

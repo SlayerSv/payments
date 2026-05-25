@@ -84,7 +84,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.UserDTO"
                         }
                     },
                     "400": {
@@ -127,7 +127,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.UserDTO"
                         }
                     },
                     "400": {
@@ -505,7 +505,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.RegisterRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.EmailDTO"
                         }
                     }
                 ],
@@ -546,7 +546,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_gateway_api_http.OTPRequest"
+                            "$ref": "#/definitions/github_com_SlayerSv_payments_internal_shared_models.EmailDTO"
                         }
                     }
                 ],
@@ -578,6 +578,14 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_SlayerSv_payments_internal_shared_models.EmailDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_SlayerSv_payments_internal_shared_models.LoginRequest": {
             "type": "object",
             "properties": {
@@ -602,14 +610,6 @@ const docTemplate = `{
             "properties": {
                 "new_balance": {
                     "type": "integer"
-                }
-            }
-        },
-        "github_com_SlayerSv_payments_internal_shared_models.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
                 }
             }
         },
@@ -685,6 +685,26 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_SlayerSv_payments_internal_shared_models.UserDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_SlayerSv_payments_internal_shared_models.WalletDTO": {
             "type": "object",
             "properties": {
@@ -729,34 +749,6 @@ const docTemplate = `{
             "properties": {
                 "amount": {
                     "type": "integer"
-                }
-            }
-        },
-        "internal_gateway_api_http.OTPRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
                 }
             }
         }

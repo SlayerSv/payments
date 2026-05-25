@@ -1,30 +1,75 @@
 package app
 
 import (
+	"context"
 	"crypto"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/SlayerSv/payments/internal/gateway/clients"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/shared/logger"
+	"github.com/SlayerSv/payments/internal/shared/models"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-type App struct {
-	Log       logger.Logger
-	Server    *http.Server
-	jwtkey    crypto.PublicKey
-	Clients   *clients.Clients
-	Validator *validator.Validate
+type AuthService interface {
+	Login(ctx context.Context, email, password string) (string, error)
+	Register(ctx context.Context, email string) error
+	Restore(ctx context.Context, email string) error
 }
 
-func NewApp(logger logger.Logger, server *http.Server, jwtkey crypto.PublicKey, clients *clients.Clients, validator *validator.Validate) *App {
-	return &App{Log: logger, Server: server, jwtkey: jwtkey, Clients: clients, Validator: validator}
+type UserService interface {
+	Get(ctx context.Context) (models.UserDTO, error)
+	Update(ctx context.Context, name, password *string) (models.UserDTO, error)
+}
+
+type TransService interface {
+	Deposit(ctx context.Context, walletID string, amount int64) (int64, error)
+	Withdraw(ctx context.Context, walletID string, amount int64) (int64, error)
+	Transfer(ctx context.Context, donorWalletID, receiverWalletID string, amount int64) (int64, error)
+	GetTransactionHistory(ctx context.Context, walletID string) (models.TransactionHistory, error)
+}
+
+type WalletService interface {
+	Get(ctx context.Context, ID string) (models.WalletDTO, error)
+	GetAll(ctx context.Context) ([]models.WalletDTO, error)
+	Create(ctx context.Context) (string, error)
+	Delete(ctx context.Context, ID string) error
+}
+
+type App struct {
+	Log           logger.Logger
+	Server        *http.Server
+	jwtkey        crypto.PublicKey
+	authService   AuthService
+	userService   UserService
+	transService  TransService
+	walletService WalletService
+	Validator     *validator.Validate
+}
+
+func NewApp(logger logger.Logger,
+	server *http.Server,
+	jwtkey crypto.PublicKey,
+	authService AuthService,
+	userService UserService,
+	transService TransService,
+	walletService WalletService,
+	validator *validator.Validate) *App {
+	return &App{
+		Log:           logger,
+		Server:        server,
+		jwtkey:        jwtkey,
+		authService:   authService,
+		userService:   userService,
+		transService:  transService,
+		walletService: walletService,
+		Validator:     validator,
+	}
 }
 
 func (app *App) ErrorJSON(w http.ResponseWriter, r *http.Request, err error) {

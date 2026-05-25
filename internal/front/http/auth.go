@@ -45,7 +45,7 @@ func (a *App) loginPost(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) registerPost(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
-	_, _, err := a.api(r.Context(), http.MethodPost, "/register", "", models.RegisterRequest{
+	_, _, err := a.api(r.Context(), http.MethodPost, "/register", "", models.EmailDTO{
 		Email: email,
 	}, nil)
 	if err != nil {

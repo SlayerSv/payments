@@ -121,7 +121,7 @@ func (s *Wallet) Get(ctx context.Context, req *pb.GetRequest) (*pb.GetResponse, 
 	}, nil
 }
 
-func (s *Wallet) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllResponse, error) {
+func (s *Wallet) GetAll(ctx context.Context, req *emptypb.Empty) (*pb.GetAllResponse, error) {
 	ownerID, err := uuid.Parse(ctx.Value(interceptors.UserID).(string))
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "invalid owner_id format")

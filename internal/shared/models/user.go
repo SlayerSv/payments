@@ -8,7 +8,7 @@ type UserDTO struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-type RegisterRequest struct {
+type EmailDTO struct {
 	Email string `json:"email"`
 }
 

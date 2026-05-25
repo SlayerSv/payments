@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	authpb "github.com/SlayerSv/payments/gen/auth"
-	pb "github.com/SlayerSv/payments/gen/trans"
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/shared/models"
 )
@@ -24,7 +22,7 @@ import (
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /me/wallets/{wallet_id}/deposit [post]
 func (app *App) Deposit(w http.ResponseWriter, r *http.Request) {
-	accID, err := app.ExtractPathValue(r, "wallet_id")
+	walletID, err := app.ExtractPathValue(r, "wallet_id")
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error extracting wallet id from path: %w", errs.BadRequest, err))
 		return
@@ -40,16 +38,13 @@ func (app *App) Deposit(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error validating deposit request: %w", errs.BadRequest, err))
 		return
 	}
-	resp, err := app.Clients.Trans.Deposit(r.Context(), &pb.DepositRequest{
-		WalletId: accID,
-		Amount:   req.Amount,
-	})
+	newBalance, err := app.transService.Deposit(r.Context(), walletID, req.Amount)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error depositing: %w", errs.Internal, err))
 		return
 	}
 	w.WriteHeader(201)
-	app.Encode(w, r, models.NewBalanceResponse{NewBalance: resp.NewBalance})
+	app.Encode(w, r, models.NewBalanceResponse{NewBalance: newBalance})
 }
 
 // Withdraw Withdraws funds from a specified wallet
@@ -65,7 +60,7 @@ func (app *App) Deposit(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /me/wallets/{wallet_id}/withdraw [post]
 func (app *App) Withdraw(w http.ResponseWriter, r *http.Request) {
-	accID, err := app.ExtractPathValue(r, "wallet_id")
+	walletID, err := app.ExtractPathValue(r, "wallet_id")
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error extracting wallet id from path: %w", errs.BadRequest, err))
 		return
@@ -81,16 +76,13 @@ func (app *App) Withdraw(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error validating withdraw request: %w", errs.BadRequest, err))
 		return
 	}
-	resp, err := app.Clients.Trans.Withdraw(r.Context(), &pb.WithdrawRequest{
-		WalletId: accID,
-		Amount:   req.Amount,
-	})
+	newBalance, err := app.transService.Withdraw(r.Context(), walletID, req.Amount)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error withdrawing: %w", errs.Internal, err))
 		return
 	}
 	w.WriteHeader(201)
-	app.Encode(w, r, models.NewBalanceResponse{NewBalance: resp.NewBalance})
+	app.Encode(w, r, models.NewBalanceResponse{NewBalance: newBalance})
 }
 
 // Transfer Transfers funds to a specified wallet
@@ -106,7 +98,7 @@ func (app *App) Withdraw(w http.ResponseWriter, r *http.Request) {
 // @Failure      400  {object}  errs.Response "Bad Request"
 // @Router       /me/wallets/{wallet_id}/transfer [post]
 func (app *App) Transfer(w http.ResponseWriter, r *http.Request) {
-	accID, err := app.ExtractPathValue(r, "wallet_id")
+	walletID, err := app.ExtractPathValue(r, "wallet_id")
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error extracting wallet id from path: %w", errs.BadRequest, err))
 		return
@@ -122,17 +114,13 @@ func (app *App) Transfer(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error validating transfer request: %w", errs.BadRequest, err))
 		return
 	}
-	resp, err := app.Clients.Trans.Transfer(r.Context(), &pb.TransferRequest{
-		DonorWalletId:    accID,
-		ReceiverWalletId: req.ReceiverWalletID,
-		Amount:           req.Amount,
-	})
+	newBalance, err := app.transService.Transfer(r.Context(), walletID, req.ReceiverWalletID, req.Amount)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error Transfering: %w", errs.Internal, err))
 		return
 	}
 	w.WriteHeader(201)
-	app.Encode(w, r, models.NewBalanceResponse{NewBalance: resp.NewBalance})
+	app.Encode(w, r, models.NewBalanceResponse{NewBalance: newBalance})
 }
 
 // GetTransactionHistory Gets history of transactions of an wallet
@@ -148,56 +136,15 @@ func (app *App) Transfer(w http.ResponseWriter, r *http.Request) {
 // @Router       /me/wallets/{wallet_id}/transactions [get]
 func (app *App) GetTransactionHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	accID, err := app.ExtractPathValue(r, "wallet_id")
+	walletID, err := app.ExtractPathValue(r, "wallet_id")
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error extracting wallet id from path: %w", errs.BadRequest, err))
 		return
 	}
-	history, err := app.Clients.Trans.GetTransactionHistory(ctx, &pb.GetTransactionHistoryRequest{WalletId: accID})
+	history, err := app.transService.GetTransactionHistory(ctx, walletID)
 	if err != nil {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting wallet history: %w", errs.Internal, err))
 		return
 	}
-	transHistory := models.TransactionHistory{Transactions: []models.TransactionDTO{}}
-	if len(history.Transactions) == 0 {
-		app.Encode(w, r, transHistory)
-		return
-	}
-	ids := map[string]string{}
-	for _, trans := range history.Transactions {
-		if trans.DonorWalletId != nil {
-			ids[*trans.DonorWalletId] = ""
-		}
-		if trans.ReceiverWalletId != nil {
-			ids[*trans.ReceiverWalletId] = ""
-		}
-	}
-	idreq := &authpb.GetEmailsRequest{}
-	for id := range ids {
-		idreq.Ids = append(idreq.Ids, id)
-	}
-	idemail, err := app.Clients.User.GetEmails(ctx, idreq)
-	if err != nil {
-		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting emails: %w", errs.Internal, err))
-		return
-	}
-	for _, trans := range history.Transactions {
-		transHistory.Transactions = append(transHistory.Transactions, pbToTrans(trans, idemail.Emails))
-	}
-	app.Encode(w, r, transHistory)
-}
-
-func pbToTrans(trans *pb.Transaction, idemail map[string]string) models.TransactionDTO {
-	tr := models.TransactionDTO{}
-	tr.ID = trans.Id
-	tr.OpType = trans.OpType.String()
-	tr.Amount = trans.Amount
-	tr.CompletedAt = trans.CreatedAt.String()
-	if trans.OpType == pb.OperationType_DEPOSIT || trans.OpType == pb.OperationType_TRANSFER {
-		tr.ReceiverWalletID = trans.ReceiverWalletId
-	}
-	if trans.OpType == pb.OperationType_WITHDRAW || trans.OpType == pb.OperationType_TRANSFER {
-		tr.DonorWalletID = trans.DonorWalletId
-	}
-	return tr
+	app.Encode(w, r, history)
 }

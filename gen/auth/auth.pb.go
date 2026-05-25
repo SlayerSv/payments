@@ -157,7 +157,6 @@ func (x *GetEmailsResponse) GetEmails() map[string]string {
 
 type UpdateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	NewName       *string                `protobuf:"bytes,2,opt,name=new_name,json=newName,proto3,oneof" json:"new_name,omitempty"`
 	NewPassword   *string                `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3,oneof" json:"new_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -192,13 +191,6 @@ func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use UpdateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRequest) Descriptor() ([]byte, []int) {
 	return file_auth_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UpdateRequest) GetUserId() string {
-	if x != nil {
-		return x.UserId
-	}
-	return ""
 }
 
 func (x *UpdateRequest) GetNewName() string {
@@ -532,9 +524,8 @@ const file_auth_auth_proto_rawDesc = "" +
 	"\x06emails\x18\x01 \x03(\v2#.auth.GetEmailsResponse.EmailsEntryR\x06emails\x1a9\n" +
 	"\vEmailsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8e\x01\n" +
-	"\rUpdateRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1e\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"u\n" +
+	"\rUpdateRequest\x12\x1e\n" +
 	"\bnew_name\x18\x02 \x01(\tH\x00R\anewName\x88\x01\x01\x12&\n" +
 	"\fnew_password\x18\x03 \x01(\tH\x01R\vnewPassword\x88\x01\x01B\v\n" +
 	"\t_new_nameB\x0f\n" +

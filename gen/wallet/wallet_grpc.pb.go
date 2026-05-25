@@ -35,7 +35,7 @@ type WalletServiceClient interface {
 	ProcessOperation(ctx context.Context, in *ProcessOperationRequest, opts ...grpc.CallOption) (*ProcessOperationResponse, error)
 	Create(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateResponse, error)
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
-	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
+	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -77,7 +77,7 @@ func (c *walletServiceClient) Get(ctx context.Context, in *GetRequest, opts ...g
 	return out, nil
 }
 
-func (c *walletServiceClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error) {
+func (c *walletServiceClient) GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllResponse)
 	err := c.cc.Invoke(ctx, WalletService_GetAll_FullMethodName, in, out, cOpts...)
@@ -105,7 +105,7 @@ type WalletServiceServer interface {
 	ProcessOperation(context.Context, *ProcessOperationRequest) (*ProcessOperationResponse, error)
 	Create(context.Context, *emptypb.Empty) (*CreateResponse, error)
 	Get(context.Context, *GetRequest) (*GetResponse, error)
-	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
+	GetAll(context.Context, *emptypb.Empty) (*GetAllResponse, error)
 	Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedWalletServiceServer()
 }
@@ -126,7 +126,7 @@ func (UnimplementedWalletServiceServer) Create(context.Context, *emptypb.Empty) 
 func (UnimplementedWalletServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedWalletServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedWalletServiceServer) GetAll(context.Context, *emptypb.Empty) (*GetAllResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedWalletServiceServer) Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error) {
@@ -208,7 +208,7 @@ func _WalletService_Get_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _WalletService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllRequest)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func _WalletService_GetAll_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: WalletService_GetAll_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WalletServiceServer).GetAll(ctx, req.(*GetAllRequest))
+		return srv.(WalletServiceServer).GetAll(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

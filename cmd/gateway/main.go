@@ -5,8 +5,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/SlayerSv/payments/internal/gateway/adapter"
 	app "github.com/SlayerSv/payments/internal/gateway/api/http"
 	"github.com/SlayerSv/payments/internal/gateway/clients"
+	"github.com/SlayerSv/payments/internal/gateway/service"
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/logger"
@@ -48,7 +50,15 @@ func main() {
 		log.Fatalf("Error creating clients %v", err)
 	}
 	validate := validator.NewValidator()
-	a := app.NewApp(logger, server, key, clients, validate)
+	authAdapter := adapter.NewAuth(clients.Auth)
+	authService := service.NewAuth(authAdapter)
+	userAdapter := adapter.NewUser(clients.User)
+	userService := service.NewUser(userAdapter)
+	transAdapter := adapter.NewTrans(clients.Trans)
+	transService := service.NewTrans(transAdapter)
+	walletAdapter := adapter.NewWallet(clients.Wallet)
+	walletService := service.NewWallet(walletAdapter)
+	a := app.NewApp(logger, server, key, authService, userService, transService, walletService, validate)
 
 	a.Server.Handler = a.NewRouter()
 	a.Log.Infof("Starting server on %s", a.Server.Addr)

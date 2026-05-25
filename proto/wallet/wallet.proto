@@ -13,7 +13,7 @@ service WalletService {
   rpc ProcessOperation(ProcessOperationRequest) returns (ProcessOperationResponse);
   rpc Create(google.protobuf.Empty) returns (CreateResponse);
   rpc Get(GetRequest) returns (GetResponse);
-  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllResponse);
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
 }
 
@@ -44,10 +44,6 @@ message GetRequest {
 
 message GetResponse {
   Wallet wallet = 1;
-}
-
-message GetAllRequest {
-  string owner_id = 1;
 }
 
 message GetAllResponse {
