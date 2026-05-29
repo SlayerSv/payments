@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	_ "github.com/SlayerSv/payments/docs"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -11,6 +12,8 @@ func (app *App) NewRouter() http.Handler {
 	router := http.NewServeMux()
 
 	router.HandleFunc("GET /swagger/", httpSwagger.WrapHandler)
+
+	router.Handle("GET /metrics", promhttp.Handler())
 
 	router.HandleFunc("POST /login", app.Login)
 	router.HandleFunc("POST /register", app.Register)
@@ -30,5 +33,5 @@ func (app *App) NewRouter() http.Handler {
 	router.HandleFunc("POST /me/wallets/{wallet_id}/withdraw", app.Auth(app.Withdraw))
 	router.HandleFunc("POST /me/wallets/{wallet_id}/transfer", app.Auth(app.Transfer))
 
-	return router
+	return HTTPMetricsMiddleware(router)
 }

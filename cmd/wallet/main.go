@@ -11,10 +11,12 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/wallet/grpcserver"
 	"github.com/SlayerSv/payments/internal/wallet/repository"
 	"github.com/SlayerSv/payments/internal/wallet/repository/postgres"
 	"github.com/SlayerSv/payments/internal/wallet/service"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -59,7 +61,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
-	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor([]string{"trans", "gateway"}, publicKey)))
+	srv := grpc.NewServer(grpc.ChainUnaryInterceptor(
+		grpc_prometheus.UnaryServerInterceptor,
+		interceptors.ServerInterceptor([]string{"trans", "gateway"}, publicKey),
+	),
+	)
 	pb.RegisterWalletServiceServer(srv, walletserv)
+	grpc_prometheus.Register(srv)
+
+	metrics.InitMetricsServer(os.Getenv("WALLET_METRICS_PORT"))
 	srv.Serve(lis)
 }

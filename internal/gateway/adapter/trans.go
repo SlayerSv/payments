@@ -3,6 +3,7 @@ package adapter
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "github.com/SlayerSv/payments/gen/trans"
 	"github.com/SlayerSv/payments/internal/shared/models"
@@ -60,7 +61,7 @@ func pbToTrans(trans *pb.Transaction) models.TransactionDTO {
 	tr.ID = trans.Id
 	tr.OpType = trans.OpType.String()
 	tr.Amount = trans.Amount
-	tr.CompletedAt = trans.CreatedAt.String()
+	tr.CompletedAt = trans.CreatedAt.AsTime().Format(time.RFC3339)
 	if trans.OpType == pb.OperationType_DEPOSIT || trans.OpType == pb.OperationType_TRANSFER {
 		tr.ReceiverWalletID = trans.ReceiverWalletId
 	}

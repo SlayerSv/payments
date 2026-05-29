@@ -117,8 +117,8 @@ func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 			}
 			return *p
 		},
-		"prettyDate": func(date time.Time) string {
-			// Возвращаем в формате: 20.05.2024 15:30
+		"prettyDate": func(dateStr string) string {
+			date, _ := time.Parse(time.RFC3339, dateStr)
 			return date.Format("02.01.2006 15:04")
 		},
 	})

@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/wallet/models"
@@ -16,6 +18,16 @@ import (
 const (
 	MaxOptimisticRetries = 5 // Сколько раз пытаться обновить баланс при конфликтах
 	OutboxTopicWalletOp  = "wallet.operation.applied"
+)
+
+var (
+	OperationCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "operations",
+			Help: "Общее количество операций с кошельками по статусам",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS, CACHED
+	)
 )
 
 type Wallet struct {
@@ -41,6 +53,7 @@ func (s *Wallet) GetAll(ctx context.Context, userID uuid.UUID) ([]models.Wallet,
 
 // ProcessOperation — Изменение баланса с ретраями и идемпотентностью (ГЛАВНЫЙ МЕТОД)
 func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationRequest) (models.OperationResponse, error) {
+	OperationCounter.WithLabelValues("TOTAL").Inc()
 	// 1. ПРОВЕРКА ИДЕМПОТЕНТНОСТИ
 	// Если мы уже обрабатывали этот запрос (например, сеть моргнула, и клиент послал gRPC запрос еще раз),
 	// мы не списываем деньги снова, а просто отдаем сохраненный ответ.
@@ -52,6 +65,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		if exists {
 			var cachedResp models.OperationResponse
 			_ = json.Unmarshal(cachedRespBytes, &cachedResp)
+			OperationCounter.WithLabelValues("CACHED").Inc()
 			return cachedResp, nil // Возвращаем старый успешный ответ
 		}
 	}
@@ -112,7 +126,7 @@ func (s *Wallet) ProcessOperation(ctx context.Context, req models.OperationReque
 		if errors.Is(err, errs.ConcurrentUpdate) {
 			continue // ВАЖНО: Пытаемся снова (прочитаем новые данные и попробуем обновить)
 		}
-
+		OperationCounter.WithLabelValues("SUCCESS").Inc()
 		// Если это какая-то другая ошибка БД (упала сеть, нет места на диске) — возвращаем её
 		return models.OperationResponse{}, err
 	}

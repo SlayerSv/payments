@@ -19,7 +19,39 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/hashicorp/vault/api"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	LoginCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "login_attempts",
+			Help: "Общее количество входов в систему",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS
+	)
+)
+
+var (
+	RegistrationCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "registrations",
+			Help: "Количество регистраций в системе",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS
+	)
+)
+
+var (
+	RestoreCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "restore_attempts",
+			Help: "Общее количество восстановлений доступа к системе",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS
+	)
 )
 
 type Auth struct {
@@ -34,6 +66,7 @@ func NewAuth(auth repo.Auth, otp repo.OTP, user repo.User, secretClient *api.Cli
 }
 
 func (a *Auth) Register(ctx context.Context, email string) error {
+	RegistrationCounter.WithLabelValues("TOTAL").Inc()
 	email = strings.ToLower(strings.TrimSpace(email))
 	_, err := mail.ParseAddress(email)
 	if err != nil {
@@ -52,10 +85,12 @@ func (a *Auth) Register(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
+	RegistrationCounter.WithLabelValues("SUCCESS").Inc()
 	return nil
 }
 
 func (a *Auth) Login(ctx context.Context, email, password string) (string, error) {
+	LoginCounter.WithLabelValues("TOTAL").Inc()
 	email = strings.ToLower(strings.TrimSpace(email))
 	user, err := a.User.GetByEmail(ctx, email)
 	if err != nil {
@@ -89,11 +124,12 @@ func (a *Auth) Login(ctx context.Context, email, password string) (string, error
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %w", err)
 	}
-
+	LoginCounter.WithLabelValues("SUCCESS").Inc()
 	return tokenString, nil
 }
 
 func (a *Auth) Restore(ctx context.Context, email string) error {
+	RestoreCounter.WithLabelValues("TOTAL").Inc()
 	email = strings.ToLower(strings.TrimSpace(email))
 	_, err := mail.ParseAddress(email)
 	if err != nil {
@@ -112,6 +148,7 @@ func (a *Auth) Restore(ctx context.Context, email string) error {
 	if err != nil {
 		return err
 	}
+	RestoreCounter.WithLabelValues("SUCCESS").Inc()
 	return nil
 }
 

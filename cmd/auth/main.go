@@ -15,6 +15,8 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/metrics"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -56,7 +58,8 @@ func main() {
 
 	// Настраиваем сервер с ОДНИМ интерцептором
 	srv := grpc.NewServer(
-		grpc.UnaryInterceptor(
+		grpc.ChainUnaryInterceptor(
+			grpc_prometheus.UnaryServerInterceptor,
 			interceptors.ServerInterceptor([]string{"gateway", "trans"}, publicKey),
 		),
 	)
@@ -68,5 +71,9 @@ func main() {
 	authServer := grpcserver.NewAuthServer(authService, userService)
 	pb.RegisterAuthServiceServer(srv, authServer)
 	pb.RegisterUserServiceServer(srv, authServer)
+
+	grpc_prometheus.Register(srv)
+	metrics.InitMetricsServer(os.Getenv("AUTH_METRICS_PORT"))
+
 	srv.Serve(lis)
 }

@@ -11,11 +11,13 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/trans/clients"
 	"github.com/SlayerSv/payments/internal/trans/grpcserver"
 	"github.com/SlayerSv/payments/internal/trans/repository"
 	"github.com/SlayerSv/payments/internal/trans/repository/postgres"
 	"github.com/SlayerSv/payments/internal/trans/service"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -65,8 +67,19 @@ func main() {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
 
-	srv := grpc.NewServer(grpc.UnaryInterceptor(interceptors.ServerInterceptor([]string{"gateway"}, publicKey)))
+	srv := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			// 1. Метрики Прометея
+			// Они должны быть в самом начале цепочки, чтобы замерить полное время
+			// выполнения запроса, включая то время, что тратится на проверку JWT.
+			grpc_prometheus.UnaryServerInterceptor,
+			interceptors.ServerInterceptor([]string{"gateway"}, publicKey),
+		),
+	)
 	transpb.RegisterTransServiceServer(srv, transserv)
+	grpc_prometheus.Register(srv)
+
+	metrics.InitMetricsServer(os.Getenv("TRANS_METRICS_PORT"))
 
 	srv.Serve(lis)
 }

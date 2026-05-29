@@ -94,7 +94,6 @@ func (a *App) walletPage(w http.ResponseWriter, r *http.Request) {
 
 	var tx models.TransactionHistory
 	_, _, _ = a.api(r.Context(), http.MethodGet, "/me/wallets/"+id+"/transactions", token, nil, &tx)
-
 	a.render(w, "wallet", PageData{
 		Title:        "Счет",
 		Authed:       true,

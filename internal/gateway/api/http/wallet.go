@@ -51,7 +51,8 @@ func (app *App) GetAllWallets(w http.ResponseWriter, r *http.Request) {
 		app.ErrorJSON(w, r, fmt.Errorf("%w: error getting wallets: %w", errs.Internal, err))
 		return
 	}
-	app.Encode(w, r, wallets)
+	resp := models.WalletsDTO{Wallets: wallets}
+	app.Encode(w, r, resp)
 }
 
 // CreateWallet Creates wallet

@@ -11,6 +11,33 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/errs"
 	"github.com/SlayerSv/payments/internal/trans/models"
 	"github.com/SlayerSv/payments/internal/trans/repository"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+// Объявляем счетчик (Counter) с лейблом "status"
+var (
+	SagaCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "saga_transactions",
+			Help: "Общее количество транзакций саги по статусам",
+		},
+		[]string{"status"}, // TOTAL, COMPLETED, FAILED, ROLLBACK
+	)
+	DepositCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "deposits",
+			Help: "Общее количество депозитов по статусам",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS
+	)
+	WithdrawCounter = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "withdraws",
+			Help: "Общее количество выводов средств по статусам",
+		},
+		[]string{"status"}, // TOTAL, SUCCESS
+	)
 )
 
 type Transaction struct {
@@ -28,6 +55,7 @@ func NewTransaction(repo repository.Transaction, userClient pb.UserServiceClient
 }
 
 func (s *Transaction) Deposit(ctx context.Context, userID, walletID uuid.UUID, amount int64) (int64, error) {
+	DepositCounter.WithLabelValues("TOTAL").Inc()
 	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: walletID.String()})
 	if err != nil {
 		return 0, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
@@ -58,10 +86,12 @@ func (s *Transaction) Deposit(ctx context.Context, userID, walletID uuid.UUID, a
 	if err != nil {
 		return resp.NewBalance, err
 	}
+	DepositCounter.WithLabelValues("SUCCESS").Inc()
 	return resp.NewBalance, nil
 }
 
 func (s *Transaction) Withdraw(ctx context.Context, userID, walletID uuid.UUID, amount int64) (int64, error) {
+	WithdrawCounter.WithLabelValues("TOTAL").Inc()
 	wallet, err := s.wallet.Get(ctx, &walletpb.GetRequest{Id: walletID.String()})
 	if err != nil {
 		return 0, fmt.Errorf("%w: error getting wallet: %w", errs.Internal, err)
@@ -89,6 +119,7 @@ func (s *Transaction) Withdraw(ctx context.Context, userID, walletID uuid.UUID, 
 		return 0, err
 	}
 	err = s.repo.UpdateStatus(ctx, id, models.StatusCompleted)
+	DepositCounter.WithLabelValues("SUCCESS").Inc()
 	return resp.NewBalance, err
 }
 
@@ -110,6 +141,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	if err != nil {
 		return 0, err
 	}
+	SagaCounter.WithLabelValues("TOTAL").Inc()
 	debreq := &walletpb.ProcessOperationRequest{}
 	debreq.IdempotencyKey = id.String() + " " + "DEBIT"
 	debreq.TransactionId = id.String()
@@ -117,6 +149,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	debreq.Amount = -trans.Amount
 	resp, err := s.wallet.ProcessOperation(ctx, debreq)
 	if err != nil {
+		SagaCounter.WithLabelValues("FAILED").Inc()
 		s.repo.UpdateStatus(ctx, id, models.StatusFailed)
 		return 0, err
 	}
@@ -129,6 +162,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 	credreq.Amount = trans.Amount
 	_, err = s.wallet.ProcessOperation(ctx, credreq)
 	if err != nil {
+		SagaCounter.WithLabelValues("ROLLBACK").Inc()
 		err = s.repo.UpdateStatus(ctx, id, models.StatusRollbackPending)
 		debreq.IdempotencyKey = id.String() + " " + "ROLLBACK"
 		debreq.Amount = -debreq.Amount
@@ -137,6 +171,7 @@ func (s *Transaction) Transfer(ctx context.Context, userID uuid.UUID, trans mode
 		return rollbackresp.NewBalance, err
 	}
 	err = s.repo.UpdateStatus(ctx, id, models.StatusCompleted)
+	SagaCounter.WithLabelValues("COMPLETED").Inc()
 	return resp.NewBalance, err
 }
 
