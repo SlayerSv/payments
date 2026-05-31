@@ -12,6 +12,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
+	"github.com/SlayerSv/payments/internal/shared/tracing"
 	"github.com/SlayerSv/payments/internal/trans/clients"
 	"github.com/SlayerSv/payments/internal/trans/grpcserver"
 	"github.com/SlayerSv/payments/internal/trans/repository"
@@ -20,6 +21,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -67,7 +69,14 @@ func main() {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
 
+	tp, err := tracing.InitTracer("transactions")
+	if err != nil {
+		log.Fatalf("Error init tracing: %v", err)
+	}
+	defer func() { _ = tp.Shutdown(context.Background()) }()
+
 	srv := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			// 1. Метрики Прометея
 			// Они должны быть в самом начале цепочки, чтобы замерить полное время

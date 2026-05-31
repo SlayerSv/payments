@@ -6,6 +6,7 @@ import (
 	_ "github.com/SlayerSv/payments/docs"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func (app *App) NewRouter() http.Handler {
@@ -32,6 +33,6 @@ func (app *App) NewRouter() http.Handler {
 	router.HandleFunc("POST /me/wallets/{wallet_id}/deposit", app.Auth(app.Deposit))
 	router.HandleFunc("POST /me/wallets/{wallet_id}/withdraw", app.Auth(app.Withdraw))
 	router.HandleFunc("POST /me/wallets/{wallet_id}/transfer", app.Auth(app.Transfer))
-
-	return HTTPMetricsMiddleware(router)
+	TraceRouter := otelhttp.NewHandler(router, "HTTP_Incoming_Request")
+	return HTTPMetricsMiddleware(TraceRouter)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/logger"
+	"github.com/SlayerSv/payments/internal/shared/tracing"
 	"github.com/SlayerSv/payments/internal/shared/validator"
 	"github.com/joho/godotenv"
 )
@@ -33,6 +35,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error getting logger: %v", err)
 	}
+	tp, err := tracing.InitTracer("gateway")
+	if err != nil {
+		log.Fatalf("Error init tracing: %v", err)
+	}
+	defer func() { _ = tp.Shutdown(context.Background()) }()
+
 	server := &http.Server{
 		Addr:     ":8081",
 		ErrorLog: logger.Error,

@@ -32,7 +32,6 @@ func ServerInterceptor(validTokens []string, publicKey crypto.PublicKey) grpc.Un
 		if isValid := slices.Contains(validTokens, serviceToken); !isValid {
 			return nil, status.Error(codes.PermissionDenied, "invalid service token")
 		}
-		fmt.Println(info.FullMethod)
 		// 2. ПРОВЕРКА JWT
 		// info.FullMethod выглядит как "/auth.UserService/UpdateUser"
 		authMethods := []string{"/auth.UserService/Get", "/auth.UserService/Update", "/wallet.WalletService/Get", "/wallet.WalletService/GetAll", "/wallet.WalletService/Delete", "/wallet.WalletService/Create", "/trans.TransService/Deposit", "/trans.TransService/Withdraw", "/trans.TransService/Transfer", "/trans.TransService/GetTransactionHistory", "/wallet.WalletService/ProcessOperation"}

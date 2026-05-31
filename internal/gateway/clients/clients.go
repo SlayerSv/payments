@@ -5,6 +5,7 @@ import (
 	transpb "github.com/SlayerSv/payments/gen/trans"
 	walletpb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -24,6 +25,7 @@ func InitClients(authAddr, userAddr, walletAddr, transAddr, serviceToken string)
 	dialOpts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(interceptor),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	}
 
 	// Коннектимся к Auth

@@ -12,6 +12,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
+	"github.com/SlayerSv/payments/internal/shared/tracing"
 	"github.com/SlayerSv/payments/internal/wallet/grpcserver"
 	"github.com/SlayerSv/payments/internal/wallet/repository"
 	"github.com/SlayerSv/payments/internal/wallet/repository/postgres"
@@ -19,6 +20,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -61,10 +63,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
 	}
-	srv := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		grpc_prometheus.UnaryServerInterceptor,
-		interceptors.ServerInterceptor([]string{"trans", "gateway"}, publicKey),
-	),
+	tp, err := tracing.InitTracer("wallet")
+	if err != nil {
+		log.Fatalf("Error init tracing: %v", err)
+	}
+	defer func() { _ = tp.Shutdown(context.Background()) }()
+
+	srv := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+		grpc.ChainUnaryInterceptor(
+			grpc_prometheus.UnaryServerInterceptor,
+			interceptors.ServerInterceptor([]string{"trans", "gateway"}, publicKey),
+		),
 	)
 	pb.RegisterWalletServiceServer(srv, walletserv)
 	grpc_prometheus.Register(srv)
