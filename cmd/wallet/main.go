@@ -6,12 +6,14 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	pb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/kafka"
 	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/shared/tracing"
@@ -57,8 +59,8 @@ func main() {
 	repository.StartMigrations(connStr)
 
 	db := postgres.NewWallet(dbpool)
-	service := service.NewWallet(db)
-	walletserv := grpcserver.NewWallet(service)
+	walletservice := service.NewWallet(db)
+	walletserv := grpcserver.NewWallet(walletservice)
 	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
 		slog.Error("Opening tcp connection", slog.String("error", err.Error()), slog.String("port", "50053"))
@@ -92,5 +94,25 @@ func main() {
 	grpc_prometheus.Register(srv)
 
 	metrics.InitMetricsServer(os.Getenv("WALLET_METRICS_PORT"))
+
+	kafkaBrokersEnv := os.Getenv("KAFKA_BROKERS")
+	// Кафка может работать кластером, поэтому библиотека ждет слайс строк []string
+	brokers := strings.Split(kafkaBrokersEnv, ",")
+
+	// 2. Инициализируем продюсер Кафки
+	kafkaProducer := kafka.NewProducer(brokers)
+	defer kafkaProducer.Close() // Закрываем соединение при выходе из приложения
+
+	// 3. Создаем фоновый воркер Аутбокса
+	outboxWorker := service.NewOutboxWorker(dbpool, kafkaProducer)
+
+	// Создаем контекст для управления жизненным циклом приложения
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// 4. ЗАПУСКАЕМ ВОРКЕР В ФОНЕ (в отдельном потоке/горутине)
+	// Он будет раз в секунду проверять базу и отправлять сообщения
+	go outboxWorker.Start(ctx)
+
 	srv.Serve(lis)
 }

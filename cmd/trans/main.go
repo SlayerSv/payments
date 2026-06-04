@@ -6,12 +6,14 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	transpb "github.com/SlayerSv/payments/gen/trans"
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/kafka"
 	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/shared/tracing"
@@ -100,6 +102,23 @@ func main() {
 	grpc_prometheus.Register(srv)
 
 	metrics.InitMetricsServer(os.Getenv("TRANS_METRICS_PORT"))
+
+	kafkaBrokersEnv := os.Getenv("KAFKA_BROKERS")
+	brokers := strings.Split(kafkaBrokersEnv, ",")
+
+	// Инициализируем консюмера.
+	// Указываем топик "wallet-transactions" и группу "audit-group"
+	consumer := kafka.NewConsumer(brokers, "wallet-transactions", "audit-group")
+	defer consumer.Close()
+
+	ctx := context.Background()
+
+	// Запускаем бесконечное чтение из Кафки
+	consumer.StartConsume(ctx, func(ctx context.Context, msg []byte) error {
+		// Эта функция будет срабатывать на КАЖДОЕ новое сообщение в Кафке!
+		slog.Info("[AUDIT LOG FROM KAFKA]", slog.String("message", string(msg)))
+		return nil
+	})
 
 	srv.Serve(lis)
 }
