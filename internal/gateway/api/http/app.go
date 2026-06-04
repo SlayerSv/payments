@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/SlayerSv/payments/internal/shared/errs"
-	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/models"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
@@ -42,7 +42,7 @@ type WalletService interface {
 }
 
 type App struct {
-	Log           logger.Logger
+	Log           *slog.Logger
 	Server        *http.Server
 	jwtkey        crypto.PublicKey
 	authService   AuthService
@@ -52,7 +52,7 @@ type App struct {
 	Validator     *validator.Validate
 }
 
-func NewApp(logger logger.Logger,
+func NewApp(logger *slog.Logger,
 	server *http.Server,
 	jwtkey crypto.PublicKey,
 	authService AuthService,
@@ -75,7 +75,7 @@ func NewApp(logger logger.Logger,
 func (app *App) ErrorJSON(w http.ResponseWriter, r *http.Request, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
-	app.Log.Errorln(r.Method, r.URL, err.Error())
+	app.Log.ErrorContext(r.Context(), "Processing incoming request", slog.String("error", err.Error()), slog.String("method", r.Method), slog.String("url", r.URL.String()))
 	var code int
 	if errors.Is(err, errs.NotFound) {
 		err = errs.NotFound

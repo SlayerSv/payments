@@ -2,15 +2,17 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	pb "github.com/SlayerSv/payments/gen/wallet"
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/shared/tracing"
 	"github.com/SlayerSv/payments/internal/wallet/grpcserver"
@@ -26,6 +28,11 @@ import (
 
 func main() {
 	godotenv.Load()
+
+	logger, cleanup := logger.NewVictoriaLogger("wallet")
+	defer cleanup()
+	slog.SetDefault(logger)
+
 	connStr := os.Getenv("WALLET_DB_CONN")
 
 	var dbpool *pgxpool.Pool
@@ -38,14 +45,15 @@ func main() {
 				break
 			}
 		}
-		log.Printf("База еще не готова (попытка %d): %v", i+1, err)
+		slog.Info("Starting dabase", slog.String("number of try", strconv.Itoa(i+1)), slog.String("error", err.Error()))
 		time.Sleep(2 * time.Second)
 	}
 	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе после 5 попыток: %v", err)
+		slog.Error("Connecting to database failed", slog.String("error", err.Error()))
+		return
 	}
 	defer dbpool.Close()
-	log.Println("Успешное подключение к PostgreSQL!")
+	slog.Info("Successful connection to PostgreSQL")
 	repository.StartMigrations(connStr)
 
 	db := postgres.NewWallet(dbpool)
@@ -53,19 +61,23 @@ func main() {
 	walletserv := grpcserver.NewWallet(service)
 	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		slog.Error("Opening tcp connection", slog.String("error", err.Error()), slog.String("port", "50053"))
+		return
 	}
 	client, err := bao.NewBaoClient()
 	if err != nil {
-		log.Fatalf("Не удалось подлючиться к опенбао: %v\n", err)
+		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
+		return
 	}
 	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
 	if err != nil {
-		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
+		slog.Error("Retreiving public key", slog.String("error", err.Error()))
+		return
 	}
 	tp, err := tracing.InitTracer("wallet")
 	if err != nil {
-		log.Fatalf("Error init tracing: %v", err)
+		slog.Error("Initializing tracer", slog.String("error", err.Error()))
+		return
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 

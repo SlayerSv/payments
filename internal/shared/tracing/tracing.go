@@ -2,7 +2,6 @@ package tracing
 
 import (
 	"context"
-	"log"
 	"os"
 
 	"go.opentelemetry.io/otel"
@@ -49,6 +48,5 @@ func InitTracer(serviceName string) (*sdktrace.TracerProvider, error) {
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
-	log.Printf("Трейсинг инициализирован для сервиса %s, шлем в %s", serviceName, endpoint)
 	return tp, nil
 }

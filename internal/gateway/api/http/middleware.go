@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"runtime/debug"
@@ -93,11 +94,14 @@ func (app *App) LogRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			app.Log.Errorf("error reading request body: %v", err)
+			app.Log.Error("error reading request body: %v", err)
 		}
 		defer r.Body.Close()
-		app.Log.Infof("Incoming request:\n%s %s\n%s",
-			r.Method, r.URL, string(body))
+		app.Log.Info(
+			"Incoming request",
+			slog.String("method", r.Method),
+			slog.String("url", r.URL.String()),
+			slog.String("body", string(body)))
 		r.Body = io.NopCloser(bytes.NewReader(body))
 		next.ServeHTTP(w, r)
 	})
@@ -107,8 +111,11 @@ func (app *App) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				app.ErrorJSON(w, r, errs.Internal)
-				app.Log.Errorf("error: %v, stack trace: %s", err, string(debug.Stack()))
+				errr, ok := err.(error)
+				if ok {
+					app.Log.Error(errr.Error(), slog.String("stack", string(debug.Stack())))
+					app.ErrorJSON(w, r, errs.Internal)
+				}
 			}
 		}()
 		next.ServeHTTP(w, r)

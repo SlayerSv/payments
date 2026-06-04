@@ -67,7 +67,7 @@ func ParseToken(tokenString string, publicKey crypto.PublicKey) (*jwt.Registered
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("ошибка парсинга: %w", err)
+		return nil, fmt.Errorf("parsing error: %w", err)
 	}
 
 	// 2. Достаем клеймсы и проверяем валидность
@@ -75,5 +75,5 @@ func ParseToken(tokenString string, publicKey crypto.PublicKey) (*jwt.Registered
 		return claims, nil
 	}
 
-	return nil, errors.New("невалидный токен")
+	return nil, errors.New("invalid token")
 }

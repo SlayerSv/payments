@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	pb "github.com/SlayerSv/payments/gen/auth"
@@ -15,6 +16,7 @@ import (
 	"github.com/SlayerSv/payments/internal/shared/bao"
 	"github.com/SlayerSv/payments/internal/shared/grpc/interceptors"
 	"github.com/SlayerSv/payments/internal/shared/jwttoken"
+	"github.com/SlayerSv/payments/internal/shared/logger"
 	"github.com/SlayerSv/payments/internal/shared/metrics"
 	"github.com/SlayerSv/payments/internal/shared/tracing"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -26,6 +28,11 @@ import (
 
 func main() {
 	godotenv.Load()
+
+	logger, cleanup := logger.NewVictoriaLogger("gateway")
+	defer cleanup()
+	slog.SetDefault(logger)
+
 	connStr := os.Getenv("AUTH_DB_CONN")
 
 	var dbpool *pgxpool.Pool
@@ -38,29 +45,32 @@ func main() {
 				break
 			}
 		}
-		log.Printf("База еще не готова (попытка %d): %v", i+1, err)
+		slog.Info("Starting dabase", slog.String("number of try", strconv.Itoa(i+1)), slog.String("error", err.Error()))
 		time.Sleep(2 * time.Second)
 	}
 	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе после 5 попыток: %v", err)
+		slog.Error("Starting database failed", slog.String("error", err.Error()))
+		return
 	}
 	defer dbpool.Close()
-	log.Println("Успешное подключение к PostgreSQL!")
+	slog.Info("Successful connection to PostgreSQL")
 	repo.StartMigrations(connStr)
 
 	tp, err := tracing.InitTracer("authorization")
 	if err != nil {
-		log.Fatalf("Error init tracing: %v", err)
+		slog.Error("Init tracing", slog.String("error", err.Error()))
+		return
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
 	client, err := bao.NewBaoClient()
 	if err != nil {
-		log.Fatalf("Не удалось подлючиться к опенбао: %v\n", err)
+		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
+		return
 	}
 	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
 	if err != nil {
-		log.Fatalf("Не удалось достать публичный ключ: %v\n", err)
+		slog.Error("Retreiving public key", slog.String("error", err.Error()))
 	}
 	lis, _ := net.Listen("tcp", ":50051")
 

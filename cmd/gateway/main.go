@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -31,31 +31,32 @@ import (
 // @name Authorization
 func main() {
 	godotenv.Load()
-	logger, err := logger.NewConsoleLogger()
-	if err != nil {
-		log.Fatalf("Error getting logger: %v", err)
-	}
+	logger, cleanup := logger.NewVictoriaLogger("gateway")
+	defer cleanup()
+
+	// Теперь используем стандартный slog
+	slog.SetDefault(logger)
+
 	tp, err := tracing.InitTracer("gateway")
 	if err != nil {
-		log.Fatalf("Error init tracing: %v", err)
+		logger.Error("Initializing tracing", slog.String("error", err.Error()))
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
 	server := &http.Server{
-		Addr:     ":8081",
-		ErrorLog: logger.Error,
+		Addr: ":8081",
 	}
 	client, err := bao.NewBaoClient()
 	if err != nil {
-		log.Fatalf("Не удалось подлючиться к опенбао: %v\n", err)
+		logger.Error("Connecting to open bao", slog.String("error", err.Error()))
 	}
 	key, err := jwttoken.GetPublicKey(client, "jwt_key")
 	if err != nil {
-		log.Fatalf("Error getting public key %v", err)
+		logger.Error("Getting public key", slog.String("error", err.Error()))
 	}
 	clients, err := clients.InitClients(os.Getenv("AUTH_ADDR"), os.Getenv("USER_ADDR"), os.Getenv("WALLET_ADDR"), os.Getenv("TRANS_ADDR"), "gateway")
 	if err != nil {
-		log.Fatalf("Error creating clients %v", err)
+		logger.Error("Creating clients", slog.String("error", err.Error()))
 	}
 	validate := validator.NewValidator()
 	authAdapter := adapter.NewAuth(clients.Auth)
@@ -69,10 +70,10 @@ func main() {
 	a := app.NewApp(logger, server, key, authService, userService, transService, walletService, validate)
 
 	a.Server.Handler = a.NewRouter()
-	a.Log.Infof("Starting server on %s", a.Server.Addr)
+	logger.Info("Starting server", slog.String("address", a.Server.Addr))
 	err = a.Server.ListenAndServe()
 	if err != nil {
-		a.Log.Errorf("Error starting server: %v", err)
+		logger.Error("Starting server", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 }
