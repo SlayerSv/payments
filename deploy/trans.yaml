@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: trans
+spec:
+  selector:
+    app: trans-app
+  ports:
+    - name: grpc
+      port: 50052
+      targetPort: 50052
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trans-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trans-app
+  template:
+    metadata:
+      labels:
+        app: trans-app
+    spec:
+      nodeSelector:
+        nodetype: apps
+      containers:
+        - name: trans
+          image: slayersv/trans:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 50052
+            - containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: payment-config
+          env:
+            - name: TRANS_DB_CONN
+              value: "postgres://postgres:postgres@db-service:5432/trans?sslmode=disable"

@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'microservices-metrics'
+    static_configs:
+      - targets:
+        - 'gateway:9090'
+        - 'auth:9090'
+        - 'trans:9090'
+        - 'wallet:9090'
+        - 'front:9090'

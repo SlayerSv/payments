@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+data:
+  init.sql: |
+    CREATE DATABASE auth;
+    CREATE DATABASE trans;
+    CREATE DATABASE wallet;
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      nodeSelector:
+        nodetype: data
+      containers:
+        - name: postgres
+          image: postgres:17-alpine3.22
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: init-volume
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-volume
+          configMap:
+            name: postgres-init-script
