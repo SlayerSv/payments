@@ -5,7 +5,7 @@ scrape_configs:
   - job_name: 'microservices-metrics'
     static_configs:
       - targets:
-        - 'gateway:9090'
+        - 'gateway:8081'
         - 'auth:9090'
         - 'trans:9090'
         - 'wallet:9090'
