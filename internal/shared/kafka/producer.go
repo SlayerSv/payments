@@ -14,10 +14,11 @@ type Producer struct {
 func NewProducer(brokers []string) *Producer {
 	return &Producer{
 		writer: &kafka.Writer{
-			Addr:         kafka.TCP(brokers...),
-			Balancer:     &kafka.LeastBytes{},
-			WriteTimeout: 10 * time.Second,
-			Async:        false, // Для финансовых событий лучше слать синхронно
+			Addr:                   kafka.TCP(brokers...),
+			Balancer:               &kafka.LeastBytes{},
+			WriteTimeout:           10 * time.Second,
+			Async:                  false, // Для финансовых событий лучше слать синхронно
+			AllowAutoTopicCreation: true,
 		},
 	}
 }

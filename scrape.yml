@@ -9,4 +9,3 @@ scrape_configs:
         - 'auth:9090'
         - 'trans:9090'
         - 'wallet:9090'
-        - 'front:9090'
