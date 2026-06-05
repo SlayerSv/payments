@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-    "crypto"
+	"crypto"
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/SlayerSv/payments/internal/gateway/adapter"
 	app "github.com/SlayerSv/payments/internal/gateway/api/http"
@@ -51,22 +52,22 @@ func main() {
 	if err != nil {
 		logger.Error("Connecting to open bao", slog.String("error", err.Error()))
 	}
-    var publicKey crypto.PublicKey
+	var key crypto.PublicKey
 	for i := 0; i < 5; i++ {
-		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
+		key, err = jwttoken.GetPublicKey(client, "jwt_key")
 		if err == nil {
 			slog.Info("Successfully retrieved public key from OpenBao")
 			break
 		}
-		
+
 		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
 		time.Sleep(2 * time.Second)
 	}
 	if err != nil {
 		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
-		return 
+		return
 	}
-    
+
 	clients, err := clients.InitClients(os.Getenv("AUTH_ADDR"), os.Getenv("USER_ADDR"), os.Getenv("WALLET_ADDR"), os.Getenv("TRANS_ADDR"), "gateway")
 	if err != nil {
 		logger.Error("Creating clients", slog.String("error", err.Error()))
