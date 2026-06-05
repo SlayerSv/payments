@@ -55,7 +55,6 @@ services:
         SERVICE_NAME: gateway
     ports:
       - "8081:8081"
-      - "9090:9090"
     environment:
       - BAO_ADDR=http://openbao:8200
       - AUTH_ADDR=auth:50051
@@ -78,8 +77,6 @@ services:
       dockerfile: Dockerfile
       args:
         SERVICE_NAME: auth
-    ports:
-      - "9090:9090"
     environment:
       - BAO_ADDR=http://openbao:8200
       - AUTH_DB_CONN=postgres://postgres:postgres@db:5432/auth?sslmode=disable
@@ -99,8 +96,6 @@ services:
       dockerfile: Dockerfile
       args:
         SERVICE_NAME: trans
-    ports:
-      - "9090:9090"
     environment:
       - BAO_ADDR=http://openbao:8200
       - TRANS_DB_CONN=postgres://postgres:postgres@db:5432/trans?sslmode=disable
@@ -125,8 +120,6 @@ services:
       dockerfile: Dockerfile
       args:
         SERVICE_NAME: wallet
-    ports:
-      - "9090:9090"
     environment:
       - BAO_ADDR=http://openbao:8200
       - WALLET_DB_CONN=postgres://postgres:postgres@db:5432/wallet?sslmode=disable
