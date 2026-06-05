@@ -105,6 +105,8 @@ services:
       - KAFKA_BROKERS=kafka:9092
       - VICTORIA_LOGS_URL=http://victorialogs:9428
       - OTLP_ENDPOINT=http://victoriatraces:10428/insert/opentelemetry/v1/traces
+    env_file:
+      - .env
     depends_on:
       - db
       - wallet
@@ -126,6 +128,8 @@ services:
       - KAFKA_BROKERS=kafka:9092
       - VICTORIA_LOGS_URL=http://victorialogs:9428
       - OTLP_ENDPOINT=http://victoriatraces:10428/insert/opentelemetry/v1/traces
+    env_file:
+      - .env
     depends_on:
       - db
       - bao-init
