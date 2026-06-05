@@ -34,7 +34,7 @@ spec:
       containers:
         - name: trans
           image: slayersv/trans:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50052
             - containerPort: 9090

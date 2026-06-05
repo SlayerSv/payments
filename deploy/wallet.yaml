@@ -34,7 +34,7 @@ spec:
       containers:
         - name: wallet
           image: slayersv/wallet:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 50053
             - containerPort: 9090
