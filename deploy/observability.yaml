@@ -42,8 +42,6 @@ spec:
       labels:
         app: victoriametrics
     spec:
-      nodeSelector:
-        nodetype: ops
       containers:
         - name: victoriametrics
           image: victoriametrics/victoria-metrics:latest
@@ -84,8 +82,6 @@ spec:
       labels:
         app: victorialogs
     spec:
-      nodeSelector:
-        nodetype: ops
       containers:
         - name: victorialogs
           image: victoriametrics/victoria-logs:latest
@@ -118,8 +114,6 @@ spec:
       labels:
         app: victoriatraces
     spec:
-      nodeSelector:
-        nodetype: ops
       containers:
         - name: victoriatraces
           image: victoriametrics/victoria-traces:latest
@@ -154,8 +148,6 @@ spec:
       labels:
         app: grafana
     spec:
-      nodeSelector:
-        nodetype: ops
       containers:
         - name: grafana
           image: grafana/grafana:latest
