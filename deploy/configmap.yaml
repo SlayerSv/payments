@@ -5,5 +5,5 @@ metadata:
 data:
   KAFKA_BROKERS: "kafka-service:9092"
   BAO_ADDR: "http://openbao-service:8200"
-  VICTORIA_LOGS_URL: "http://vlogs-service:9428"
-  OTLP_ENDPOINT: "http://vtraces-service:10428/insert/opentelemetry/v1/traces"
+  VICTORIA_LOGS_URL: "http://victorialogs:9428"
+  OTLP_ENDPOINT: "http://victoriatraces:10428/insert/opentelemetry/v1/traces"
