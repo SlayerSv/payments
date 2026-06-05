@@ -31,6 +31,8 @@ spec:
           ports:
             - containerPort: 9092
           env:
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xms128m -Xmx256m"
             - name: KAFKA_NODE_ID
               value: "1"
             - name: KAFKA_PROCESS_ROLES
@@ -46,3 +48,10 @@ spec:
               value: "CONTROLLER"
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "1"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "120m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
