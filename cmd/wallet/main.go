@@ -71,11 +71,22 @@ func main() {
 		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
 		return
 	}
-	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
-	if err != nil {
-		slog.Error("Retreiving public key", slog.String("error", err.Error()))
-		return
+    var publicKey crypto.PublicKey
+	for i := 0; i < 5; i++ {
+		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
+		if err == nil {
+			slog.Info("Successfully retrieved public key from OpenBao")
+			break
+		}
+		
+		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
+		time.Sleep(2 * time.Second)
 	}
+	if err != nil {
+		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
+		return 
+	}
+    
 	tp, err := tracing.InitTracer("wallet")
 	if err != nil {
 		slog.Error("Initializing tracer", slog.String("error", err.Error()))
@@ -96,22 +107,17 @@ func main() {
 	metrics.InitMetricsServer(os.Getenv("WALLET_METRICS_PORT"))
 
 	kafkaBrokersEnv := os.Getenv("KAFKA_BROKERS")
-	// Кафка может работать кластером, поэтому библиотека ждет слайс строк []string
+
 	brokers := strings.Split(kafkaBrokersEnv, ",")
 
-	// 2. Инициализируем продюсер Кафки
 	kafkaProducer := kafka.NewProducer(brokers)
-	defer kafkaProducer.Close() // Закрываем соединение при выходе из приложения
+	defer kafkaProducer.Close()
 
-	// 3. Создаем фоновый воркер Аутбокса
 	outboxWorker := service.NewOutboxWorker(dbpool, kafkaProducer)
 
-	// Создаем контекст для управления жизненным циклом приложения
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// 4. ЗАПУСКАЕМ ВОРКЕР В ФОНЕ (в отдельном потоке/горутине)
-	// Он будет раз в секунду проверять базу и отправлять сообщения
 	go outboxWorker.Start(ctx)
 
 	srv.Serve(lis)

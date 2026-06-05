@@ -75,10 +75,20 @@ func main() {
 		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
 		return
 	}
-	publicKey, err := jwttoken.GetPublicKey(client, "jwt_key")
+    var publicKey crypto.PublicKey
+	for i := 0; i < 5; i++ {
+		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
+		if err == nil {
+			slog.Info("Successfully retrieved public key from OpenBao")
+			break
+		}
+		
+		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
+		time.Sleep(2 * time.Second)
+	}
 	if err != nil {
-		slog.Error("Retreiving public key", slog.String("error", err.Error()))
-		return
+		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
+		return 
 	}
 
 	tp, err := tracing.InitTracer("transactions")
