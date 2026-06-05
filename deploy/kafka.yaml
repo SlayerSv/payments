@@ -47,10 +47,3 @@ spec:
               value: "CONTROLLER"
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
               value: "1"
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "120m"
-            limits:
-              memory: "256Mi"
-              cpu: "250m"
