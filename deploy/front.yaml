@@ -26,8 +26,6 @@ spec:
       labels:
         app: front-app
     spec:
-      nodeSelector:
-        nodetype: apps
       containers:
         - name: front
           image: slayersv/frontend:latest

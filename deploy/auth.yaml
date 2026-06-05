@@ -29,8 +29,6 @@ spec:
       labels:
         app: auth-app
     spec:
-      nodeSelector:
-        nodetype: apps
       containers:
         - name: auth
           image: slayersv/auth:latest

@@ -23,12 +23,10 @@ spec:
       labels:
         app: openbao
     spec:
-      nodeSelector:
-        nodetype: ops
       containers:
         - name: openbao
           image: openbao/openbao:2.5.3
-          command: ["server", "-dev", "-dev-root-token-id=myroot"]
+          args: ["server", "-dev", "-dev-root-token-id=myroot"]
           ports:
             - containerPort: 8200
           env:

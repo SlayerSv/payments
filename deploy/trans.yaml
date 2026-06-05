@@ -29,8 +29,6 @@ spec:
       labels:
         app: trans-app
     spec:
-      nodeSelector:
-        nodetype: apps
       containers:
         - name: trans
           image: slayersv/trans:latest

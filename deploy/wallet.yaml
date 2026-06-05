@@ -29,8 +29,6 @@ spec:
       labels:
         app: wallet-app
     spec:
-      nodeSelector:
-        nodetype: apps
       containers:
         - name: wallet
           image: slayersv/wallet:latest

@@ -30,8 +30,6 @@ spec:
       labels:
         app: gateway-app
     spec:
-      nodeSelector:
-        nodetype: apps
       containers:
         - name: gateway
           image: slayersv/gateway:latest

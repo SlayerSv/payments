@@ -47,7 +47,7 @@ spec:
       containers:
         - name: victoriametrics
           image: victoriametrics/victoria-metrics:latest
-          command: ["-promscrape.config=/etc/victoriametrics/scrape.yml"]
+          args: ["-promscrape.config=/etc/victoriametrics/scrape.yml"]
           ports:
             - containerPort: 8428
           volumeMounts:

@@ -33,8 +33,6 @@ spec:
       labels:
         app: postgres
     spec:
-      nodeSelector:
-        nodetype: data
       containers:
         - name: postgres
           image: postgres:17-alpine3.22

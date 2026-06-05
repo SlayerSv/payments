@@ -23,8 +23,6 @@ spec:
       labels:
         app: kafka
     spec:
-      nodeSelector:
-        nodetype: data
       containers:
         - name: kafka
           image: apache/kafka:latest
