@@ -7,3 +7,6 @@ data:
   BAO_ADDR: "http://openbao-service:8200"
   VICTORIA_LOGS_URL: "http://victorialogs:9428"
   OTLP_ENDPOINT: "http://victoriatraces:10428/insert/opentelemetry/v1/traces"
+  WALLET_METRICS_PORT: "9090"
+  AUTH_METRICS_PORT: "9090"
+  TRANS_METRICS_PORT: "9090"
