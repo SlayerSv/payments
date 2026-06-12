@@ -34,3 +34,10 @@ spec:
           envFrom:
             - configMapRef:
                 name: payment-config
+          volumeMounts:
+                - name: html-volume
+                  mountPath: /app/internal/front/templates
+      volumes:
+        - name: html-volume
+          configMap:
+            name: frontend-templates

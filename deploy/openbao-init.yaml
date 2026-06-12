@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openbao-init-script
+data:
+  init.sh: |
+    #!/bin/sh
+    echo "Waiting for OpenBao to start..."
+    # Ждем, пока API OpenBao не ответит статусом 200
+    until wget -qO- $BAO_ADDR/v1/sys/health | grep -q '"initialized":true'; do
+      sleep 2
+    done
+    echo "OpenBao is up! Configuring..."
+
+    # 1. Включаем движок Transit (игнорируем ошибку, если уже включен)
+    bao secrets enable transit || echo "Transit already enabled"
+
+    # 2. Создаем ключ для шифрования данных (назовем его payment-key)
+    bao write -f transit/keys/jwt_key type=ed25519 || echo "Key already exists"
+
+    echo "OpenBao configuration completed successfully!"
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openbao-init-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: openbao-init
+          image: openbao/openbao:2.5.3
+          command: ["/bin/sh", "/scripts/init.sh"]
+          env:
+            - name: BAO_ADDR
+              value: "http://openbao-service:8200"
+            - name: BAO_TOKEN
+              value: "myroot"
+          volumeMounts:
+            - name: script-volume
+              mountPath: /scripts
+      restartPolicy: OnFailure
+      volumes:
+        - name: script-volume
+          configMap:
+            name: openbao-init-script
+            defaultMode: 0777 # Даем права на выполнение скрипта
