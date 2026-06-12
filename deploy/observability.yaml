@@ -121,6 +121,19 @@ spec:
 ---
 
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+
+apiVersion: v1
 kind: Service
 metadata:
   name: grafana
@@ -131,8 +144,10 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
-      nodePort: 30002
+      nodePort: 30001
+
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -147,8 +162,18 @@ spec:
       labels:
         app: grafana
     spec:
+      nodeSelector:
+        nodetype: ops
       containers:
         - name: grafana
           image: grafana/grafana:latest
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+          # ------------------------------------------
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pvc
