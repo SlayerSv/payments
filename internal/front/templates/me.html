@@ -1,7 +1,7 @@
 {{define "content"}}
     <div class="profile-header">
         <div class="avatar-circle">
-            {{if .User.Name}}{{slice .User.Name 0 1}}{{else}}U{{end}}
+            {{firstLetter .User.Name}}
         </div>
         <div>
             <h1 style="margin: 0;">Личный кабинет</h1>

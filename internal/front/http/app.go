@@ -122,6 +122,15 @@ func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 			date, _ := time.Parse(time.RFC3339, dateStr)
 			return date.Format("02.01.2006 15:04")
 		},
+		"firstLetter": func(name string) string {
+			// Переводим строку в массив рун (символов), чтобы корректно читать UTF-8
+			runes := []rune(name)
+			if len(runes) == 0 {
+				return "А" // Буква по умолчанию, если имя пустое
+			}
+			// Берем первый символ и приводим его к верхнему регистру
+			return strings.ToUpper(string(runes[0]))
+		},
 	})
 
 	t, err := tmpl.ParseFiles(layoutPath, pagePath)
