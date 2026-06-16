@@ -24,6 +24,7 @@ type App struct {
 type PageData struct {
 	Title        string
 	Error        string
+	Success      string
 	Authed       bool
 	Wallets      []models.WalletDTO
 	User         models.UserDTO

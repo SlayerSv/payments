@@ -52,7 +52,10 @@ func (a *App) registerPost(w http.ResponseWriter, r *http.Request) {
 		a.render(w, "register", PageData{Title: "Регистрация", Error: err.Error()})
 		return
 	}
-	http.Redirect(w, r, "/login", http.StatusFound)
+	a.render(w, "register", PageData{
+		Title:   "Регистрация",
+		Success: "Сообщение отправлено. Проверьте вашу почту.",
+	})
 }
 
 func (a *App) restorePost(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +67,10 @@ func (a *App) restorePost(w http.ResponseWriter, r *http.Request) {
 		a.render(w, "restore", PageData{Title: "Восстановление", Error: err.Error()})
 		return
 	}
-	http.Redirect(w, r, "/login", http.StatusFound)
+	a.render(w, "restore", PageData{
+		Title:   "Восстановление",
+		Success: "Инструкции по восстановлению отправлены на почту.",
+	})
 }
 
 func (a *App) logout(w http.ResponseWriter, r *http.Request) {

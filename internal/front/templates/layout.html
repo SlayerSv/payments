@@ -172,6 +172,37 @@
         .footer-links { margin-top: 10px; display: flex; justify-content: center; gap: 20px; }
         .footer-links a { color: var(--footer-text); text-decoration: none; }
         .footer-links a:hover { color: var(--primary); }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: var(--bg-box);
+            color: var(--text);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid var(--primary);
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            min-width: 250px;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success { border-left-color: #45a049; }
+        .toast.error { border-left-color: var(--error-text); }
+        .toast.info { border-left-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -202,8 +233,45 @@
             <a href="#">Конфиденциальность</a>
         </div>
     </footer>
+    {{if .Success}}
+        <div id="toast-success-data" data-message="{{.Success}}" style="display: none;"></div>
+    {{end}}
+    {{if .Error}}
+        <div id="toast-error-data" data-message="{{.Error}}" style="display: none;"></div>
+    {{end}}
+
+    <div class="toast-container" id="toast-container"></div>
 
     <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            
+            container.appendChild(toast);
+            
+            // Небольшая задержка перед добавлением класса, чтобы сработала анимация CSS
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Удаляем тост через 5 секунд
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400); // Ждем окончания анимации
+            }, 5000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const successData = document.getElementById('toast-success-data');
+            if (successData) {
+                showToast(successData.dataset.message, 'success');
+            }
+
+            const errorData = document.getElementById('toast-error-data');
+            if (errorData) {
+                showToast(errorData.dataset.message, 'error');
+            }
+        });
         const btn = document.getElementById("theme-btn");
         const currentTheme = localStorage.getItem("theme");
 
