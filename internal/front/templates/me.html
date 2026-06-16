@@ -12,7 +12,7 @@
     {{if .Error}}<div class="err" style="margin-bottom: 20px;">{{.Error}}</div>{{end}}
 
     <div class="card">
-        <form method="post" action="/me" id="profileForm">
+         <form method="post" action="/me" id="profileForm">
             <h3 style="margin-top: 0; margin-bottom: 20px;">Настройки профиля</h3>
             
             <div class="form-group">
@@ -29,14 +29,17 @@
             <div class="form-group">
                 <label for="password">Новый пароль</label>
                 <div class="input-wrapper">
-                    <input type="password" id="password" name="password" placeholder="Оставьте пустым, чтобы не менять">
+                    <input type="password" id="password" name="password" placeholder="Оставьте пустым, чтобы не менять" autocomplete="off">
+                    <!-- Ошибка длины -->
+                    <div id="length-error" class="error-hint">Пароль должен быть не менее 5 символов</div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="confirm_password">Повторите новый пароль</label>
                 <div class="input-wrapper">
-                    <input type="password" id="confirm_password" placeholder="Введите пароль еще раз">
+                    <input type="password" id="confirm_password" placeholder="Введите пароль еще раз" autocomplete="off">
+                    <!-- Ошибка несовпадения -->
                     <div id="match-error" class="error-hint">Пароли не совпадают</div>
                 </div>
             </div>
@@ -54,15 +57,43 @@
     const submitBtn = document.getElementById('submitBtn');
 
     function validate() {
-        if (confirm.value.length > 0 && password.value !== confirm.value) {
-            confirm.classList.add('input-error');
-            errorHint.style.display = 'block';
-            return false;
+        let isValid = true;
+        const passVal = password.value;
+        const confVal = confirm.value;
+
+        // Сбрасываем старое состояние ошибок
+        password.classList.remove('input-error');
+        confirm.classList.remove('input-error');
+        lengthError.style.display = 'none';
+        matchError.style.display = 'none';
+
+        // Если пользователь начал вводить пароль (хочет его изменить)
+        if (passVal.length > 0) {
+            
+            // 1. Проверяем минимальную длину
+            if (passVal.length < 5) {
+                password.classList.add('input-error');
+                lengthError.style.display = 'block';
+                isValid = false;
+            }
+
+            // 2. Проверяем совпадение паролей
+            if (passVal !== confVal) {
+                confirm.classList.add('input-error');
+                matchError.style.display = 'block';
+                isValid = false;
+            }
+            
         } else {
-            confirm.classList.remove('input-error');
-            errorHint.style.display = 'none';
-            return true;
+            // Если поле пароля пустое, но подтверждение зачем-то заполнили
+            if (confVal.length > 0) {
+                confirm.classList.add('input-error');
+                matchError.style.display = 'block';
+                isValid = false;
+            }
         }
+
+        return isValid;
     }
 
     // Проверка при вводе
@@ -73,7 +104,6 @@
     form.addEventListener('submit', (e) => {
         if (!validate()) {
             e.preventDefault(); // отменяем отправку, если не совпали
-            alert("Пароли не совпадают!");
         }
     });
 </script>
