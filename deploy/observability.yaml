@@ -121,19 +121,6 @@ spec:
 ---
 
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 1Gi
----
-
-apiVersion: v1
 kind: Service
 metadata:
   name: grafana
@@ -145,9 +132,7 @@ spec:
     - port: 3000
       targetPort: 3000
       nodePort: 30001
-
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -169,11 +154,16 @@ spec:
           image: grafana/grafana:latest
           ports:
             - containerPort: 3000
-          volumeMounts:
-            - name: grafana-storage
-              mountPath: /var/lib/grafana
-          # ------------------------------------------
-      volumes:
-        - name: grafana-storage
-          persistentVolumeClaim:
-            claimName: grafana-pvc
+          env:
+            - name: GF_DATABASE_TYPE
+              value: "postgres"
+            - name: GF_DATABASE_HOST
+              value: "db-service:5432" # Наш сервис БД внутри K8s
+            - name: GF_DATABASE_NAME
+              value: "grafana"
+            - name: GF_DATABASE_USER
+              value: "postgres"
+            - name: GF_DATABASE_PASSWORD
+              value: "postgres"
+            - name: GF_DATABASE_SSL_MODE
+              value: "disable"

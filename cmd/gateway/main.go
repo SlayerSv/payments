@@ -42,6 +42,7 @@ func main() {
 	tp, err := tracing.InitTracer("gateway")
 	if err != nil {
 		logger.Error("Initializing tracing", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
@@ -51,6 +52,7 @@ func main() {
 	client, err := bao.NewBaoClient()
 	if err != nil {
 		logger.Error("Connecting to open bao", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 	var key crypto.PublicKey
 	for i := 0; i < 5; i++ {
@@ -65,12 +67,13 @@ func main() {
 	}
 	if err != nil {
 		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
 
 	clients, err := clients.InitClients(os.Getenv("AUTH_ADDR"), os.Getenv("USER_ADDR"), os.Getenv("WALLET_ADDR"), os.Getenv("TRANS_ADDR"), "gateway")
 	if err != nil {
 		logger.Error("Creating clients", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 	validate := validator.NewValidator()
 	authAdapter := adapter.NewAuth(clients.Auth)

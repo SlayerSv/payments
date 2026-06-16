@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-    "crypto"
+	"crypto"
 	"log/slog"
 	"net"
 	"os"
@@ -53,7 +53,7 @@ func main() {
 	}
 	if err != nil {
 		slog.Error("Connecting to database failed", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
 	defer dbpool.Close()
 	slog.Info("Successful connection to PostgreSQL")
@@ -65,33 +65,33 @@ func main() {
 	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
 		slog.Error("Opening tcp connection", slog.String("error", err.Error()), slog.String("port", "50053"))
-		return
+		os.Exit(1)
 	}
 	client, err := bao.NewBaoClient()
 	if err != nil {
 		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
-    var publicKey crypto.PublicKey
+	var publicKey crypto.PublicKey
 	for i := 0; i < 5; i++ {
 		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
 		if err == nil {
 			slog.Info("Successfully retrieved public key from OpenBao")
-			break
+			os.Exit(1)
 		}
-		
+
 		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
 		time.Sleep(2 * time.Second)
 	}
 	if err != nil {
 		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
-		return 
+		os.Exit(1)
 	}
-    
+
 	tp, err := tracing.InitTracer("wallet")
 	if err != nil {
 		slog.Error("Initializing tracer", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
@@ -121,5 +121,9 @@ func main() {
 
 	go outboxWorker.Start(ctx)
 
-	srv.Serve(lis)
+	err = srv.Serve(lis)
+	if err != nil {
+		slog.Info("Starting grpc server", slog.String("error", err.Error()))
+		os.Exit(1)
+	}
 }

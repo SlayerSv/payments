@@ -29,5 +29,6 @@ func main() {
 	err := http.ListenAndServe(addr, router)
 	if err != nil {
 		slog.Error("Starting server", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 }

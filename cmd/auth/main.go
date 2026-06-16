@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-    "crypto"
+	"crypto"
 	"log/slog"
 	"net"
 	"os"
@@ -51,7 +51,7 @@ func main() {
 	}
 	if err != nil {
 		slog.Error("Starting database failed", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
 	defer dbpool.Close()
 	slog.Info("Successful connection to PostgreSQL")
@@ -60,31 +60,31 @@ func main() {
 	tp, err := tracing.InitTracer("authorization")
 	if err != nil {
 		slog.Error("Init tracing", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
 	defer func() { _ = tp.Shutdown(context.Background()) }()
 
 	client, err := bao.NewBaoClient()
 	if err != nil {
 		slog.Error("Connecting to secret manager", slog.String("error", err.Error()))
-		return
+		os.Exit(1)
 	}
-    var publicKey crypto.PublicKey
+	var publicKey crypto.PublicKey
 	for i := 0; i < 10; i++ {
 		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
 		if err == nil {
 			slog.Info("Successfully retrieved public key from OpenBao")
 			break
 		}
-		
+
 		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
 		time.Sleep(2 * time.Second)
 	}
 	if err != nil {
 		slog.Error("Failed to retrieve public key after retries", slog.String("error", err.Error()))
-		return 
+		os.Exit(1)
 	}
-    
+
 	lis, _ := net.Listen("tcp", ":50051")
 
 	// Настраиваем сервер с ОДНИМ интерцептором
