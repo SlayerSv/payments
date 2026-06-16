@@ -77,7 +77,7 @@ func main() {
 		publicKey, err = jwttoken.GetPublicKey(client, "jwt_key")
 		if err == nil {
 			slog.Info("Successfully retrieved public key from OpenBao")
-			os.Exit(1)
+			break
 		}
 
 		slog.Warn("Public key not found yet, retrying...", slog.Int("attempt", i+1), slog.String("error", err.Error()))
