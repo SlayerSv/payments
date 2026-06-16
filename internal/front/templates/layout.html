@@ -203,12 +203,34 @@
         .toast.success { border-left-color: #45a049; }
         .toast.error { border-left-color: var(--error-text); }
         .toast.info { border-left-color: var(--primary); }
+
+        @media (max-width: 550px) {
+            body {
+                padding: 12px; /* Даем больше полезной ширины на телефонах */
+            }
+            
+            .header-title {
+                display: none; /* Полностью скрываем заголовок "Платежная система" */
+            }
+
+            .header-inner {
+                justify-content: center !important; /* Центрируем меню */
+                width: 100%;
+            }
+
+            .tabs {
+                justify-content: center;
+                flex-wrap: wrap; /* Если кнопок очень много, они аккуратно перенесутся */
+                gap: 15px;
+            }
+        }
     </style>
 </head>
 <body>
     <header class="box">
-        <div style="display: flex; justify-content: space-between; align-items: center">
-            <strong style="font-size: 30px;">Платежная система</strong>
+        <div class="header-inner" style="display: flex; justify-content: space-between; align-items: center">
+            <!-- Добавили класс header-title -->
+            <strong class="header-title" style="font-size: 30px;">Платежная система</strong>
             <nav class="tabs">
                 <button class="theme-toggle" id="theme-btn">🌙 Тема</button>
                 {{if .Authed}}
