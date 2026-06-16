@@ -127,7 +127,7 @@ func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 		},
 		"prettyDate": func(dateStr string) string {
 			date, _ := time.Parse(time.RFC3339, dateStr)
-			return date.Format("02.01.2006 15:04")
+			return date.Format("02.01.06 15:04")
 		},
 		"firstLetter": func(name string) string {
 			// Переводим строку в массив рун (символов), чтобы корректно читать UTF-8
