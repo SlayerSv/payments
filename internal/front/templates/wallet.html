@@ -72,15 +72,6 @@
                     <span style="color: #45a049;">+{{formatMoney .Amount}}</span>
                 {{end}}
             </td>
-            <td style="font-family: monospace; font-size: 0.9em;">
-                {{if eq .OpType "TRANSFER"}}
-                    {{if ne (strVal .ReceiverWalletID) $.Wallet.ID}}
-                        <span style="color: #666;">Кому:</span> {{strVal .ReceiverWalletID}}
-                    {{else}}
-                        <span style="color: #666;">От:</span> {{strVal .DonorWalletID}}
-                    {{end}}
-                {{end}}
-            </td>
         </tr>
         {{end}}
     </tbody>
