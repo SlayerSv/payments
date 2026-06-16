@@ -57,7 +57,7 @@
     <tbody>
         {{range .Transactions}}
         <tr>
-            <td>{{prettyDate .CompletedAt}}</td>
+            <td style="font-size: 0.9em;">{{prettyDate .CompletedAt}}</td>
             <td>
                 {{if eq .OpType "DEPOSIT"}}<span style="color: #45a049;">Пополнение</span>
                 {{else if eq .OpType "WITHDRAW"}}<span style="color: #e53935;">Вывод</span>
