@@ -94,11 +94,77 @@ func (a *App) walletPage(w http.ResponseWriter, r *http.Request) {
 
 	var tx models.TransactionHistory
 	_, _, _ = a.api(r.Context(), http.MethodGet, "/me/wallets/"+id+"/transactions", token, nil, &tx)
+	recentTx := tx.Transactions
+	if len(recentTx) > 5 {
+		recentTx = recentTx[:5]
+	}
 	a.render(w, "wallet", PageData{
 		Title:        "Счет",
 		Authed:       true,
 		Wallet:       wallet,
-		Transactions: tx.Transactions,
+		Transactions: recentTx,
+	})
+}
+
+func (a *App) walletHistoryPage(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("wallet_id")
+	token := a.token(r)
+
+	// Запрашиваем инфу о кошельке
+	var wallet models.WalletDTO
+	if _, _, err := a.api(r.Context(), http.MethodGet, "/me/wallets/"+id, token, nil, &wallet); err != nil {
+		a.render(w, "transactions", PageData{Title: "История", Authed: true, Error: err.Error()})
+		return
+	}
+
+	// Получаем ВСЕ транзакции
+	var tx models.TransactionHistory
+	_, _, _ = a.api(r.Context(), http.MethodGet, "/me/wallets/"+id+"/transactions", token, nil, &tx)
+
+	allTx := tx.Transactions
+	totalItems := len(allTx)
+	pageSize := 10
+
+	// Читаем параметр ?page=... из URL
+	pageStr := r.URL.Query().Get("page")
+	page := 1
+	if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+		page = p
+	}
+
+	// Считаем общее количество страниц
+	totalPages := (totalItems + pageSize - 1) / pageSize
+	if totalPages == 0 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	// Вырезаем нужный кусок (slice) для текущей страницы
+	start := (page - 1) * pageSize
+	end := start + pageSize
+	if end > totalItems {
+		end = totalItems
+	}
+
+	pageTx := []models.TransactionDTO{}
+	if start < totalItems {
+		pageTx = allTx[start:end]
+	}
+
+	// Отдаем в новый шаблон
+	a.render(w, "transactions", PageData{
+		Title:        "Вся история",
+		Authed:       true,
+		Wallet:       wallet,
+		Transactions: pageTx,
+		CurrentPage:  page,
+		TotalPages:   totalPages,
+		HasNext:      page < totalPages,
+		HasPrev:      page > 1,
+		NextPage:     page + 1,
+		PrevPage:     page - 1,
 	})
 }
 

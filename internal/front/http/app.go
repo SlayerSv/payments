@@ -30,6 +30,13 @@ type PageData struct {
 	User         models.UserDTO
 	Transactions []models.TransactionDTO
 	Wallet       models.WalletDTO
+
+	CurrentPage int
+	TotalPages  int
+	NextPage    int
+	PrevPage    int
+	HasNext     bool
+	HasPrev     bool
 }
 
 func (a *App) api(ctx context.Context, method, path, token string, in any, out any) ([]byte, int, error) {

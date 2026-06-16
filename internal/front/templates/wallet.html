@@ -85,6 +85,16 @@
         {{end}}
     </tbody>
 </table>
+
+<!-- КНОПКА ПЕРЕХОДА КО ВСЕЙ ИСТОРИИ -->
+<div style="margin-top: 20px; text-align: center;">
+    <a href="/me/wallets/{{.Wallet.ID}}/history" style="text-decoration: none;">
+        <button type="button" style="background-color: transparent; color: var(--primary); border: 2px solid var(--primary); width: 100%; font-weight: bold;">
+            Показать всю историю транзакций
+        </button>
+    </a>
+</div>
+
 {{else}}
     <p class="muted">Транзакций по этому счету пока не было.</p>
 {{end}}

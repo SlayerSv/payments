@@ -20,6 +20,7 @@ func (app *App) NewRouter() http.Handler {
 	mux.HandleFunc("POST /me/wallets", app.requireAuth(app.createWallet))
 	mux.HandleFunc("GET /me/wallets", app.requireAuth(app.walletsPage))
 	mux.HandleFunc("GET /me/wallets/{wallet_id}", app.requireAuth(app.walletPage))
+	mux.HandleFunc("GET /me/wallets/{wallet_id}/history", app.requireAuth(app.walletHistoryPage))
 	mux.HandleFunc("POST /me/wallets/{wallet_id}/deposit", app.requireAuth(app.deposit))
 	mux.HandleFunc("POST /me/wallets/{wallet_id}/withdraw", app.requireAuth(app.withdraw))
 	mux.HandleFunc("POST /me/wallets/{wallet_id}/transfer", app.requireAuth(app.transfer))
