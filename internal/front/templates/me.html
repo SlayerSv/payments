@@ -53,8 +53,9 @@
     const form = document.getElementById('profileForm');
     const password = document.getElementById('password');
     const confirm = document.getElementById('confirm_password');
-    const errorHint = document.getElementById('match-error');
-    const submitBtn = document.getElementById('submitBtn');
+    
+    const lengthError = document.getElementById('length-error');
+    const matchError = document.getElementById('match-error');
 
     function validate() {
         let isValid = true;
