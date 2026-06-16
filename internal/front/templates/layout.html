@@ -232,7 +232,7 @@
             <!-- Добавили класс header-title -->
             <strong class="header-title" style="font-size: 30px;">Платежная система</strong>
             <nav class="tabs">
-                <button class="theme-toggle" id="theme-btn">🌙 Тема</button>
+                <button class="theme-toggle" id="theme-btn" title="Сменить тему">🌙</button>
                 {{if .Authed}}
                     <a href="/me">Профиль</a>
                     <a href="/me/wallets">Счета</a>
@@ -299,7 +299,7 @@
 
         if (currentTheme === "dark") {
             document.documentElement.setAttribute("data-theme", "dark");
-            btn.innerText = "☀️ Светлая";
+            btn.innerText = "☀️";
         }
 
         btn.addEventListener("click", () => {
@@ -307,11 +307,11 @@
             if (theme === "dark") {
                 document.documentElement.removeAttribute("data-theme");
                 localStorage.setItem("theme", "light");
-                btn.innerText = "🌙 Темная";
+                btn.innerText = "🌙";
             } else {
                 document.documentElement.setAttribute("data-theme", "dark");
                 localStorage.setItem("theme", "dark");
-                btn.innerText = "☀️ Светлая";
+                btn.innerText = "☀️";
             }
         });
     </script>
