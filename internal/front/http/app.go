@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/SlayerSv/payments/internal/front/templates"
 	"github.com/SlayerSv/payments/internal/shared/models"
 )
 
@@ -111,8 +112,8 @@ func (a *App) setToken(w http.ResponseWriter, token string) {
 
 func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 	// Формируем пути к файлам шаблонов
-	layoutPath := "internal/front/templates/layout.html"
-	pagePath := fmt.Sprintf("internal/front/templates/%s.html", page)
+	layoutPath := "layout.html"
+	pagePath := fmt.Sprintf("%s.html", page)
 
 	// 1. Создаем объект шаблона и регистрируем функцию formatMoney
 	tmpl := template.New("layout").Funcs(template.FuncMap{
@@ -133,16 +134,16 @@ func (a *App) render(w http.ResponseWriter, page string, data PageData) {
 			// Переводим строку в массив рун (символов), чтобы корректно читать UTF-8
 			runes := []rune(name)
 			if len(runes) == 0 {
-				return "А" // Буква по умолчанию, если имя пустое
+				return "?" // Буква по умолчанию, если имя пустое
 			}
 			// Берем первый символ и приводим его к верхнему регистру
 			return strings.ToUpper(string(runes[0]))
 		},
 	})
 
-	t, err := tmpl.ParseFiles(layoutPath, pagePath)
+	t, err := tmpl.ParseFS(templates.FS, layoutPath, pagePath)
 	if err != nil {
-		log.Printf("Ошибка парсинга шаблона %s: %v", pagePath, err)
+		log.Printf("Ошибка парсинга шаблона %s из памяти: %v", pagePath, err)
 		http.Error(w, "Внутренняя ошибка сервера (проблема с шаблонами)", http.StatusInternalServerError)
 		return
 	}
