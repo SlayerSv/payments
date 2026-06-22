@@ -36,4 +36,4 @@ spec:
                 name: payment-config
           env:
             - name: BACKEND_ADDR
-              value: "http://gateway:8081"
+              value: "gateway:8081"
