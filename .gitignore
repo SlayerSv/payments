@@ -1,3 +1,4 @@
 *.exe
 *.env
 .terraform*
+variables.tf

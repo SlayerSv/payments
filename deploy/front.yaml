@@ -34,10 +34,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: payment-config
-          volumeMounts:
-                - name: html-volume
-                  mountPath: /app/internal/front/templates
-      volumes:
-        - name: html-volume
-          configMap:
-            name: frontend-templates
+          env:
+            - name: BACKEND_ADDR
+              value: "http://gateway:8081"
